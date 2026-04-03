@@ -27,3 +27,7 @@ export function listTasks(tasks: Task[], status?: TaskStatus): Task[] {
 export function markDone(tasks: Task[], id: number): Task[] {
   return tasks.map((t) => (t.id === id ? { ...t, status: "done" } : t));
 }
+
+export function deleteTask(tasks: Task[], id: number): Task[] {
+  return tasks.filter((t) => t.id !== id);
+}
