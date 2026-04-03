@@ -8,3 +8,7 @@ coverage/
 automation/node_modules/
 starter-test/node_modules/
 wt/
+
+# Runtime state for local agent orchestration
+automation/state/tasks/*.json
+automation/state/locks/

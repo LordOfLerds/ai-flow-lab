@@ -2,7 +2,7 @@
   "mcpServers": {
     "repo-context": {
       "command": "node",
-      "args": ["automation/dist/index.js"]
+      "args": ["/Users/l.erdkoenig/Dev/ai-flow-lab/automation/dist/index.js"]
     }
   }
 }
