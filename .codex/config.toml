@@ -1,3 +1,8 @@
 model = "gpt-5-codex"
 
-[mcp_servers]
+[mcp_servers.repo_context]
+command = "node"
+args = ["automation/dist/index.js"]
+required = true
+startup_timeout_sec = 20
+tool_timeout_sec = 30

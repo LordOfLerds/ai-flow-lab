@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "repo-context": {
+      "command": "node",
+      "args": ["automation/dist/index.js"]
+    }
+  }
+}

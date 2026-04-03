@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "feature/**", "bug/**", "danger/**", "analysis/**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: starter-test
+      - run: npm test
+        working-directory: starter-test
