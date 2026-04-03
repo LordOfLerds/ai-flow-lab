@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+.env
+.env.*
+*.log
+automation/node_modules/
+starter-test/node_modules/
+wt/
