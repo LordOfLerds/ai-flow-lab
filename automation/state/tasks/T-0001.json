@@ -5,7 +5,7 @@
   "lane_type": "analysis-lane",
   "executor": "claude",
   "state": "NEW",
-  "runtime_status": "RUNNING",
+  "runtime_status": "DONE",
   "branch_name": "analysis/T-0001-repo-analysis",
   "worktree_path": "/Users/l.erdkoenig/Dev/wt/T-0001",
   "spec_path": "",
@@ -13,5 +13,5 @@
   "brief_path": "",
   "owner_lock": "task:T-0001",
   "created_at": "2026-04-03T12:07:54.208Z",
-  "updated_at": "2026-04-03T12:08:08.461Z"
+  "updated_at": "2026-04-03T12:27:06.688Z"
 }
