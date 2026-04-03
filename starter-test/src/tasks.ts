@@ -25,5 +25,8 @@ export function listTasks(tasks: Task[], status?: TaskStatus): Task[] {
 }
 
 export function markDone(tasks: Task[], id: number): Task[] {
+  if (!tasks.some((t) => t.id === id)) {
+    throw new Error(`Task with id ${id} does not exist`);
+  }
   return tasks.map((t) => (t.id === id ? { ...t, status: "done" } : t));
 }
