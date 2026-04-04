@@ -15,11 +15,21 @@ const repoRoot = path.resolve(automationRoot, "..");
 const task = loadTask(taskId);
 
 const resultRel = task.result_path || `ai/results/${taskId}_executor_report.md`;
-const resultAbs = path.join(repoRoot, resultRel);
+const repoResultAbs = path.join(repoRoot, resultRel);
+const wtResultAbs = task.worktree_path ? path.join(task.worktree_path, resultRel) : null;
 
-if (!fs.existsSync(resultAbs)) {
-  console.error(`Executor report missing: ${resultRel}`);
+const hasRepoResult = fs.existsSync(repoResultAbs);
+const hasWtResult = wtResultAbs ? fs.existsSync(wtResultAbs) : false;
+
+if (!hasRepoResult && !hasWtResult) {
+  console.error(`Executor report missing in both repo and worktree: ${resultRel}`);
   process.exit(1);
+}
+
+if (!hasRepoResult && hasWtResult) {
+  fs.mkdirSync(path.dirname(repoResultAbs), { recursive: true });
+  fs.copyFileSync(wtResultAbs, repoResultAbs);
+  console.log(`Copied executor report from worktree to repo: ${resultRel}`);
 }
 
 execSync(`node scripts/propose-followups-api.mjs ${taskId}`, {

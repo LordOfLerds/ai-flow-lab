@@ -20,13 +20,29 @@ if (!taskId) {
 const task = loadTask(taskId);
 const root = repoRoot();
 
-const resultPath = task.result_path || `ai/results/${taskId}_executor_report.md`;
+const resultRel = task.result_path || `ai/results/${taskId}_executor_report.md`;
 const followupPath = task.followup_path || `ai/followups/${taskId}_followups.md`;
 
-const resultText = readRepoFile(resultPath);
-const specText = task.spec_path ? readRepoFile(task.spec_path) : "";
-const reviewText = task.review_path ? readRepoFile(task.review_path) : "";
-const briefText = task.brief_path ? readRepoFile(task.brief_path) : "";
+function readTaskArtifact(relPath) {
+  const repoAbs = path.join(root, relPath);
+  if (fs.existsSync(repoAbs)) {
+    return fs.readFileSync(repoAbs, "utf8");
+  }
+
+  if (task.worktree_path) {
+    const wtAbs = path.join(task.worktree_path, relPath);
+    if (fs.existsSync(wtAbs)) {
+      return fs.readFileSync(wtAbs, "utf8");
+    }
+  }
+
+  return "";
+}
+
+const resultText = readTaskArtifact(resultRel);
+const specText = task.spec_path ? readTaskArtifact(task.spec_path) : "";
+const reviewText = task.review_path ? readTaskArtifact(task.review_path) : "";
+const briefText = task.brief_path ? readTaskArtifact(task.brief_path) : "";
 
 let changedFiles = "";
 try {
