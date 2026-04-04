@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createTask, listTasks, markDone } from "../src/tasks.js";
+import { createTask, deleteTask, listTasks, markDone } from "../src/tasks.js";
 
 describe("tasks", () => {
   it("creates tasks", () => {
@@ -32,5 +32,17 @@ describe("tasks", () => {
     const done = listTasks(tasks, "done");
     expect(done).toHaveLength(1);
     expect(done[0].id).toBe(1);
+  });
+
+  it("deletes a task", () => {
+    let tasks = [];
+    tasks = createTask(tasks, "A");
+    tasks = createTask(tasks, "B");
+
+    tasks = deleteTask(tasks, 1);
+
+    expect(tasks).toHaveLength(1);
+    expect(tasks[0].id).toBe(2);
+    expect(tasks[0].title).toBe("B");
   });
 });
