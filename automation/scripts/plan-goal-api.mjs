@@ -47,7 +47,15 @@ Return ONLY markdown.
 Do not implement code.
 Break the goal into small, reviewable patch tasks.
 Prefer safe sequencing over broad refactors.
-If a decision is missing, surface it explicitly instead of inventing it.`;
+If a decision is missing, surface it explicitly instead of inventing it.
+
+Important formatting rule:
+For each candidate task, set:
+- should_spawn_now: true
+or
+- should_spawn_now: false
+
+Do not use yes/no for that field.`;
 
 const input = `
 Goal metadata:
@@ -106,6 +114,21 @@ writeRepoFile(planRel, markdown);
 const proposalDir = path.join(automationRoot, "state", "proposals");
 fs.mkdirSync(proposalDir, { recursive: true });
 
+function parseTruthy(value) {
+  const v = (value || "").trim().toLowerCase();
+  return [
+    "true",
+    "yes",
+    "y",
+    "1",
+    "spawn",
+    "spawn-now",
+    "spawn now",
+    "recommended",
+    "recommended-now"
+  ].includes(v);
+}
+
 const candidateBlocks = [...markdown.matchAll(/###\s+(P-\d+)\n([\s\S]*?)(?=\n###\s+P-\d+|\n##\s|$)/g)];
 
 const proposals = candidateBlocks.map((m, idx) => {
@@ -128,7 +151,7 @@ const proposals = candidateBlocks.map((m, idx) => {
     smallest_safe_scope: field("smallest_safe_scope"),
     depends_on: field("depends_on"),
     priority: field("priority") || "normal",
-    should_spawn_now: /^true$/i.test(field("should_spawn_now")),
+    should_spawn_now: parseTruthy(field("should_spawn_now")),
     created_at: new Date().toISOString(),
     index: idx + 1
   };

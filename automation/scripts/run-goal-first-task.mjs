@@ -25,14 +25,12 @@ if (proposalFiles.length === 0) {
 }
 
 const proposals = proposalFiles.map((f) => JSON.parse(fs.readFileSync(path.join(proposalDir, f), "utf8")));
+proposals.sort((a, b) => a.index - b.index);
+
 const spawnable = proposals.filter((p) => p.should_spawn_now);
+const chosen = spawnable.length > 0 ? spawnable[0] : proposals[0];
 
-if (spawnable.length === 0) {
-  throw new Error(`No spawnable proposals for ${goalId}`);
-}
-
-spawnable.sort((a, b) => a.index - b.index);
-const chosen = spawnable[0];
+console.log(`Chosen proposal: ${chosen.proposal_id} (${chosen.title})`);
 
 run(`node scripts/spawn-from-goal-proposal.mjs ${chosen.proposal_id} ${firstTaskId}`);
 run(`node scripts/run-task.mjs ${firstTaskId}`);
