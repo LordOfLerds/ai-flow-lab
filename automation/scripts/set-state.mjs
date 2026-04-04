@@ -17,6 +17,7 @@ const allowedStates = [
   "PR_OPEN",
   "REVIEWED",
   "MERGED",
+  "FOLLOWUPS_PROPOSED",
   "RETRO_CAPTURED"
 ];
 

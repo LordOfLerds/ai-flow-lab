@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
-const [taskId, laneType, title, executor] = process.argv.slice(2);
+const [taskId, laneType, title, executor, parentTaskId = "", origin = "user"] = process.argv.slice(2);
 
 if (!taskId || !laneType || !title || !executor) {
-  console.error("Usage: node scripts/new-task.mjs <TASK_ID> <LANE_TYPE> <TITLE> <EXECUTOR>");
+  console.error("Usage: node scripts/new-task.mjs <TASK_ID> <LANE_TYPE> <TITLE> <EXECUTOR> [PARENT_TASK_ID] [ORIGIN]");
   process.exit(1);
 }
 
@@ -33,6 +33,8 @@ const task = {
   repo: "ai-flow-lab",
   lane_type: laneType,
   executor,
+  parent_task_id: parentTaskId,
+  origin,
   state: "NEW",
   runtime_status: "QUEUED",
   branch_name: branchName,
@@ -40,6 +42,8 @@ const task = {
   spec_path: "",
   review_path: "",
   brief_path: "",
+  result_path: `ai/results/${taskId}_executor_report.md`,
+  followup_path: `ai/followups/${taskId}_followups.md`,
   owner_lock: `task:${taskId}`,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString()
