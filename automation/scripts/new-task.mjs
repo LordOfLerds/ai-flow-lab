@@ -1,12 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+import { normalizeLaneType, normalizeExecutor } from "./_llm-utils.mjs";
 
-const [taskId, laneType, title, executor, parentTaskId = "", origin = "user"] = process.argv.slice(2);
+const [taskId, rawLaneType, title, rawExecutor, parentTaskId = "", origin = "user"] = process.argv.slice(2);
 
-if (!taskId || !laneType || !title || !executor) {
+if (!taskId || !rawLaneType || !title || !rawExecutor) {
   console.error("Usage: node scripts/new-task.mjs <TASK_ID> <LANE_TYPE> <TITLE> <EXECUTOR> [PARENT_TASK_ID] [ORIGIN]");
   process.exit(1);
 }
+
+const laneType = normalizeLaneType(rawLaneType);
+const executor = normalizeExecutor(rawExecutor, laneType);
 
 const root = path.resolve(process.cwd());
 const stateDir = path.join(root, "state", "tasks");

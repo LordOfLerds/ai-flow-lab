@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import { normalizeLaneType, normalizeExecutor } from "./_llm-utils.mjs";
 
 const [proposalId, newTaskId] = process.argv.slice(2);
 
@@ -19,18 +20,22 @@ if (!fs.existsSync(proposalFile)) {
 
 const proposal = JSON.parse(fs.readFileSync(proposalFile, "utf8"));
 
-const cmd = [
-  "node",
-  "scripts/new-task.mjs",
-  newTaskId,
-  proposal.lane_type,
-  JSON.stringify(proposal.title),
-  proposal.executor,
-  "",
-  "goal-planner"
-].join(" ");
+const laneType = normalizeLaneType(proposal.lane_type);
+const executor = normalizeExecutor(proposal.executor, laneType);
 
-execSync(cmd, { cwd: automationRoot, stdio: "inherit", shell: true });
+execFileSync(
+  "node",
+  [
+    "scripts/new-task.mjs",
+    newTaskId,
+    laneType,
+    proposal.title,
+    executor,
+    "",
+    "goal-planner"
+  ],
+  { cwd: automationRoot, stdio: "inherit" }
+);
 
 const taskFile = path.join(automationRoot, "state", "tasks", `${newTaskId}.json`);
 const task = JSON.parse(fs.readFileSync(taskFile, "utf8"));
