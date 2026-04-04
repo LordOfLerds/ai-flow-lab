@@ -17,6 +17,12 @@ describe("tasks", () => {
     expect(tasks[0].status).toBe("done");
   });
 
+  it("throws when marking a non-existing task done", () => {
+    let tasks = [];
+    tasks = createTask(tasks, "A");
+    expect(() => markDone(tasks, 999)).toThrow("Task with id 999 does not exist");
+  });
+
   it("filters done tasks", () => {
     let tasks = [];
     tasks = createTask(tasks, "A");
