@@ -17,6 +17,8 @@ const branchPrefixMap = {
   "bug-lane": "bug",
   "feature-lane": "feature",
   "danger-lane": "danger",
+  "docs-lane": "docs",
+  "test-lane": "test"
 };
 
 const slug = title
