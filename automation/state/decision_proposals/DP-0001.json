@@ -1,0 +1,19 @@
+{
+  "decision_proposal_id": "DP-0001",
+  "source_task_id": "",
+  "source_goal_id": "",
+  "topic": "Should deleteTask become documented domain behavior?",
+  "rationale": "",
+  "blocking_scope": "task",
+  "options": [
+    "document-as-is",
+    "replace-with-archive",
+    "keep-both",
+    "remove-entirely"
+  ],
+  "recommended_default": "",
+  "urgency": "high",
+  "status": "resolved",
+  "created_at": "2026-04-04T22:28:56.020Z",
+  "resolved_at": "2026-04-04T22:29:16.537Z"
+}

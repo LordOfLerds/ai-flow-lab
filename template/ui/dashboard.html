@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Flow Lab - Automation Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background-color: #1c2128;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .mode-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #238636;
+            color: #aeffb3;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background-color: #30363d;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid #444c56;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-switch.active {
+            background-color: #238636;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 23px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #238636;
+            color: #ffffff;
+            border: 1px solid #2ea043;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #2ea043;
+            border-color: #3fb950;
+        }
+
+        button:active {
+            background-color: #238636;
+        }
+
+        button.secondary {
+            background-color: #21262d;
+            border-color: #444c56;
+            color: #c9d1d9;
+        }
+
+        button.secondary:hover {
+            background-color: #30363d;
+            border-color: #58a6ff;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 40px;
+        }
+
+        section > h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
+            color: #79c0ff;
+        }
+
+        /* Goals Overview */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .goal-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .goal-card:hover {
+            border-color: #58a6ff;
+            box-shadow: 0 0 12px rgba(88, 166, 255, 0.1);
+        }
+
+        .goal-card.expanded {
+            grid-column: 1 / -1;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .goal-title {
+            font-size: 14px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .goal-id {
+            font-size: 11px;
+            color: #8b949e;
+            font-family: monospace;
+            margin-bottom: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 2px;
+        }
+
+        .badge.state-new {
+            background-color: #484f58;
+            color: #c9d1d9;
+        }
+
+        .badge.state-planned {
+            background-color: #1f6feb;
+            color: #79c0ff;
+        }
+
+        .badge.state-in-progress {
+            background-color: #9e6a03;
+            color: #d29922;
+        }
+
+        .badge.state-complete {
+            background-color: #238636;
+            color: #aeffb3;
+        }
+
+        .badge.priority-low {
+            background-color: #484f58;
+            color: #c9d1d9;
+        }
+
+        .badge.priority-medium {
+            background-color: #9e6a03;
+            color: #d29922;
+        }
+
+        .badge.priority-high {
+            background-color: #da3633;
+            color: #ffb6c1;
+        }
+
+        .goal-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .goal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .goal-actions button {
+            flex: 1;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .goal-tasks {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #30363d;
+        }
+
+        .goal-card.expanded .goal-tasks {
+            display: block;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .task-item {
+            background-color: #0d1117;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border-left: 3px solid #58a6ff;
+            font-size: 12px;
+        }
+
+        /* Kanban */
+        .kanban-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .kanban-column {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kanban-column-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: #79c0ff;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kanban-count {
+            background-color: #30363d;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        .kanban-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .task-card {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .task-card:hover {
+            border-color: #58a6ff;
+            box-shadow: 0 0 8px rgba(88, 166, 255, 0.1);
+        }
+
+        .task-id {
+            font-size: 11px;
+            color: #8b949e;
+            font-family: monospace;
+            margin-bottom: 4px;
+        }
+
+        .task-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #c9d1d9;
+        }
+
+        .task-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 11px;
+        }
+
+        .lane-badge {
+            padding: 2px 6px;
+            background-color: #1f6feb;
+            color: #79c0ff;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .executor-badge {
+            padding: 2px 6px;
+            background-color: #8b949e;
+            color: #0d1117;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .runtime-status {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .runtime-status.running {
+            background-color: #238636;
+            color: #aeffb3;
+        }
+
+        .runtime-status.idle {
+            background-color: #484f58;
+            color: #c9d1d9;
+        }
+
+        .runtime-status.error {
+            background-color: #da3633;
+            color: #ffb6c1;
+        }
+
+        /* Prompt Queue */
+        .prompt-queue {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .prompt-item {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .prompt-header:hover {
+            opacity: 0.8;
+        }
+
+        .prompt-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .prompt-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .prompt-status.pending {
+            background-color: #9e6a03;
+            color: #d29922;
+        }
+
+        .prompt-status.responded {
+            background-color: #238636;
+            color: #aeffb3;
+        }
+
+        .expand-icon {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .prompt-content {
+            display: none;
+        }
+
+        .prompt-item.expanded .prompt-content {
+            display: block;
+        }
+
+        .prompt-text {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .prompt-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .prompt-buttons button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .response-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+
+        .response-textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        /* Token Usage */
+        .token-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .token-stat {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .token-label {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+
+        .token-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #79c0ff;
+            font-family: monospace;
+        }
+
+        .usage-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .usage-table thead {
+            background-color: #0d1117;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .usage-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #79c0ff;
+        }
+
+        .usage-table td {
+            padding: 12px;
+            border-top: 1px solid #30363d;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .usage-table tbody tr:hover {
+            background-color: #0d1117;
+        }
+
+        .token-bar {
+            display: inline-block;
+            background-color: #238636;
+            height: 20px;
+            border-radius: 3px;
+            min-width: 4px;
+            vertical-align: middle;
+        }
+
+        .token-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 20px;
+        }
+
+        /* Activity Log */
+        .activity-log {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-entry {
+            display: flex;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #30363d;
+            font-size: 12px;
+        }
+
+        .activity-entry:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            color: #8b949e;
+            font-family: monospace;
+            flex-shrink: 0;
+            min-width: 100px;
+        }
+
+        .activity-message {
+            color: #c9d1d9;
+            flex: 1;
+        }
+
+        .activity-new {
+            color: #79c0ff;
+        }
+
+        /* New Goal Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #c9d1d9;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b949e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kanban-container {
+                grid-template-columns: 1fr;
+            }
+
+            .token-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading and Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8b949e;
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Decision Gates */
+        .decisions-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .decision-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #d29922;
+        }
+
+        .decision-card.resolved {
+            border-left-color: #238636;
+            opacity: 0.7;
+        }
+
+        .decision-card .decision-topic {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 8px;
+        }
+
+        .decision-card .decision-meta {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+
+        .decision-card .decision-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .decision-card .decision-option-btn {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+
+        .decision-card .decision-option-btn:hover {
+            background-color: #238636;
+            border-color: #238636;
+            color: #fff;
+        }
+
+        .decision-card .decision-rationale-input {
+            width: 100%;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            padding: 8px;
+            font-size: 13px;
+            margin-top: 8px;
+            resize: vertical;
+        }
+
+        .decision-urgency-high { color: #f85149; }
+        .decision-urgency-medium { color: #d29922; }
+        .decision-urgency-low { color: #8b949e; }
+
+        .decision-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .decision-badge.open { background-color: #9e6a03; color: #fff; }
+        .decision-badge.resolved { background-color: #238636; color: #fff; }
+
+        /* PR Drafts */
+        .pr-draft-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .pr-draft-card .pr-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 8px;
+        }
+        .pr-draft-card .pr-meta {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 6px;
+        }
+        .pr-draft-card .pr-branch {
+            font-family: monospace;
+            font-size: 12px;
+            color: #7ee787;
+            background: #0d1117;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .pr-draft-card .pr-validation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .pr-draft-card .pr-check {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #238636;
+            color: #fff;
+        }
+        .pr-draft-card .pr-check.missing {
+            background: #9e6a03;
+        }
+        .pr-draft-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #1f6feb;
+            color: #fff;
+        }
+        .tasks-without-drafts {
+            font-size: 13px;
+            color: #8b949e;
+            margin-top: 8px;
+        }
+        .tasks-without-drafts .task-link {
+            color: #d29922;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <h1>AI Flow Lab</h1>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Connected</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="mode-badge" id="modeIndicator">API Mode</div>
+                <div id="e2eResultContainer" style="display:inline-flex;align-items:center;gap:4px;"></div>
+                <div class="toggle-group">
+                    <label for="autoRefresh" style="font-size: 12px; color: #8b949e; margin: 0;">Auto-refresh</label>
+                    <div class="toggle-switch" id="autoRefresh"></div>
+                </div>
+                <button onclick="loadData()">Refresh</button>
+                <button class="secondary" onclick="openNewGoalModal()">+ New Goal</button>
+            </div>
+        </header>
+
+        <!-- Goals Overview -->
+        <section>
+            <h2>Goals Overview</h2>
+            <div class="goals-grid" id="goalsContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎯</div>
+                    <p>No goals yet. Create one to get started.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Task Pipeline -->
+        <section>
+            <h2>Task Pipeline</h2>
+            <div class="kanban-container" id="kanbanContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <p>No tasks in pipeline. Create a goal to generate tasks.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prompt Queue (App Mode) -->
+        <section id="promptSection" style="display: none;">
+            <h2>Prompt Queue</h2>
+            <div class="prompt-queue" id="promptQueue">
+                <div class="empty-state">
+                    <div class="empty-state-icon">✨</div>
+                    <p>No pending prompts.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Decision Gates -->
+        <section id="decisionSection">
+            <h2>Decision Gates</h2>
+            <div class="decisions-container">
+                <div class="decisions-grid" id="openDecisionsContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚖️</div>
+                        <p>No open decision proposals.</p>
+                    </div>
+                </div>
+                <div id="resolvedDecisionsContainer" style="margin-top: 20px;"></div>
+            </div>
+        </section>
+
+        <!-- PR Drafts -->
+        <section id="prDraftsSection">
+            <h2>PR Drafts</h2>
+            <div class="pr-drafts-container">
+                <div id="prDraftsGrid" class="decisions-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No PR drafts yet.</p>
+                    </div>
+                </div>
+                <div id="tasksWithoutDrafts" style="margin-top: 20px;"></div>
+            </div>
+        </section>
+
+        <!-- Token Usage -->
+        <section>
+            <h2>Token Usage</h2>
+            <div class="token-summary">
+                <div class="token-stat">
+                    <div class="token-label">Total Tokens</div>
+                    <div class="token-value" id="totalTokens">0</div>
+                </div>
+                <div class="token-stat">
+                    <div class="token-label">Input Tokens</div>
+                    <div class="token-value" id="inputTokens">0</div>
+                </div>
+                <div class="token-stat">
+                    <div class="token-label">Output Tokens</div>
+                    <div class="token-value" id="outputTokens">0</div>
+                </div>
+                <div class="token-stat">
+                    <div class="token-label">Task Count</div>
+                    <div class="token-value" id="taskCount">0</div>
+                </div>
+            </div>
+            <table class="usage-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Task ID</th>
+                        <th>Step</th>
+                        <th>Provider</th>
+                        <th>Input</th>
+                        <th>Output</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="usageTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #8b949e;">No usage data yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Activity Log -->
+        <section>
+            <h2>Activity Log</h2>
+            <div class="activity-log" id="activityLog">
+                <div class="activity-entry">
+                    <div class="activity-time">--:--:--</div>
+                    <div class="activity-message">Waiting for activity...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- New Goal Modal -->
+    <div class="modal" id="newGoalModal">
+        <div class="modal-content">
+            <div class="modal-header">Create New Goal</div>
+            <form id="newGoalForm" onsubmit="handleNewGoalSubmit(event)">
+                <div class="form-group">
+                    <label for="goalId">Goal ID</label>
+                    <input type="text" id="goalId" required placeholder="e.g., goal-001">
+                </div>
+                <div class="form-group">
+                    <label for="goalTitle">Title</label>
+                    <input type="text" id="goalTitle" required placeholder="Goal title">
+                </div>
+                <div class="form-group">
+                    <label for="goalPriority">Priority</label>
+                    <select id="goalPriority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="secondary" onclick="closeNewGoalModal()">Cancel</button>
+                    <button type="submit">Create Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentMode = 'API';
+        let autoRefreshEnabled = false;
+        let autoRefreshInterval = null;
+        const STATE_COLORS = {
+            'NEW': '#484f58',
+            'PLANNED': '#1f6feb',
+            'IN_PROGRESS': '#9e6a03',
+            'COMPLETE': '#238636',
+            'BLOCKED_ON_DECISION': '#da3633',
+            'WAITING_FOR_DECISION': '#d29922',
+            'READY_AFTER_DECISION': '#238636'
+        };
+
+        const TASK_STATES = [
+            'NEW', 'ARCHITECTED', 'CRITIQUED', 'SYNTHESIZED',
+            'IMPLEMENTING', 'PR_OPEN', 'REVIEWED', 'MERGED', 'FOLLOWUPS_PROPOSED',
+            'PR_DRAFTED',
+            'BLOCKED_ON_DECISION', 'WAITING_FOR_DECISION', 'READY_AFTER_DECISION'
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadData();
+        });
+
+        function setupEventListeners() {
+            const autoRefreshToggle = document.getElementById('autoRefresh');
+            autoRefreshToggle.addEventListener('click', toggleAutoRefresh);
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const toggle = document.getElementById('autoRefresh');
+            toggle.classList.toggle('active');
+
+            if (autoRefreshEnabled) {
+                autoRefreshInterval = setInterval(loadData, 5000);
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        function openNewGoalModal() {
+            document.getElementById('newGoalModal').classList.add('active');
+        }
+
+        function closeNewGoalModal() {
+            document.getElementById('newGoalModal').classList.remove('active');
+            document.getElementById('newGoalForm').reset();
+        }
+
+        async function handleNewGoalSubmit(event) {
+            event.preventDefault();
+            const goalId = document.getElementById('goalId').value;
+            const goalTitle = document.getElementById('goalTitle').value;
+            const goalPriority = document.getElementById('goalPriority').value;
+
+            try {
+                // This would be implemented by the backend
+                console.log('Creating goal:', { goalId, goalTitle, goalPriority });
+                closeNewGoalModal();
+                await loadData();
+            } catch (error) {
+                console.error('Error creating goal:', error);
+                alert('Failed to create goal. Check console for details.');
+            }
+        }
+
+        async function loadData() {
+            try {
+                updateStatus('loading');
+                const [stateData, usageData, promptData] = await Promise.all([
+                    fetch('/api/state').then(r => r.json()),
+                    fetch('/api/usage').then(r => r.json()),
+                    fetch('/api/prompts').then(r => r.json())
+                ]);
+
+                updateMode(stateData.mode || 'API');
+                renderE2EResult(stateData.e2e_test_result || null);
+                renderGoals(stateData.goals || []);
+                renderKanban(stateData.tasks || []);
+                renderDecisions(stateData.decision_proposals || [], stateData.decisions || []);
+                renderPRDrafts(stateData.pr_drafts || [], stateData.tasks || []);
+                renderPromptQueue(promptData || []);
+                renderTokenUsage(usageData || []);
+                updateActivityLog(stateData.tasks || []);
+                updateStatus('connected');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                updateStatus('error');
+                // Show empty states with error message
+                document.getElementById('statusText').textContent = 'Connection failed';
+            }
+        }
+
+        function updateStatus(status) {
+            const dot = document.querySelector('.status-dot');
+            if (status === 'loading') {
+                dot.classList.add('loading');
+                document.getElementById('statusText').textContent = 'Syncing...';
+            } else if (status === 'connected') {
+                dot.classList.remove('loading');
+                document.getElementById('statusText').textContent = 'Connected';
+            } else if (status === 'error') {
+                dot.classList.remove('loading');
+                dot.style.backgroundColor = '#da3633';
+            }
+        }
+
+        function updateMode(mode) {
+            currentMode = mode;
+            const badge = document.getElementById('modeIndicator');
+            badge.textContent = mode + ' Mode';
+            if (mode === 'MOCK') {
+                badge.style.backgroundColor = '#8957e5';
+            } else if (mode === 'APP') {
+                badge.style.backgroundColor = '#9e6a03';
+            } else {
+                badge.style.backgroundColor = '#238636';
+            }
+
+            const promptSection = document.getElementById('promptSection');
+            promptSection.style.display = mode === 'APP' ? 'block' : 'none';
+        }
+
+        function renderE2EResult(result) {
+            const container = document.getElementById('e2eResultContainer');
+            if (!container) return;
+            if (!result) {
+                container.innerHTML = '<span style="color:#8b949e;font-size:12px;">No test run yet</span>';
+                return;
+            }
+            const allPassed = result.failed === 0;
+            const color = allPassed ? '#3fb950' : '#da3633';
+            const icon = allPassed ? '✓' : '✗';
+            const ago = timeAgo(result.timestamp);
+            container.innerHTML = `
+                <span style="color:${color};font-weight:600;">${icon} ${result.passed}/${result.total} passed</span>
+                <span style="color:#8b949e;font-size:11px;margin-left:8px;">${result.elapsed_seconds}s · ${ago}</span>
+            `;
+        }
+
+        function timeAgo(ts) {
+            const diff = Date.now() - new Date(ts).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return mins + 'm ago';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            return Math.floor(hrs / 24) + 'd ago';
+        }
+
+        function renderGoals(goals) {
+            const container = document.getElementById('goalsContainer');
+
+            if (goals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <p>No goals yet. Create one to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = goals.map(goal => `
+                <div class="goal-card" id="goal-${goal.id}">
+                    <div class="goal-header">
+                        <div style="flex: 1;">
+                            <div class="goal-id">${goal.id}</div>
+                            <div class="goal-title">${escapeHtml(goal.title)}</div>
+                        </div>
+                        <span class="expand-icon" onclick="toggleGoalExpand('${goal.id}')">▼</span>
+                    </div>
+                    <div class="goal-meta">
+                        <span class="badge state-${goal.state.toLowerCase()}">${goal.state}</span>
+                        <span class="badge priority-${goal.priority.toLowerCase()}">${goal.priority}</span>
+                    </div>
+                    <div class="goal-tasks">
+                        ${goal.tasks ? goal.tasks.map(task => `
+                            <div class="task-item">
+                                <strong>${task.id}</strong>: ${escapeHtml(task.title)}
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    <div class="goal-actions">
+                        <button onclick="runGoal('${goal.id}')">Run Goal</button>
+                        <button class="secondary" onclick="toggleGoalExpand('${goal.id}')">Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleGoalExpand(goalId) {
+            const card = document.getElementById(`goal-${goalId}`);
+            card.classList.toggle('expanded');
+        }
+
+        async function runGoal(goalId) {
+            try {
+                const response = await fetch('/api/run/goal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ goalId, firstTaskId: `${goalId}-task-1` })
+                });
+                if (response.ok) {
+                    await loadData();
+                } else {
+                    alert('Failed to run goal');
+                }
+            } catch (error) {
+                console.error('Error running goal:', error);
+                alert('Error running goal');
+            }
+        }
+
+        function renderKanban(tasks) {
+            const container = document.getElementById('kanbanContainer');
+
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No tasks in pipeline. Create a goal to generate tasks.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tasksByState = {};
+            TASK_STATES.forEach(state => tasksByState[state] = []);
+            tasks.forEach(task => {
+                if (tasksByState[task.state]) {
+                    tasksByState[task.state].push(task);
+                }
+            });
+
+            container.innerHTML = TASK_STATES.map(state => {
+                const stateTasks = tasksByState[state];
+                return `
+                    <div class="kanban-column">
+                        <div class="kanban-column-header">
+                            <span>${state}</span>
+                            <span class="kanban-count">${stateTasks.length}</span>
+                        </div>
+                        <div class="kanban-cards">
+                            ${stateTasks.length === 0 ? '<div style="color: #8b949e; font-size: 12px; padding: 20px; text-align: center;">Empty</div>' : stateTasks.map(task => `
+                                <div class="task-card">
+                                    <div class="task-id">${task.id}</div>
+                                    <div class="task-title">${escapeHtml(task.title)}</div>
+                                    <div class="task-badges">
+                                        ${task.executor ? `<span class="executor-badge">${task.executor}</span>` : ''}
+                                        ${task.lane ? `<span class="lane-badge">${task.lane}</span>` : ''}
+                                        <span class="runtime-status ${(task.runtime_status || '').toLowerCase()}">
+                                            ${task.runtime_status || 'IDLE'}
+                                        </span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPromptQueue(prompts) {
+            const container = document.getElementById('promptQueue');
+
+            if (prompts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✨</div>
+                        <p>No pending prompts.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = prompts.map(prompt => `
+                <div class="prompt-item" id="prompt-${prompt.id}">
+                    <div class="prompt-header" onclick="togglePromptExpand('${prompt.id}')">
+                        <div class="prompt-meta">
+                            <span style="font-weight: 600;">${prompt.taskId}</span>
+                            <span>•</span>
+                            <span>${prompt.step}</span>
+                            <span class="prompt-status ${prompt.status.toLowerCase()}">${prompt.status}</span>
+                        </div>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="prompt-content">
+                        <div class="prompt-text">${escapeHtml(prompt.prompt)}</div>
+                        <div class="prompt-buttons">
+                            <button onclick="copyPromptToClipboard('${prompt.id}')">Copy Prompt</button>
+                        </div>
+                        <textarea class="response-textarea" id="response-${prompt.id}" placeholder="Paste response here..."></textarea>
+                        <button onclick="submitPromptResponse('${prompt.id}')" style="width: 100%;">Submit Response</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function togglePromptExpand(promptId) {
+            const item = document.getElementById(`prompt-${promptId}`);
+            item.classList.toggle('expanded');
+        }
+
+        function copyPromptToClipboard(promptId) {
+            const item = document.getElementById(`prompt-${promptId}`);
+            const promptText = item.querySelector('.prompt-text').textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                const button = event.target;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy Prompt';
+                }, 2000);
+            });
+        }
+
+        async function submitPromptResponse(promptId) {
+            const responseText = document.getElementById(`response-${promptId}`).value;
+            if (!responseText.trim()) {
+                alert('Please enter a response');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/prompts/${promptId}/respond`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ response: responseText })
+                });
+                if (response.ok) {
+                    await loadData();
+                } else {
+                    alert('Failed to submit response');
+                }
+            } catch (error) {
+                console.error('Error submitting response:', error);
+                alert('Error submitting response');
+            }
+        }
+
+        function renderDecisions(proposals, decisions) {
+            const openContainer = document.getElementById('openDecisionsContainer');
+            const resolvedContainer = document.getElementById('resolvedDecisionsContainer');
+
+            const openProposals = proposals.filter(p => p.status === 'open');
+            const resolvedProposals = proposals.filter(p => p.status === 'resolved');
+
+            if (openProposals.length === 0 && resolvedProposals.length === 0 && decisions.length === 0) {
+                openContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚖️</div>
+                        <p>No decision proposals yet. The planner will create them when owner input is needed.</p>
+                    </div>`;
+                resolvedContainer.innerHTML = '';
+                return;
+            }
+
+            // Render open proposals
+            if (openProposals.length > 0) {
+                openContainer.innerHTML = openProposals.map(p => `
+                    <div class="decision-card" data-proposal-id="${p.decision_proposal_id}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="decision-topic">${p.topic}</div>
+                            <div>
+                                <span class="decision-badge open">OPEN</span>
+                                <span class="decision-urgency-${p.urgency || 'medium'}" style="margin-left: 8px; font-size: 12px;">${(p.urgency || 'medium').toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div class="decision-meta">
+                            ${p.source_task_id ? 'Task: ' + p.source_task_id + ' | ' : ''}
+                            ${p.source_goal_id ? 'Goal: ' + p.source_goal_id + ' | ' : ''}
+                            Scope: ${p.blocking_scope || 'task'} |
+                            Created: ${new Date(p.created_at).toLocaleString()}
+                        </div>
+                        <div style="font-size: 13px; color: #8b949e; margin-bottom: 8px;">${p.rationale || ''}</div>
+                        ${p.options && p.options.length > 0 ? `
+                            <div class="decision-options">
+                                ${p.options.map(opt => `
+                                    <button class="decision-option-btn" onclick="resolveDecision('${p.decision_proposal_id}', '${opt.replace(/'/g, "\\'")}')">
+                                        ${opt}${p.recommended_default === opt ? ' ★' : ''}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        <textarea class="decision-rationale-input" id="rationale-${p.decision_proposal_id}"
+                            placeholder="Optional: Add rationale for your decision..."></textarea>
+                    </div>
+                `).join('');
+            } else {
+                openContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✅</div>
+                        <p>All decisions resolved!</p>
+                    </div>`;
+            }
+
+            // Render resolved decisions
+            if (decisions.length > 0) {
+                resolvedContainer.innerHTML = `
+                    <h3 style="color: #8b949e; margin-bottom: 12px;">Resolved Decisions</h3>
+                    ${decisions.map(d => `
+                        <div class="decision-card resolved">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="decision-topic">${d.topic}</div>
+                                <span class="decision-badge resolved">${d.decision_id}</span>
+                            </div>
+                            <div class="decision-meta">
+                                Selected: <strong style="color: #58a6ff;">${d.selected_option}</strong> |
+                                ${d.rationale ? 'Rationale: ' + d.rationale + ' | ' : ''}
+                                ${new Date(d.created_at).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+
+        async function resolveDecision(proposalId, selectedOption) {
+            const rationaleEl = document.getElementById('rationale-' + proposalId);
+            const rationale = rationaleEl ? rationaleEl.value : '';
+
+            try {
+                const resp = await fetch('/api/decisions/resolve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ proposalId, selectedOption, rationale })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    loadData();
+                } else {
+                    alert('Failed to resolve decision: ' + (result.error || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('Error resolving decision: ' + e.message);
+            }
+        }
+
+        function renderPRDrafts(prDrafts, tasks) {
+            const grid = document.getElementById('prDraftsGrid');
+            const noDraftContainer = document.getElementById('tasksWithoutDrafts');
+
+            // Find completed tasks without PR drafts
+            const draftedTaskIds = new Set(prDrafts.map(d => d.task_id));
+            const completedStates = ['MERGED', 'FOLLOWUPS_PROPOSED', 'REVIEWED', 'PR_DRAFTED'];
+            const completedRuntimeStatuses = ['DONE', 'COMPLETED'];
+            const tasksWithoutDraft = tasks.filter(t =>
+                (completedStates.includes(t.state) || completedRuntimeStatuses.includes(t.runtime_status)) &&
+                !draftedTaskIds.has(t.task_id)
+            );
+
+            if (prDrafts.length === 0 && tasksWithoutDraft.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No PR drafts yet. They are generated when tasks are finalized.</p>
+                    </div>`;
+                noDraftContainer.innerHTML = '';
+                return;
+            }
+
+            if (prDrafts.length > 0) {
+                grid.innerHTML = prDrafts.map(d => {
+                    const v = d.validation || {};
+                    const checks = [
+                        { label: 'Spec', ok: v.spec_exists },
+                        { label: 'Review', ok: v.review_exists },
+                        { label: 'Brief', ok: v.brief_exists },
+                        { label: 'Result', ok: v.result_exists },
+                        { label: 'Follow-ups', ok: v.followups_exist },
+                    ];
+                    if (d.linked_decisions?.length > 0) {
+                        checks.push({ label: 'Decisions', ok: v.all_decisions_resolved });
+                    }
+                    return `
+                        <div class="pr-draft-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="pr-title">${d.title || d.task_id}</div>
+                                <span class="pr-draft-badge">DRAFT</span>
+                            </div>
+                            <div class="pr-meta">
+                                ${d.task_id} |
+                                ${d.parent_goal_id ? 'Goal: ' + d.parent_goal_id + ' | ' : ''}
+                                ${d.linked_decisions?.length ? 'Decisions: ' + d.linked_decisions.join(', ') + ' | ' : ''}
+                                ${new Date(d.created_at).toLocaleString()}
+                            </div>
+                            <div class="pr-meta">
+                                <span class="pr-branch">${d.branch_name}</span>
+                                <span style="margin: 0 4px;">→</span>
+                                <span class="pr-branch">${d.base_branch}</span>
+                            </div>
+                            <div class="pr-validation">
+                                ${checks.map(c => `<span class="pr-check ${c.ok ? '' : 'missing'}">${c.ok ? '✓' : '✗'} ${c.label}</span>`).join('')}
+                            </div>
+                            ${d.summary ? `<div style="font-size: 13px; color: #8b949e; margin-top: 8px;">${d.summary}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No PR drafts generated yet.</p>
+                    </div>`;
+            }
+
+            if (tasksWithoutDraft.length > 0) {
+                noDraftContainer.innerHTML = `
+                    <div class="tasks-without-drafts">
+                        <strong>Completed tasks without PR drafts:</strong>
+                        ${tasksWithoutDraft.map(t => `<span class="task-link">${t.task_id}</span>`).join(', ')}
+                    </div>
+                `;
+            } else {
+                noDraftContainer.innerHTML = '';
+            }
+        }
+
+        function renderTokenUsage(usage) {
+            if (!Array.isArray(usage) || usage.length === 0) {
+                document.getElementById('usageTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #8b949e;">No usage data yet</td>
+                    </tr>
+                `;
+                document.getElementById('totalTokens').textContent = '0';
+                document.getElementById('inputTokens').textContent = '0';
+                document.getElementById('outputTokens').textContent = '0';
+                document.getElementById('taskCount').textContent = '0';
+                return;
+            }
+
+            let totalInput = 0, totalOutput = 0, maxTokens = 0;
+            const taskIds = new Set();
+
+            usage.forEach(entry => {
+                totalInput += entry.inputTokens || 0;
+                totalOutput += entry.outputTokens || 0;
+                maxTokens = Math.max(maxTokens, (entry.inputTokens || 0) + (entry.outputTokens || 0));
+                taskIds.add(entry.taskId);
+            });
+
+            const totalTokens = totalInput + totalOutput;
+
+            document.getElementById('totalTokens').textContent = totalTokens.toLocaleString();
+            document.getElementById('inputTokens').textContent = totalInput.toLocaleString();
+            document.getElementById('outputTokens').textContent = totalOutput.toLocaleString();
+            document.getElementById('taskCount').textContent = taskIds.size;
+
+            document.getElementById('usageTableBody').innerHTML = usage.map(entry => {
+                const entryTotal = (entry.inputTokens || 0) + (entry.outputTokens || 0);
+                const barWidth = maxTokens > 0 ? (entryTotal / maxTokens * 100) : 0;
+                const duration = entry.durationMs ? `${entry.durationMs}ms` : '-';
+
+                return `
+                    <tr>
+                        <td>${formatTime(entry.timestamp)}</td>
+                        <td>${entry.taskId}</td>
+                        <td>${entry.step}</td>
+                        <td>${entry.provider}</td>
+                        <td>${(entry.inputTokens || 0).toLocaleString()}</td>
+                        <td>
+                            <div class="token-bar-container">
+                                <div class="token-bar" style="width: ${barWidth}%"></div>
+                                <span>${(entry.outputTokens || 0).toLocaleString()}</span>
+                            </div>
+                        </td>
+                        <td>${duration}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateActivityLog(tasks) {
+            const log = document.getElementById('activityLog');
+            if (!tasks || tasks.length === 0) {
+                log.innerHTML = `
+                    <div class="activity-entry">
+                        <div class="activity-time">--:--:--</div>
+                        <div class="activity-message">Waiting for activity...</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const entries = [];
+            tasks.forEach(task => {
+                entries.push({
+                    time: new Date().toLocaleTimeString(),
+                    message: `Task ${task.id} moved to ${task.state}`
+                });
+            });
+
+            log.innerHTML = entries.slice(-10).reverse().map(entry => `
+                <div class="activity-entry activity-new">
+                    <div class="activity-time">${entry.time}</div>
+                    <div class="activity-message">${entry.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Auto-load data on page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && autoRefreshEnabled) {
+                loadData();
+            }
+        });
+    </script>
+</body>
+</html>

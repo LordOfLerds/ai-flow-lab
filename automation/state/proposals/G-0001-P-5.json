@@ -1,0 +1,14 @@
+{
+  "proposal_id": "G-0001-P-5",
+  "parent_goal_id": "G-0001",
+  "title": "Update demo entry point to reflect archive-capable lifecycle",
+  "lane_type": "integration",
+  "executor": "writing-agent",
+  "rationale": "The demo entry point should remain aligned with the domain model, but this should happen only after semantics and core behavior are stable.",
+  "smallest_safe_scope": "Make narrowly scoped adjustments in `starter-test/src/index.ts` if needed to compile or demonstrate archive behavior.",
+  "depends_on": "[P-4]",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-04T17:34:29.339Z",
+  "index": 5
+}

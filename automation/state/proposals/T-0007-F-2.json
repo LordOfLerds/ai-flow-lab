@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0007-F-2",
+  "parent_task_id": "T-0007",
+  "title": "resolve whether deleteTask should be documented domain behavior or remain drift",
+  "lane_type": "docs-lane",
+  "executor": "codex",
+  "rationale": "T-0007 correctly recorded the mismatch, but the repository still has an unresolved truth conflict between tests/code and docs around `deleteTask`.",
+  "smallest_safe_scope": "Decide one narrow outcome for `deleteTask` and document it: either add it to source-of-truth docs as supported behavior, or explicitly mark it as non-canonical and schedule follow-up cleanup elsewhere.",
+  "depends_on": "maintainer decision on intended long-term role of deleteTask",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-04T07:10:59.496Z",
+  "index": 2
+}

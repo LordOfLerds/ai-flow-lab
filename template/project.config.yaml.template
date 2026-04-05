@@ -1,0 +1,116 @@
+project_name: {{PROJECT_NAME}}
+
+# Truth sources - documents agents read first to understand the project
+# These should be the canonical sources of truth about your system
+truth_sources:
+  - docs/DOMAIN_MODEL.md
+  - docs/INVARIANTS.md
+  - docs/ARCHITECTURE.md
+  - docs/ADR/
+
+# Work lanes - assign agents to task types and define mergeability
+lanes:
+  analysis-lane:
+    # Analysis: Code review, diagnosis, design review
+    # Read-only: changes are not intended for merging to main
+    default_executor: claude
+    read_only: true
+    branch_prefix: analysis/
+    description: Analysis, investigation, and diagnosis tasks
+
+  bug-lane:
+    # Bug fixes: Debugging, fixing issues
+    # Can merge to main when approved
+    default_executor: claude
+    read_only: false
+    branch_prefix: bug/
+    description: Bug fixes and defect resolution
+
+  feature-lane:
+    # Features: New functionality, enhancements
+    # Can merge to main when approved
+    default_executor: codex
+    read_only: false
+    branch_prefix: feature/
+    description: New features and enhancements
+
+  danger-lane:
+    # Dangerous operations: Refactors, migrations, breaking changes
+    # Can merge to main but requires human approval before PR
+    default_executor: claude
+    read_only: false
+    branch_prefix: danger/
+    requires_human_before_pr: true
+    description: Dangerous refactors and migrations (requires human gate)
+
+  docs-lane:
+    # Documentation: API docs, guides, examples
+    # Can merge to main when approved
+    default_executor: codex
+    read_only: false
+    branch_prefix: docs/
+    description: Documentation and guides
+
+  test-lane:
+    # Tests: Unit tests, integration tests, test infrastructure
+    # Can merge to main when approved
+    default_executor: codex
+    read_only: false
+    branch_prefix: test/
+    description: Test writing and test infrastructure
+
+# Human gates - where humans must explicitly approve before proceeding
+human_gates:
+  before_merge_main: true          # Require human approval before merging to main
+  before_prod_deploy: true         # Require human approval before deploying to production
+  before_destructive_migration: true # Require human approval before running destructive migrations
+  before_danger_lane_pr: true      # Require human approval before opening PR in danger-lane
+
+# AI executor configuration
+executors:
+  claude:
+    model: claude-opus-4
+    role: "Senior architect, debugging, refactoring expert"
+    context_window: 200000
+    best_for:
+      - system design
+      - debugging
+      - dangerous refactors
+      - architecture decisions
+      - code analysis
+
+  codex:
+    model: gpt-4o
+    role: "Feature developer, test writer, documentation expert"
+    context_window: 128000
+    best_for:
+      - feature implementation
+      - test writing
+      - documentation
+      - code generation
+      - safe refactors
+
+# Branching strategy
+branching:
+  main_branch: main
+  default_branch: main
+  auto_create_worktree: true
+  auto_delete_worktree: false
+  cleanup_strategy: archive  # archive | delete | keep
+
+# Task configuration
+tasks:
+  auto_close_after_merge: false   # Automatically close task when PR is merged
+  require_decision_log: true      # Require decision logging for all tasks
+  require_followup_proposal: true # Require proposing followup tasks
+
+# Goal configuration
+goals:
+  auto_start_first_task: false    # Automatically start first task when goal is created
+  require_task_proposal: true     # Require proposing all tasks upfront
+
+# Artifact storage
+artifacts:
+  store_in_ai_directory: true     # Store task artifacts in ai/ directory
+  archive_completed_tasks: true   # Archive completed tasks after merge
+  retention_days: 90              # Keep archives for this many days
