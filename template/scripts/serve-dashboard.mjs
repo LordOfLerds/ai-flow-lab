@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { exec, execSync } from "node:child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -383,6 +383,425 @@ const apiRoutes = {
     } catch (e) {
       respondError(res, 500, `Error: ${e.message}`);
     }
+  },
+
+  "GET /api/document": (req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const relPath = url.searchParams.get("path");
+    if (!relPath) {
+      respondError(res, 400, "Missing path parameter");
+      return;
+    }
+    const absPath = path.resolve(repoRoot, relPath);
+    if (!absPath.startsWith(repoRoot)) {
+      respondError(res, 403, "Path traversal not allowed");
+      return;
+    }
+    if (!fs.existsSync(absPath)) {
+      respondError(res, 404, "Document not found");
+      return;
+    }
+    try {
+      const content = fs.readFileSync(absPath, "utf8");
+      respondJSON(res, 200, { path: relPath, content, size: content.length });
+    } catch (e) {
+      respondError(res, 500, e.message);
+    }
+  },
+
+  "GET /api/documents": (req, res) => {
+    const docs = {};
+    const dirs = {
+      specs: path.join(repoRoot, "ai", "specs"),
+      reviews: path.join(repoRoot, "ai", "reviews"),
+      briefs: path.join(repoRoot, "ai", "briefs"),
+      results: path.join(repoRoot, "ai", "results"),
+      followups: path.join(repoRoot, "ai", "followups"),
+      pr_drafts: path.join(repoRoot, "ai", "pr"),
+      goals: path.join(repoRoot, "goals"),
+      decisions: path.join(repoRoot, "docs", "decisions"),
+      adr: path.join(repoRoot, "docs", "ADR")
+    };
+    for (const [category, dirPath] of Object.entries(dirs)) {
+      docs[category] = listFilesInDir(dirPath, /\.(md|json)$/).map(f => ({
+        name: f,
+        path: path.relative(repoRoot, path.join(dirPath, f)),
+        size: fs.existsSync(path.join(dirPath, f)) ? fs.statSync(path.join(dirPath, f)).size : 0
+      }));
+    }
+    respondJSON(res, 200, docs);
+  },
+
+  "GET /api/git": (req, res) => {
+    try {
+      const branch = execSync("git branch --show-current", { cwd: repoRoot, stdio: "pipe" }).toString().trim();
+      let branches = [];
+      try {
+        branches = execSync("git branch -a --format='%(refname:short)|%(objectname:short)|%(committerdate:relative)|%(subject)'", { cwd: repoRoot, stdio: "pipe" })
+          .toString().trim().split("\n").filter(Boolean).map(line => {
+            const [name, hash, date, ...subjectParts] = line.split("|");
+            return { name: name.trim(), hash, date, subject: subjectParts.join("|") };
+          });
+      } catch {}
+      let log = [];
+      try {
+        log = execSync("git log --oneline -20 --format='%h|%s|%ar'", { cwd: repoRoot, stdio: "pipe" })
+          .toString().trim().split("\n").filter(Boolean).map(line => {
+            const [hash, ...rest] = line.split("|");
+            const date = rest.pop();
+            return { hash, subject: rest.join("|"), date };
+          });
+      } catch {}
+      respondJSON(res, 200, { current_branch: branch, branches, log });
+    } catch (e) {
+      respondJSON(res, 200, { current_branch: "unknown", branches: [], log: [], error: e.message });
+    }
+  },
+
+  "GET /api/project": (req, res) => {
+    const configPath = path.join(repoRoot, "ai", "project.config.yaml");
+    let config = "";
+    if (fs.existsSync(configPath)) {
+      config = fs.readFileSync(configPath, "utf8");
+    }
+    const name = path.basename(repoRoot);
+    respondJSON(res, 200, {
+      name,
+      root: repoRoot,
+      automation_root: automationRoot,
+      config,
+      has_agents: fs.existsSync(path.join(repoRoot, "AGENTS.md")),
+      has_claude: fs.existsSync(path.join(repoRoot, "CLAUDE.md")),
+      has_domain_model: fs.existsSync(path.join(repoRoot, "docs", "DOMAIN_MODEL.md")),
+      has_invariants: fs.existsSync(path.join(repoRoot, "docs", "INVARIANTS.md")),
+      has_architecture: fs.existsSync(path.join(repoRoot, "docs", "ARCHITECTURE.md"))
+    });
+  },
+
+  "POST /api/tasks/create": async (req, res) => {
+    try {
+      const body = await parseJsonBody(req);
+      const { taskId, title, laneType, executor } = body;
+      if (!taskId || !title) {
+        respondError(res, 400, "Missing taskId or title");
+        return;
+      }
+      const result = execSync(
+        `node scripts/new-task.mjs "${taskId}" "${laneType || 'feature-lane'}" "${title}" "${executor || 'codex'}"`,
+        { cwd: automationRoot, stdio: "pipe" }
+      ).toString();
+      respondJSON(res, 201, { success: true, taskId, message: result.trim() });
+    } catch (e) {
+      respondError(res, 500, e.message);
+    }
+  },
+
+  "POST /api/goals/create": async (req, res) => {
+    try {
+      const body = await parseJsonBody(req);
+      const { goalId, title, description, priority } = body;
+      if (!goalId || !title) {
+        respondError(res, 400, "Missing goalId or title");
+        return;
+      }
+      const goalsDir = path.join(getStateDir(), "goals");
+      fs.mkdirSync(goalsDir, { recursive: true });
+      const goal = {
+        goal_id: goalId,
+        title,
+        description: description || "",
+        priority: priority || "normal",
+        state: "NEW",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      fs.writeFileSync(path.join(goalsDir, `${goalId}.json`), JSON.stringify(goal, null, 2));
+      // Also create the goal markdown
+      const goalsMdDir = path.join(repoRoot, "goals");
+      fs.mkdirSync(goalsMdDir, { recursive: true });
+      fs.writeFileSync(path.join(goalsMdDir, `${goalId}.md`), `# ${goalId}: ${title}\n\n${description || ""}\n`);
+      respondJSON(res, 201, { success: true, goalId });
+    } catch (e) {
+      respondError(res, 500, e.message);
+    }
+  },
+
+  "POST /api/chatgpt/queue": async (req, res) => {
+    try {
+      const body = await parseJsonBody(req);
+      const { prompt, taskId, step } = body;
+      if (!prompt) {
+        respondError(res, 400, "Missing prompt");
+        return;
+      }
+      const queueDir = path.join(getStateDir(), "prompts-queue");
+      fs.mkdirSync(queueDir, { recursive: true });
+      const id = `prompt-${Date.now()}`;
+      const meta = {
+        id,
+        taskId: taskId || null,
+        step: step || "manual",
+        status: "pending",
+        promptFile: `${id}.prompt.md`,
+        responseFile: `${id}.response.md`,
+        createdAt: new Date().toISOString()
+      };
+      fs.writeFileSync(path.join(queueDir, `${id}.meta.json`), JSON.stringify(meta, null, 2));
+      fs.writeFileSync(path.join(queueDir, `${id}.prompt.md`), prompt);
+      respondJSON(res, 201, { success: true, id, message: "Prompt queued" });
+    } catch (e) {
+      respondError(res, 500, e.message);
+    }
+  },
+
+  // === PROJECT ONBOARDING ENDPOINTS ===
+
+  "POST /api/project/init": async (req, res) => {
+    // Initialize a new project or import existing
+    try {
+      const body = await parseJsonBody(req);
+      const { mode, name, description, importPath } = body;
+      // mode: "new" | "import" | "chat"
+      if (!mode || !["new", "import", "chat"].includes(mode)) {
+        respondError(res, 400, "mode must be 'new', 'import', or 'chat'");
+        return;
+      }
+      let args = "";
+      if (mode === "new") args = `new "${name || "my-project"}" "${description || ""}"`;
+      else if (mode === "import") args = `import "${importPath || "."}"`;
+      else if (mode === "chat") args = `chat "${name || "my-project"}" "${description || ""}"`;
+
+      // Run async — don't block
+
+      exec(`node scripts/init-project.mjs ${args}`, { cwd: automationRoot }, (err, stdout, stderr) => {
+        if (err) console.error(`init-project ${mode} failed:`, stderr);
+        else console.log(`init-project ${mode} completed:`, stdout.substring(0, 200));
+      });
+      respondJSON(res, 202, { success: true, message: `Project ${mode} started` });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/project/analyze": async (req, res) => {
+    // Analyze a codebase and return the report
+    try {
+      const body = await parseJsonBody(req);
+      const { projectPath } = body;
+      if (!projectPath) { respondError(res, 400, "Missing projectPath"); return; }
+      const absPath = path.resolve(projectPath);
+      if (!fs.existsSync(absPath)) { respondError(res, 404, "Path not found: " + absPath); return; }
+
+
+      const output = execSync(`node scripts/analyze-codebase.mjs "${absPath}"`, {
+        cwd: automationRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024
+      });
+      respondJSON(res, 200, JSON.parse(output));
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/project/apply-response": async (req, res) => {
+    // Parse a ChatGPT bootstrap/import response and write docs
+    try {
+      const body = await parseJsonBody(req);
+      const { response, projectName } = body;
+      if (!response) { respondError(res, 400, "Missing response text"); return; }
+
+      // Parse sections from response
+      const sections = ["DOMAIN_MODEL", "ARCHITECTURE", "INVARIANTS", "AGENTS", "FIRST_GOAL", "PROJECT_SUMMARY", "OPEN_QUESTIONS", "NEXT_STEPS"];
+      const fileMap = {
+        DOMAIN_MODEL: "docs/DOMAIN_MODEL.md",
+        ARCHITECTURE: "docs/ARCHITECTURE.md",
+        INVARIANTS: "docs/INVARIANTS.md",
+        AGENTS: "AGENTS.md",
+        OPEN_QUESTIONS: "ai/current-state/open-questions.md"
+      };
+
+      const written = [];
+      for (let i = 0; i < sections.length; i++) {
+        const key = sections[i];
+        const header = `## OUTPUT: ${key}`;
+        const idx = response.indexOf(header);
+        if (idx === -1) continue;
+        const start = idx + header.length;
+        let end = response.length;
+        for (const other of sections) {
+          if (other === key) continue;
+          const oi = response.indexOf(`## OUTPUT: ${other}`, start);
+          if (oi !== -1 && oi < end) end = oi;
+        }
+        const content = response.substring(start, end).trim();
+        if (fileMap[key] && content) {
+          const fp = path.join(repoRoot, fileMap[key]);
+          fs.mkdirSync(path.dirname(fp), { recursive: true });
+          fs.writeFileSync(fp, content);
+          written.push(fileMap[key]);
+        }
+      }
+
+      // Save raw response
+      const rawPath = path.join(repoRoot, "ai", "reports", "bootstrap-response.md");
+      fs.mkdirSync(path.dirname(rawPath), { recursive: true });
+      fs.writeFileSync(rawPath, response);
+      written.push("ai/reports/bootstrap-response.md");
+
+      respondJSON(res, 200, { success: true, written });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "GET /api/git/graph": (req, res) => {
+    // Return git commit graph for ancestry tree visualization
+    try {
+
+      // Get commit graph with parent info
+      const logRaw = execSync(
+        'git log --all --format="%H|%h|%P|%s|%an|%ai|%D" --max-count=200',
+        { cwd: repoRoot, encoding: "utf8" }
+      ).trim();
+
+      const commits = [];
+      for (const line of logRaw.split("\n")) {
+        if (!line.trim()) continue;
+        const [hash, short, parents, subject, author, date, refs] = line.split("|");
+        commits.push({
+          hash, short,
+          parents: parents ? parents.split(" ") : [],
+          subject, author, date,
+          refs: refs ? refs.split(",").map(r => r.trim()).filter(Boolean) : []
+        });
+      }
+
+      // Get branches with their tip commits
+      const branchRaw = execSync(
+        'git branch -a --format="%(refname:short)|%(objectname:short)|%(upstream:short)"',
+        { cwd: repoRoot, encoding: "utf8" }
+      ).trim();
+      const branches = [];
+      for (const line of branchRaw.split("\n")) {
+        if (!line.trim()) continue;
+        const [name, commit, upstream] = line.split("|");
+        branches.push({ name, commit, upstream: upstream || null });
+      }
+
+      // Current branch
+      let current = "";
+      try { current = execSync("git rev-parse --abbrev-ref HEAD", { cwd: repoRoot, encoding: "utf8" }).trim(); } catch {}
+
+      respondJSON(res, 200, { commits, branches, current });
+    } catch (e) {
+      respondJSON(res, 200, { commits: [], branches: [], current: "", error: e.message });
+    }
+  },
+
+  // === INTERVENTION ENDPOINTS ===
+
+  "POST /api/tasks/:taskid/advance": async (req, res, params) => {
+    // Manually advance a task to the next pipeline stage
+    try {
+      const body = await parseJsonBody(req);
+      const { targetState } = body;
+      const taskId = params.taskid;
+      const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
+      if (!fs.existsSync(taskFile)) { respondError(res, 404, "Task not found"); return; }
+      const task = readJSON(taskFile);
+      if (targetState) task.state = targetState;
+      task.updated_at = new Date().toISOString();
+      fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
+      respondJSON(res, 200, { success: true, task });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/tasks/:taskid/edit": async (req, res, params) => {
+    // Edit task fields (title, description, executor, lane_type, etc.)
+    try {
+      const body = await parseJsonBody(req);
+      const taskId = params.taskid;
+      const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
+      if (!fs.existsSync(taskFile)) { respondError(res, 404, "Task not found"); return; }
+      const task = readJSON(taskFile);
+      const editable = ['title', 'executor', 'lane_type', 'state', 'runtime_status', 'branch_name'];
+      for (const key of editable) {
+        if (body[key] !== undefined) task[key] = body[key];
+      }
+      task.updated_at = new Date().toISOString();
+      fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
+      respondJSON(res, 200, { success: true, task });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/tasks/:taskid/run-step": async (req, res, params) => {
+    // Run a single pipeline step for a task (architect, critique, synthesize, etc.)
+    try {
+      const body = await parseJsonBody(req);
+      const { step } = body;
+      const taskId = params.taskid;
+      const validSteps = ['architect', 'critique', 'synthesize', 'execute', 'propose-followups', 'pr-draft'];
+      if (!validSteps.includes(step)) {
+        respondError(res, 400, `Invalid step. Valid: ${validSteps.join(', ')}`);
+        return;
+      }
+      const scriptMap = {
+        'architect': 'architect-task-api.mjs',
+        'critique': 'critique-task-api.mjs',
+        'synthesize': 'synthesize-task-api.mjs',
+        'propose-followups': 'propose-followups-api.mjs',
+        'pr-draft': 'draft-pr-api.mjs'
+      };
+      const script = scriptMap[step];
+      if (!script) {
+        respondError(res, 400, `Step '${step}' cannot be run individually`);
+        return;
+      }
+      // Run async - don't block the response
+
+      exec(`node scripts/${script} ${taskId}`, { cwd: automationRoot }, (err, stdout, stderr) => {
+        if (err) console.error(`Step ${step} for ${taskId} failed:`, stderr);
+        else console.log(`Step ${step} for ${taskId} completed:`, stdout.trim());
+      });
+      respondJSON(res, 202, { success: true, message: `Step '${step}' started for ${taskId}` });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/goals/:goalid/edit": async (req, res, params) => {
+    try {
+      const body = await parseJsonBody(req);
+      const goalId = params.goalid;
+      const goalFile = path.join(getStateDir(), "goals", `${goalId}.json`);
+      if (!fs.existsSync(goalFile)) { respondError(res, 404, "Goal not found"); return; }
+      const goal = readJSON(goalFile);
+      const editable = ['title', 'description', 'priority', 'state'];
+      for (const key of editable) {
+        if (body[key] !== undefined) goal[key] = body[key];
+      }
+      goal.updated_at = new Date().toISOString();
+      fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2));
+      respondJSON(res, 200, { success: true, goal });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/run/step": async (req, res) => {
+    // Run a full pipeline step: plan-goal, or run-task with a specific step
+    try {
+      const body = await parseJsonBody(req);
+      const { goalId, taskId, step } = body;
+      let cmd = "";
+      if (step === "plan-goal" && goalId) {
+        cmd = `node scripts/plan-goal-api.mjs ${goalId}`;
+      } else if (taskId && step) {
+        const scriptMap = {
+          'architect': `node scripts/architect-task-api.mjs ${taskId}`,
+          'critique': `node scripts/critique-task-api.mjs ${taskId}`,
+          'synthesize': `node scripts/synthesize-task-api.mjs ${taskId}`,
+          'propose-followups': `node scripts/propose-followups-api.mjs ${taskId}`,
+        };
+        cmd = scriptMap[step];
+      }
+      if (!cmd) { respondError(res, 400, "Invalid step/target combination"); return; }
+
+      exec(cmd, { cwd: automationRoot }, (err, stdout, stderr) => {
+        if (err) console.error(`Run step failed:`, stderr);
+        else console.log(`Run step completed:`, stdout.trim());
+      });
+      respondJSON(res, 202, { success: true, message: `Running: ${cmd}` });
+    } catch (e) { respondError(res, 500, e.message); }
   },
 
   "GET /api/decisions": (req, res) => {

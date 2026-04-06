@@ -111,7 +111,19 @@ export function loadMockResponse({ taskId, step, provider }) {
   // Then try step-level default: llm/<step>/default.md
   const stepDefaultPath = path.join(fixturesDir, "llm", step || "generic", "default.md");
   if (fs.existsSync(stepDefaultPath)) {
-    return fs.readFileSync(stepDefaultPath, "utf8");
+    let template = fs.readFileSync(stepDefaultPath, "utf8");
+    // Personalize mock output with actual task metadata
+    if (taskId) {
+      const taskFile = path.join(automationRoot(), "state", "tasks", `${taskId}.json`);
+      try {
+        const taskData = JSON.parse(fs.readFileSync(taskFile, "utf8"));
+        template = template
+          .replace(/T-E2E-P-1/g, taskId)
+          .replace(/Add greeting section to README/g, taskData.title || taskId)
+          .replace(/feature-lane/g, taskData.lane_type || "feature-lane");
+      } catch { /* task file not found, use template as-is */ }
+    }
+    return template;
   }
 
   // Then try global default: llm/default.md

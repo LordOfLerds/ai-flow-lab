@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0109",
+  "parent_goal_id": "G-0002",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0109-add-dark-mode-toggle-to-dashboard",
+  "base_branch": "main",
+  "title": "[T-0109] Add dark mode toggle to dashboard",
+  "summary": "Add dark mode toggle to dashboard",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": false,
+    "brief_exists": false,
+    "result_exists": false,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "Task T-0109 successfully added a friendly greeting section to the project README. The greeting was inserted as a \"## Welcome\" section immediately after the main h1 title with appropriate, conversational messaging. The markdown validates correctly and renders well on GitHub. All existing documentatio…",
+  "status": "draft",
+  "created_at": "2026-04-05T23:08:16.756Z"
+}

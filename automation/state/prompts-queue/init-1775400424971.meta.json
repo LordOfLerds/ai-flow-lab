@@ -1,0 +1,10 @@
+{
+  "id": "init-1775400424971",
+  "taskId": null,
+  "step": "project-bootstrap",
+  "provider": "openai",
+  "status": "pending",
+  "createdAt": "2026-04-05T14:47:04.971Z",
+  "promptFile": "init-1775400424971.prompt.md",
+  "responseFile": "init-1775400424971.response.md"
+}

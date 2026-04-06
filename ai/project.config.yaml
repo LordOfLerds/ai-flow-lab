@@ -1,11 +1,9 @@
-project_name: ai-flow-lab
-
+project_name: test-project
 truth_sources:
   - docs/DOMAIN_MODEL.md
   - docs/INVARIANTS.md
   - docs/ARCHITECTURE.md
   - docs/ADR/
-
 lanes:
   analysis-lane:
     default_executor: claude
@@ -24,7 +22,14 @@ lanes:
     read_only: false
     branch_prefix: danger/
     requires_human_before_pr: true
-
+  docs-lane:
+    default_executor: codex
+    read_only: false
+    branch_prefix: docs/
+  test-lane:
+    default_executor: codex
+    read_only: false
+    branch_prefix: test/
 human_gates:
   before_merge_main: true
   before_prod_deploy: true
