@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0320-F-2",
+  "parent_task_id": "T-0320",
+  "title": "Add integration test for the new functionality",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "The implementation needs automated tests to prevent regressions. A focused integration test that exercises the new code path would catch issues early.",
+  "smallest_safe_scope": "Create a test script that validates the new functionality works correctly with mock data and produces expected output.",
+  "depends_on": "T-0320 (completed)",
+  "priority": "low",
+  "should_spawn_now": false,
+  "created_at": "2026-04-06T00:13:43.033Z",
+  "index": 2
+}

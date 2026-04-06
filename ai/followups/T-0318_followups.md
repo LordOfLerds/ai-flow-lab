@@ -1,8 +1,8 @@
-# T-E2E-P-1 Follow-ups
+# T-0318 Follow-ups
 
 ## Task outcome summary
 
-Task T-E2E-P-1 successfully completed the implementation as specified. The changes are minimal, non-breaking, and follow the architecture spec. All acceptance criteria were met and the review passed without blocking issues.
+Task T-0318 successfully completed the implementation as specified. The changes are minimal, non-breaking, and follow the architecture spec. All acceptance criteria were met and the review passed without blocking issues.
 
 ## Remaining risks
 
@@ -19,7 +19,7 @@ Task T-E2E-P-1 successfully completed the implementation as specified. The chang
 - executor: codex
 - rationale: The current implementation handles the happy path but doesn't guard against concurrent modifications or race conditions when multiple tasks run simultaneously. This is a natural follow-up that extends the robustness of the implementation.
 - smallest_safe_scope: Add mutex/locking for shared state files and handle concurrent read-write conflicts gracefully.
-- depends_on: T-E2E-P-1 (completed)
+- depends_on: T-0318 (completed)
 - priority: normal
 - should_spawn_now: true
 
@@ -29,7 +29,7 @@ Task T-E2E-P-1 successfully completed the implementation as specified. The chang
 - executor: codex
 - rationale: The implementation needs automated tests to prevent regressions. A focused integration test that exercises the new code path would catch issues early.
 - smallest_safe_scope: Create a test script that validates the new functionality works correctly with mock data and produces expected output.
-- depends_on: T-E2E-P-1 (completed)
+- depends_on: T-0318 (completed)
 - priority: low
 - should_spawn_now: false
 

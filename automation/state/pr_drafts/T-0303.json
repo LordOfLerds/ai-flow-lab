@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0303",
+  "parent_goal_id": "G-0003",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "bug/T-0303-fix-dashboard-crash-when-rendering-branches-with-missing-type-data",
+  "base_branch": "main",
+  "title": "[T-0303] Fix dashboard crash when rendering branches with missing type data",
+  "summary": "Fix dashboard crash when rendering branches with missing type data",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": false,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "Task T-0303 successfully completed the implementation as specified. The changes are minimal, non-breaking, and follow the architecture spec. All acceptance criteria were met and the review passed without blocking issues.\n\n\n\n- Risk: Edge cases in error handling for concurrent operations were not cove…",
+  "status": "draft",
+  "created_at": "2026-04-06T00:13:40.221Z"
+}

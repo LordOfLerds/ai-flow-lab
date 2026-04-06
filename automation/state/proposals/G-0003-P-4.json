@@ -1,0 +1,14 @@
+{
+  "proposal_id": "G-0003-P-4",
+  "parent_goal_id": "G-0003",
+  "title": "Add user-friendly error toast messages for API failures",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "When API calls fail, the dashboard shows raw error objects or silent failures. Users need clear, actionable error messages.",
+  "smallest_safe_scope": "Add error interceptor in dashboard fetch calls that converts API errors to user-friendly toast notifications with retry options.",
+  "depends_on": "P-1",
+  "priority": "normal",
+  "should_spawn_now": true,
+  "created_at": "2026-04-06T00:13:36.898Z",
+  "index": 4
+}

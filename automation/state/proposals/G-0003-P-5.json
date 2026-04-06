@@ -1,0 +1,14 @@
+{
+  "proposal_id": "G-0003-P-5",
+  "parent_goal_id": "G-0003",
+  "title": "Add health check endpoint and dashboard status indicator",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "There's no way to verify that the server, API keys, and git are all functioning correctly. A health check endpoint would enable proactive monitoring.",
+  "smallest_safe_scope": "Add GET /api/health endpoint that checks API key validity, git status, and filesystem access. Display health status in dashboard sidebar.",
+  "depends_on": "none",
+  "priority": "normal",
+  "should_spawn_now": true,
+  "created_at": "2026-04-06T00:13:36.898Z",
+  "index": 5
+}

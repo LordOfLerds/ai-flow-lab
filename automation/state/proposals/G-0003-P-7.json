@@ -1,0 +1,14 @@
+{
+  "proposal_id": "G-0003-P-7",
+  "parent_goal_id": "G-0003",
+  "title": "Add git operation error handling and lock file cleanup",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Git operations fail silently when index.lock files exist or when the filesystem doesn't support certain operations. Need proper error handling and automatic cleanup.",
+  "smallest_safe_scope": "Add try-catch around all git operations, detect and handle lock files, add fallback strategies for FUSE filesystem limitations.",
+  "depends_on": "none",
+  "priority": "normal",
+  "should_spawn_now": false,
+  "created_at": "2026-04-06T00:13:36.899Z",
+  "index": 7
+}

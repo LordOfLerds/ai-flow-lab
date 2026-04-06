@@ -1,0 +1,17 @@
+{
+  "decision_proposal_id": "DP-0007",
+  "source_task_id": "T-0310",
+  "source_goal_id": "",
+  "topic": "Concurrency strategy for shared state",
+  "rationale": "Need to decide whether to use file-level locking, optimistic concurrency with retries, or a queue-based approach for handling concurrent pipeline operations.",
+  "blocking_scope": "task",
+  "options": [
+    "File-level locks with flock",
+    "Optimistic concurrency with retry on conflict",
+    "Sequential queue with async processing"
+  ],
+  "recommended_default": "Optimistic concurrency with retry on conflict",
+  "urgency": "low",
+  "status": "open",
+  "created_at": "2026-04-06T00:13:38.556Z"
+}

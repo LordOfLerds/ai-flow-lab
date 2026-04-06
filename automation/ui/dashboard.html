@@ -1552,6 +1552,10 @@ function fmtRelDate(dateStr) {
 }
 
 async function renderBranches() {
+    // Type colors - declared early to avoid TDZ errors in forEach callbacks
+    const typeColors = { feature:'#3b82f6', bug:'#ef4444', docs:'#f59e0b', test:'#a855f7', analysis:'#6366f1', refactor:'#10a37f', chore:'#64748b', danger:'#dc2626', slice:'#ec4899', other:'#94a3b8' };
+    const typeEmojis = { feature:'🔧', bug:'🐛', docs:'📝', test:'🧪', analysis:'🔍', refactor:'♻️', chore:'🧹', danger:'⚠️', slice:'🍰', other:'📋' };
+
     let graphData = await APP.fetch('/api/git/graph');
     if (!graphData || !graphData.commits || !graphData.commits.length) {
         graphData = buildGraphFromGit(APP.git);
@@ -1623,9 +1627,6 @@ async function renderBranches() {
     const laneIndex = {};
     laneOrder.forEach((name, i) => { laneIndex[name] = i; });
     const numLanes = Math.max(laneOrder.length, 1);
-
-    // Type colors (used in both SVG labels and task tree)
-    const typeColors = { feature:'#3b82f6', bug:'#ef4444', docs:'#f59e0b', test:'#a855f7', analysis:'#6366f1', refactor:'#10a37f', chore:'#64748b', danger:'#dc2626', slice:'#ec4899', other:'#94a3b8' };
 
     // Build SVG graph
     const ROW_HEIGHT = 34, LANE_WIDTH = 26, LEFT_PAD = 16;
@@ -1711,7 +1712,6 @@ async function renderBranches() {
 
     // Build Task Tree tab (SVG visual tree grouped by goal/type)
     const allTasks = (APP.state?.tasks||[]).filter(t=>t.state!=='DELETED');
-    const typeEmojis = { feature:'🚀', bug:'🐛', docs:'📖', test:'🧪', analysis:'🔍', refactor:'🔧', chore:'🪣', danger:'⚠️', slice:'🍰', other:'📋' };
     const gitBranches = new Set(branches.map(b=>b.name));
 
     // Group tasks: by goal first, then standalone by type
