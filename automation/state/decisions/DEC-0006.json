@@ -1,0 +1,16 @@
+{
+  "decision_id": "DEC-0006",
+  "decision_proposal_id": "DP-0003",
+  "topic": "Error reporting granularity",
+  "status": "accepted",
+  "selected_option": "Per-step error tracking with task rollup",
+  "rationale": "Resolved from proposal DP-0003",
+  "scope": "goal",
+  "implications": "",
+  "linked_tasks": [],
+  "linked_goals": [
+    "G-0003"
+  ],
+  "created_at": "2026-04-06T00:21:22.734Z",
+  "updated_at": "2026-04-06T00:21:22.734Z"
+}

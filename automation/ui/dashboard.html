@@ -46,6 +46,9 @@
         .status-dot.error { background: var(--error); }
         .status-dot.warning { background: var(--warning); }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .tt-row:hover { background: var(--bg-secondary) !important; }
+        .tt-running { background: rgba(59,130,246,0.05); }
+        .tt-goal-header td, .tt-type-header td { background: var(--bg-primary); }
 
         /* MAIN */
         .main-content { display: flex; flex-direction: column; overflow: hidden; }
@@ -1536,6 +1539,7 @@ async function loadDocByPath(filePath, el) {
 // ===== RENDER: BRANCHES (Git Ancestry Tree) =====
 const BRANCH_COLORS = ['#6366f1','#10a37f','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#14b8a6','#f97316','#84cc16'];
 function escSvg(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtRelDate(dateStr) {
     if (!dateStr) return '';
     const d = new Date(dateStr); const now = new Date();
@@ -1710,119 +1714,139 @@ async function renderBranches() {
     // Build Git History tab
     const gitHistoryHtml = `<div class="git-graph">${svg}</div>`;
 
-    // Build Task Tree tab (SVG visual tree grouped by goal/type)
+    // ===== REDESIGNED TASK TREE =====
+    // Shows full hierarchy: goals → tasks → followup tasks, with origin indicators
     const allTasks = (APP.state?.tasks||[]).filter(t=>t.state!=='DELETED');
     const gitBranches = new Set(branches.map(b=>b.name));
+    const taskMap = {};
+    allTasks.forEach(t => { taskMap[t.task_id] = t; });
 
-    // Group tasks: by goal first, then standalone by type
-    const goalGroups = {}; // goalId -> tasks[]
-    const standaloneByType = { feature:[], bug:[], docs:[], test:[], analysis:[], refactor:[], chore:[], danger:[], slice:[], other:[] };
+    // Origin classification
+    function getOrigin(t) {
+        if (t.parent_goal_id && t.parent_task_id) return 'followup'; // spawned from another task within a goal
+        if (t.parent_goal_id) return 'goal';     // directly from goal decomposition
+        if (t.parent_task_id) return 'followup';  // spawned from another task
+        if (t.origin === 'goal-planner') return 'goal';
+        if (t.origin === 'followup') return 'followup';
+        return 'manual';                           // manually created
+    }
+    const originIcons = { goal: '🎯', followup: '🔗', manual: '✋' };
+    const originLabels = { goal: 'from goal', followup: 'follow-up', manual: 'manual' };
+    const originColors = { goal: '#6366f1', followup: '#f59e0b', manual: '#64748b' };
+
+    // Build hierarchy: roots are goal tasks or standalone tasks with no parent_task_id
+    // Children are tasks whose parent_task_id matches a root
+    const childMap = {}; // parentTaskId → child tasks[]
+    const goalTaskMap = {}; // goalId → direct tasks[]
+    const rootTasks = []; // tasks with no goal and no parent_task
     allTasks.forEach(t => {
-        if (t.parent_goal_id) {
-            if (!goalGroups[t.parent_goal_id]) goalGroups[t.parent_goal_id] = [];
-            goalGroups[t.parent_goal_id].push(t);
+        if (t.parent_task_id && taskMap[t.parent_task_id]) {
+            if (!childMap[t.parent_task_id]) childMap[t.parent_task_id] = [];
+            childMap[t.parent_task_id].push(t);
+        } else if (t.parent_goal_id) {
+            if (!goalTaskMap[t.parent_goal_id]) goalTaskMap[t.parent_goal_id] = [];
+            goalTaskMap[t.parent_goal_id].push(t);
         } else {
-            const typeKey = (t.lane_type || 'other').replace('-lane', '') || 'other';
-            if (standaloneByType[typeKey]) standaloneByType[typeKey].push(t);
-            else standaloneByType.other.push(t);
+            rootTasks.push(t);
         }
     });
 
-    // Build SVG task tree
-    const TT_ROW = 32, TT_INDENT = 24, TT_LEFT = 20, TT_NODE_R = 5;
-    const TT_TEXT_X = 52;
-    const TT_WIDTH = 1000;
-    let ttRows = [];
-    let ttEdges = '';
+    // Render as HTML table for stable layout + detail panel
+    function renderTaskRow(t, depth) {
+        const typeKey = (t.lane_type||'other').replace('-lane','') || 'other';
+        const tColor = typeColors[typeKey] || '#94a3b8';
+        const origin = getOrigin(t);
+        const stateColor = {'MERGED':'#22c55e','PR_DRAFTED':'#22c55e','PR_OPEN':'#22c55e','FOLLOWUPS_PROPOSED':'#3b82f6','SYNTHESIZED':'#3b82f6','CRITIQUED':'#3b82f6','ARCHITECTED':'#3b82f6','IMPLEMENTING':'#f59e0b','NEW':'#64748b','QUEUED':'#64748b'}[t.state] || '#64748b';
+        const exColor = t.executor==='codex'||t.executor==='openai'?'#10a37f':t.executor==='claude'?'#d97706':'#64748b';
+        const hasBranch = t.branch_name && gitBranches.has(t.branch_name);
+        const isRunning = t.runtime_status==='running';
+        const de = t.docs_exist||{};
+        const docCount = (de.spec_path?1:0)+(de.review_path?1:0)+(de.brief_path?1:0)+(de.result_path?1:0)+(de.followup_path?1:0)+(de.pr_draft_path?1:0);
+        const indent = depth * 20;
+        const children = childMap[t.task_id] || [];
+        const canMerge = t.state === 'PR_DRAFTED' && !t.state?.startsWith('MERGED');
 
-    // Helper to add a row
-    function addTreeRow(label, color, depth, task, isGroupHeader) {
-        const idx = ttRows.length;
-        const y = idx * TT_ROW + 20;
-        const cx = TT_LEFT + depth * TT_INDENT;
-        ttRows.push({y, cx, label, color, task, isGroupHeader, depth, idx});
-        return idx;
+        let html = `<tr class="tt-row${isRunning?' tt-running':''}" data-task-id="${t.task_id}" onclick="showTaskTreeDetail('${t.task_id}')" style="cursor:pointer;">
+            <td style="padding:4px 6px;white-space:nowrap;">
+                <span style="display:inline-block;width:${indent}px;"></span>
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${tColor};margin-right:6px;vertical-align:middle;${isRunning?'animation:pulse 1.5s infinite;':''}"></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);">${t.task_id}</span>
+            </td>
+            <td style="padding:4px 6px;font-size:11px;color:var(--text-secondary);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.title||'')}</td>
+            <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${originColors[origin]}22;color:${originColors[origin]};font-weight:600;">${originIcons[origin]} ${originLabels[origin]}</span></td>
+            <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${stateColor}22;color:${stateColor};font-weight:600;">${t.state||'NEW'}</span></td>
+            <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${tColor}22;color:${tColor};font-weight:600;">${typeKey}</span></td>
+            <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${exColor}22;color:${exColor};font-weight:600;">${t.executor||'?'}</span></td>
+            <td style="padding:4px 6px;text-align:center;font-size:9px;color:var(--text-muted);">${docCount>0?docCount+' docs':''}</td>
+            <td style="padding:4px 6px;text-align:center;">${hasBranch?'<span style="color:#22c55e;font-size:10px;">⬤</span>':canMerge?'<span style="color:#f59e0b;font-size:10px;">○</span>':''}</td>
+        </tr>`;
+
+        // Recursively render children (follow-up tasks)
+        children.sort((a,b) => (a.task_id||'').localeCompare(b.task_id||'')).forEach(child => {
+            html += renderTaskRow(child, depth + 1);
+        });
+        return html;
     }
 
-    // Draw goal groups
+    let treeTableBody = '';
+    // 1. Goal groups
     const goalsList = APP.state?.goals || [];
     goalsList.forEach(g => {
-        const gTasks = goalGroups[g.goal_id] || [];
+        const gTasks = goalTaskMap[g.goal_id] || [];
         if (!gTasks.length) return;
-        const goalIdx = addTreeRow(g.goal_id + ': ' + g.title, '#6366f1', 0, null, true);
-        const goalY = ttRows[goalIdx].y;
-        const goalCx = ttRows[goalIdx].cx;
+        const goalStateColor = g.state==='DONE'?'#22c55e':g.state==='PLANNED'?'#3b82f6':'#64748b';
+        treeTableBody += `<tr class="tt-goal-header"><td colspan="8" style="padding:8px 6px;border-top:1px solid var(--border-color);">
+            <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#6366f1;margin-right:8px;vertical-align:middle;opacity:0.8;"></span>
+            <span style="font-weight:700;font-size:12px;color:#6366f1;">${g.goal_id}: ${escHtml(g.title)}</span>
+            <span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${goalStateColor}22;color:${goalStateColor};font-weight:600;margin-left:8px;">${g.state||'NEW'}</span>
+            <span style="font-size:9px;color:var(--text-muted);margin-left:8px;">${gTasks.length} tasks</span>
+        </td></tr>`;
         gTasks.sort((a,b) => (a.task_id||'').localeCompare(b.task_id||'')).forEach(t => {
-            const typeKey = (t.lane_type||'other').replace('-lane','') || 'other';
-            const tColor = typeColors[typeKey] || '#94a3b8';
-            const tIdx = addTreeRow(null, tColor, 1, t, false);
-            const ty = ttRows[tIdx].y;
-            const tcx = ttRows[tIdx].cx;
-            ttEdges += `<path d="M${goalCx},${goalY+TT_NODE_R} L${goalCx},${ty} L${tcx-TT_NODE_R},${ty}" fill="none" stroke="${tColor}" stroke-width="1.5" opacity="0.4"/>`;
+            treeTableBody += renderTaskRow(t, 1);
         });
     });
 
-    // Draw standalone type groups
+    // 2. Manual / standalone tasks grouped by type
+    const standaloneByType = {};
+    rootTasks.forEach(t => {
+        const typeKey = (t.lane_type||'other').replace('-lane','') || 'other';
+        if (!standaloneByType[typeKey]) standaloneByType[typeKey] = [];
+        standaloneByType[typeKey].push(t);
+    });
     Object.entries(standaloneByType).forEach(([typeKey, typeTasks]) => {
         if (!typeTasks.length) return;
         const color = typeColors[typeKey] || '#94a3b8';
         const emoji = typeEmojis[typeKey] || '📋';
-        const groupIdx = addTreeRow(emoji + ' ' + typeKey.charAt(0).toUpperCase() + typeKey.slice(1), color, 0, null, true);
-        const groupY = ttRows[groupIdx].y;
-        const groupCx = ttRows[groupIdx].cx;
+        treeTableBody += `<tr class="tt-type-header"><td colspan="8" style="padding:8px 6px;border-top:1px solid var(--border-color);">
+            <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color};margin-right:8px;vertical-align:middle;opacity:0.8;"></span>
+            <span style="font-weight:700;font-size:12px;color:${color};">${emoji} ${typeKey.charAt(0).toUpperCase()+typeKey.slice(1)}</span>
+            <span style="font-size:9px;color:var(--text-muted);margin-left:8px;">${typeTasks.length} tasks</span>
+        </td></tr>`;
         typeTasks.sort((a,b) => (a.task_id||'').localeCompare(b.task_id||'')).forEach(t => {
-            const tIdx = addTreeRow(null, color, 1, t, false);
-            const ty = ttRows[tIdx].y;
-            const tcx = ttRows[tIdx].cx;
-            ttEdges += `<path d="M${groupCx},${groupY+TT_NODE_R} L${groupCx},${ty} L${tcx-TT_NODE_R},${ty}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4"/>`;
+            treeTableBody += renderTaskRow(t, 1);
         });
     });
 
-    const TT_SVG_HEIGHT = ttRows.length * TT_ROW + 30;
-    let ttNodes = '', ttLabels = '';
-    ttRows.forEach(row => {
-        if (row.isGroupHeader) {
-            // Group header: larger node + bold text
-            ttNodes += `<rect x="${row.cx-6}" y="${row.y-6}" width="12" height="12" rx="3" fill="${row.color}" opacity="0.8"/>`;
-            ttLabels += `<text x="${row.cx + 14}" y="${row.y+4}" fill="${row.color}" style="font-size:12px;font-weight:700;">${escSvg(row.label)}</text>`;
-        } else if (row.task) {
-            const t = row.task;
-            const de = t.docs_exist||{};
-            const docCount = (de.spec_path?1:0)+(de.review_path?1:0)+(de.brief_path?1:0)+(de.result_path?1:0)+(de.followup_path?1:0)+(de.pr_draft_path?1:0);
-            const hasBranch = t.branch_name && gitBranches.has(t.branch_name);
-            const stateColor = t.state==='MERGED'||t.state==='PR_DRAFTED'?'#22c55e':t.state==='IMPLEMENTING'?'#f59e0b':'#6366f1';
-            const isRunning = t.runtime_status==='running';
-
-            ttNodes += `<circle cx="${row.cx}" cy="${row.y}" r="${TT_NODE_R}" fill="${row.color}" style="cursor:pointer;"${isRunning?' class="pulse"':''}/>`;
-            // Task ID
-            ttLabels += `<g style="cursor:pointer;" onclick="openTaskPanel('${t.task_id}')">`;
-            ttLabels += `<text x="${row.cx+12}" y="${row.y+4}" fill="var(--accent)" style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;">${t.task_id}</text>`;
-            // Title
-            const title = (t.title||'').length>40 ? t.title.substring(0,38)+'..' : (t.title||'');
-            ttLabels += `<text x="${row.cx+72}" y="${row.y+4}" fill="var(--text-secondary)" style="font-size:11px;">${escSvg(title)}</text>`;
-            // State badge
-            const stateX = row.cx + 72 + Math.min(title.length*6.2, 260) + 10;
-            ttLabels += `<rect x="${stateX}" y="${row.y-7}" width="${(t.state||'NEW').length*6+12}" height="14" rx="3" fill="${stateColor}" opacity="0.15"/>`;
-            ttLabels += `<text x="${stateX+6}" y="${row.y+3}" fill="${stateColor}" style="font-size:9px;font-weight:600;">${t.state||'NEW'}</text>`;
-            // Executor badge
-            const exX = stateX + (t.state||'NEW').length*6 + 20;
-            const exColor = t.executor==='codex'||t.executor==='openai'?'#10a37f':t.executor==='claude'?'#d97706':'#64748b';
-            ttLabels += `<rect x="${exX}" y="${row.y-7}" width="${(t.executor||'?').length*6+12}" height="14" rx="3" fill="${exColor}" opacity="0.15"/>`;
-            ttLabels += `<text x="${exX+6}" y="${row.y+3}" fill="${exColor}" style="font-size:9px;font-weight:600;">${t.executor||'?'}</text>`;
-            // Docs count
-            if (docCount>0) { const dX=exX+(t.executor||'?').length*6+20; ttLabels += `<text x="${dX}" y="${row.y+3}" fill="var(--text-muted)" style="font-size:9px;">${docCount} docs</text>`; }
-            // Git indicator
-            if (hasBranch) { const gX=exX+(t.executor||'?').length*6+60; ttLabels += `<text x="${gX}" y="${row.y+4}" fill="#22c55e" style="font-size:11px;font-weight:700;">✓</text>`; }
-            ttLabels += `</g>`;
-        }
-    });
-
-    const taskTreeSvg = `<svg width="${TT_WIDTH}" height="${TT_SVG_HEIGHT}" xmlns="http://www.w3.org/2000/svg" style="min-width:${TT_WIDTH}px;">
-        <g class="edges">${ttEdges}</g>
-        <g class="nodes">${ttNodes}</g>
-        <g class="labels">${ttLabels}</g>
-    </svg>`;
-    const taskTreeHtml = `<div class="git-graph">${taskTreeSvg}</div>`;
+    const taskTreeHtml = `<div style="display:flex;gap:0;">
+        <div style="flex:1;overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <thead><tr style="border-bottom:1px solid var(--border-color);">
+                    <th style="padding:6px;text-align:left;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Task</th>
+                    <th style="padding:6px;text-align:left;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Title</th>
+                    <th style="padding:6px;text-align:left;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Origin</th>
+                    <th style="padding:6px;text-align:left;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">State</th>
+                    <th style="padding:6px;text-align:left;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Type</th>
+                    <th style="padding:6px;text-align:left;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Executor</th>
+                    <th style="padding:6px;text-align:center;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Docs</th>
+                    <th style="padding:6px;text-align:center;font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Git</th>
+                </tr></thead>
+                <tbody>${treeTableBody}</tbody>
+            </table>
+        </div>
+        <div id="tt-detail-panel" style="width:320px;min-width:320px;border-left:1px solid var(--border-color);padding:12px;overflow-y:auto;font-size:11px;">
+            <div style="color:var(--text-muted);text-align:center;padding:40px 0;">Click a task to see details</div>
+        </div>
+    </div>`;
 
     // Two-tab interface
     const activeTab = APP._activeBranchTab || 'git-history';
@@ -1834,6 +1858,8 @@ async function renderBranches() {
     <div id="task-tree-tab" style="display:${activeTab==='task-tree'?'block':'none'};">${taskTreeHtml}</div>`;
 
     $('branches-content').innerHTML = tabHtml;
+    // Restore selected task detail after re-render
+    if (APP._selectedTaskTreeId) showTaskTreeDetail(APP._selectedTaskTreeId);
 }
 
 function switchBranchTab(tabName) {
@@ -1847,6 +1873,89 @@ function switchBranchTab(tabName) {
     document.querySelectorAll('[id$="-tab"]').forEach(tab => {
         tab.style.display = tab.id === (tabName + '-tab') ? 'block' : 'none';
     });
+}
+
+function showTaskTreeDetail(taskId) {
+    APP._selectedTaskTreeId = taskId;  // persist across re-renders
+    const panel = document.getElementById('tt-detail-panel');
+    if (!panel) return;
+    const t = (APP.state?.tasks||[]).find(x => x.task_id === taskId);
+    if (!t) { panel.innerHTML = '<div style="color:var(--text-muted);padding:20px;">Task not found</div>'; return; }
+
+    // Highlight selected row
+    document.querySelectorAll('.tt-row').forEach(r => r.style.background = '');
+    const row = document.querySelector(`.tt-row[data-task-id="${taskId}"]`);
+    if (row) row.style.background = 'var(--bg-secondary)';
+
+    const typeKey = (t.lane_type||'other').replace('-lane','') || 'other';
+    const typeColors = { feature:'#3b82f6', bug:'#ef4444', docs:'#f59e0b', test:'#a855f7', analysis:'#6366f1', refactor:'#10a37f', chore:'#64748b', danger:'#dc2626', slice:'#ec4899', other:'#94a3b8' };
+    const originIcons = { 'goal-planner': '🎯', followup: '🔗', user: '✋' };
+    const tColor = typeColors[typeKey] || '#94a3b8';
+    const stateColor = {'MERGED':'#22c55e','PR_DRAFTED':'#22c55e','PR_OPEN':'#22c55e','FOLLOWUPS_PROPOSED':'#3b82f6','SYNTHESIZED':'#3b82f6','CRITIQUED':'#3b82f6','ARCHITECTED':'#3b82f6','NEW':'#64748b'}[t.state]||'#64748b';
+
+    const origin = t.parent_goal_id && t.parent_task_id ? 'Follow-up (from '+t.parent_task_id+')' :
+                   t.parent_goal_id ? 'Goal ('+t.parent_goal_id+')' :
+                   t.parent_task_id ? 'Follow-up (from '+t.parent_task_id+')' : 'Manual';
+
+    const canMerge = t.state === 'PR_DRAFTED';
+    const canStart = t.state === 'NEW';
+
+    const de = t.docs_exist||{};
+    const docs = [];
+    if (de.spec_path) docs.push({label:'Spec', path: t.spec_path});
+    if (de.review_path) docs.push({label:'Review', path: t.review_path});
+    if (de.brief_path) docs.push({label:'Brief', path: t.brief_path});
+    if (de.result_path) docs.push({label:'Result', path: t.result_path});
+    if (de.followup_path) docs.push({label:'Follow-ups', path: t.followup_path});
+
+    panel.innerHTML = `
+        <div style="margin-bottom:12px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px;">${t.task_id}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${escHtml(t.title||'')}</div>
+        </div>
+        <table style="width:100%;font-size:11px;border-collapse:collapse;">
+            <tr><td style="padding:3px 0;color:var(--text-muted);width:70px;">Origin</td><td style="padding:3px 0;color:var(--text-primary);">${origin}</td></tr>
+            <tr><td style="padding:3px 0;color:var(--text-muted);">State</td><td style="padding:3px 0;"><span style="padding:1px 6px;border-radius:3px;background:${stateColor}22;color:${stateColor};font-weight:600;">${t.state||'NEW'}</span></td></tr>
+            <tr><td style="padding:3px 0;color:var(--text-muted);">Type</td><td style="padding:3px 0;"><span style="padding:1px 6px;border-radius:3px;background:${tColor}22;color:${tColor};font-weight:600;">${typeKey}</span></td></tr>
+            <tr><td style="padding:3px 0;color:var(--text-muted);">Executor</td><td style="padding:3px 0;">${t.executor||'?'}</td></tr>
+            <tr><td style="padding:3px 0;color:var(--text-muted);">Branch</td><td style="padding:3px 0;font-family:'JetBrains Mono',monospace;font-size:10px;word-break:break-all;">${t.branch_name||'—'}</td></tr>
+            ${t.parent_task_id ? `<tr><td style="padding:3px 0;color:var(--text-muted);">Parent</td><td style="padding:3px 0;"><a href="#" onclick="showTaskTreeDetail('${t.parent_task_id}');return false;" style="color:var(--accent);">${t.parent_task_id}</a></td></tr>` : ''}
+            ${t.parent_goal_id ? `<tr><td style="padding:3px 0;color:var(--text-muted);">Goal</td><td style="padding:3px 0;color:#6366f1;">${t.parent_goal_id}</td></tr>` : ''}
+        </table>
+        ${docs.length ? `<div style="margin-top:10px;border-top:1px solid var(--border-color);padding-top:8px;">
+            <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Documents</div>
+            ${docs.map(d => `<div style="padding:2px 0;"><a href="#" onclick="viewDoc('${d.path}');return false;" style="color:var(--accent);font-size:11px;">${d.label}</a></div>`).join('')}
+        </div>` : ''}
+        <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            ${canStart ? `<button class="btn btn-primary btn-sm" onclick="startTask('${t.task_id}')" style="font-size:10px;padding:4px 10px;">▶ Run Pipeline</button>` : ''}
+            ${canMerge ? `<button class="btn btn-success btn-sm" onclick="mergeTask('${t.task_id}')" style="font-size:10px;padding:4px 10px;">⤵ Merge to main</button>` : ''}
+            <button class="btn btn-sm" onclick="openTaskPanel('${t.task_id}')" style="font-size:10px;padding:4px 10px;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-secondary);">Open Details</button>
+        </div>
+    `;
+}
+
+async function mergeTask(taskId) {
+    if (!confirm('Merge ' + taskId + ' to main?')) return;
+    toast('Merging ' + taskId + '...', 'info');
+    const r = await fetch('/api/tasks/' + taskId + '/merge', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+    const d = await r.json();
+    if (d.ok) {
+        toast(taskId + ' merged!', 'success');
+        loadState();
+    } else {
+        toast('Merge failed: ' + (d.error||'unknown'), 'error');
+    }
+}
+
+async function mergeBatch(taskIds) {
+    if (!confirm('Merge ' + taskIds.length + ' tasks to main?')) return;
+    toast('Merging ' + taskIds.length + ' tasks...', 'info');
+    const r = await fetch('/api/tasks/merge-batch', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({taskIds}) });
+    const d = await r.json();
+    const ok = (d.results||[]).filter(r => r.ok).length;
+    const fail = (d.results||[]).filter(r => !r.ok).length;
+    toast(`Merged: ${ok} ok, ${fail} failed`, ok > 0 ? 'success' : 'error');
+    loadState();
 }
 
 function buildGraphFromGit(git) {

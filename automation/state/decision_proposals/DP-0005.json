@@ -12,6 +12,7 @@
   ],
   "recommended_default": "Optimistic concurrency with retry on conflict",
   "urgency": "low",
-  "status": "open",
-  "created_at": "2026-04-06T00:13:37.947Z"
+  "status": "resolved",
+  "created_at": "2026-04-06T00:13:37.947Z",
+  "resolved_at": "2026-04-06T00:21:27.848Z"
 }

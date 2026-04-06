@@ -1,0 +1,16 @@
+{
+  "decision_id": "DEC-0007",
+  "decision_proposal_id": "DP-0005",
+  "topic": "Concurrency strategy for shared state",
+  "status": "accepted",
+  "selected_option": "File-level locks with flock",
+  "rationale": "Resolved from proposal DP-0005",
+  "scope": "task",
+  "implications": "",
+  "linked_tasks": [
+    "T-0308"
+  ],
+  "linked_goals": [],
+  "created_at": "2026-04-06T00:21:27.849Z",
+  "updated_at": "2026-04-06T00:21:27.849Z"
+}

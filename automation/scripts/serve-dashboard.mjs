@@ -794,6 +794,9 @@ const apiRoutes = {
         return;
       }
 
+      // Create git branch if this is the first step
+      if (step === 'architect') { createTaskBranch(taskId); }
+
       // Update runtime_status to running
       const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
       if (fs.existsSync(taskFile)) {
@@ -921,6 +924,32 @@ const apiRoutes = {
     const decisions = listFilesInDir(decDir, /\.json$/).map(f => readJSON(path.join(decDir, f))).filter(Boolean);
 
     respondJSON(res, 200, { decision_proposals: proposals, decisions });
+  },
+
+  // ===== GIT BRANCH & MERGE ENDPOINTS =====
+
+  "POST /api/tasks/:taskid/create-branch": async (req, res, params) => {
+    const ok = createTaskBranch(params.taskid);
+    respondJSON(res, ok ? 200 : 500, { success: ok, taskId: params.taskid });
+  },
+
+  "POST /api/tasks/:taskid/merge": async (req, res, params) => {
+    const result = mergeTaskBranch(params.taskid);
+    respondJSON(res, result.ok ? 200 : 400, result);
+  },
+
+  "POST /api/tasks/merge-batch": async (req, res) => {
+    try {
+      const body = await parseJsonBody(req);
+      const { taskIds } = body;
+      if (!taskIds || !taskIds.length) { respondError(res, 400, "Missing taskIds"); return; }
+      const results = [];
+      for (const tid of taskIds) {
+        const r = mergeTaskBranch(tid);
+        results.push({ taskId: tid, ...r });
+      }
+      respondJSON(res, 200, { results });
+    } catch (e) { respondError(res, 500, e.message); }
   },
 
   // ===== CASCADE ENGINE: Auto-spawn follow-ups and run recursively =====
@@ -1142,6 +1171,56 @@ const apiRoutes = {
   }
 };
 
+// ===== GIT BRANCH HELPERS =====
+
+function createTaskBranch(taskId) {
+  const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
+  const task = readJSON(taskFile);
+  if (!task || !task.branch_name) return false;
+  try {
+    // Check if branch already exists
+    const existing = execSync(`git branch --list "${task.branch_name}"`, { cwd: repoRoot, encoding: 'utf8' }).trim();
+    if (existing) { console.log(`[GIT] Branch ${task.branch_name} already exists`); return true; }
+    // Create branch from current HEAD
+    execSync(`git branch "${task.branch_name}"`, { cwd: repoRoot, stdio: 'pipe' });
+    console.log(`[GIT] Created branch: ${task.branch_name}`);
+    return true;
+  } catch (e) {
+    console.warn(`[GIT] Branch creation failed for ${taskId}:`, e.message?.substring(0, 100));
+    return false;
+  }
+}
+
+function mergeTaskBranch(taskId) {
+  const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
+  const task = readJSON(taskFile);
+  if (!task || !task.branch_name) return { ok: false, error: 'No branch_name' };
+  try {
+    const currentBranch = execSync('git branch --show-current', { cwd: repoRoot, encoding: 'utf8' }).trim();
+    // Only merge if we're on main
+    if (currentBranch !== 'main') {
+      return { ok: false, error: `Not on main (currently on ${currentBranch})` };
+    }
+    // Check branch exists
+    const exists = execSync(`git branch --list "${task.branch_name}"`, { cwd: repoRoot, encoding: 'utf8' }).trim();
+    if (!exists) return { ok: false, error: `Branch ${task.branch_name} does not exist` };
+    // Merge with --no-ff for clear history
+    const mergeMsg = `merge: ${taskId} — ${task.title || taskId}`;
+    execSync(`git merge --no-ff "${task.branch_name}" -m "${mergeMsg.replace(/"/g, '\\"')}"`, { cwd: repoRoot, stdio: 'pipe' });
+    // Update task state
+    task.state = 'MERGED';
+    task.updated_at = new Date().toISOString();
+    fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
+    // Optionally delete the branch
+    try { execSync(`git branch -d "${task.branch_name}"`, { cwd: repoRoot, stdio: 'pipe' }); } catch (_) {}
+    console.log(`[GIT] Merged ${task.branch_name} → main`);
+    return { ok: true };
+  } catch (e) {
+    console.warn(`[GIT] Merge failed for ${taskId}:`, e.message?.substring(0, 150));
+    return { ok: false, error: e.message?.substring(0, 150) };
+  }
+}
+
 // ===== CASCADE HELPERS =====
 
 function nextTaskId() {
@@ -1173,6 +1252,9 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth) {
     'propose-followups': 'FOLLOWUPS_PROPOSED',
     'pr-draft': 'PR_DRAFTED'
   };
+
+  // Create git branch for this task before pipeline starts
+  createTaskBranch(taskId);
 
   try {
     const tf0 = readJSON(taskFile);
