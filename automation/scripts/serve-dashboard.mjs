@@ -46,12 +46,30 @@ function switchToProject(project) {
  * Always call this at the START of a cascade/pipeline to capture paths before any switch.
  */
 function captureProjectContext() {
+  // Snapshot project-specific env vars alongside paths — protects against process.env mutation on project switch
+  const envSnapshot = {};
+  const projectEnvKeys = [
+    'OPENAI_API_KEY', 'GEMINI_API_KEY', 'ANTHROPIC_API_KEY',
+    'CLAUDE_MODEL', 'GEMINI_MODEL', 'OPENAI_MODEL',
+    'LLM_MODE', 'LLM_PROVIDER_ARCHITECT', 'LLM_PROVIDER_CRITIQUE',
+    'LLM_PROVIDER_SYNTHESIZE', 'LLM_PROVIDER_EXECUTE', 'LLM_PROVIDER_FOLLOWUPS',
+    'LLM_PROVIDER_PR_DRAFT', 'REPO_ROOT', 'AUTOMATION_ROOT'
+  ];
+  for (const k of projectEnvKeys) {
+    if (process.env[k] !== undefined) envSnapshot[k] = process.env[k];
+  }
   return {
     repoRoot: repoRoot,
     automationRoot: automationRoot,
     stateDir: path.join(automationRoot, "state"),
-    uiDir: path.join(automationRoot, "ui")
+    uiDir: path.join(automationRoot, "ui"),
+    env: envSnapshot
   };
+}
+
+// Helper: build child process env from captured context
+function buildChildEnv(ctx) {
+  return { ...process.env, ...ctx.env };
 }
 
 // Load .env from automation root (where the .env file lives)
@@ -427,6 +445,14 @@ cascade_limits:
     // Add e2e test result if available
     const e2eResultFile = path.join(stateDir, "e2e-test-result.json");
     state.e2e_test_result = readJSON(e2eResultFile) || null;
+
+    // Active project info — allows dashboard to detect project switches
+    state.active_project = {
+      repoRoot: repoRoot,
+      automationRoot: automationRoot,
+      name: path.basename(repoRoot),
+      running_cascades: _runningCascades
+    };
 
     respondJSON(res, 200, state);
   },
@@ -1095,7 +1121,7 @@ cascade_limits:
       }
 
       // Create git branch if this is the first step
-      if (step === 'architect') { createTaskBranch(taskId); }
+      if (step === 'architect') { createTaskBranch(taskId, _stepRepoRoot); }
 
       // Capture project context at step start — safe from project switches
       const _stepCtx = captureProjectContext();
@@ -1118,7 +1144,7 @@ cascade_limits:
           const s = scriptMap[stepName];
           if (!s) { resolve({ ok: false, error: `No script for ${stepName}` }); return; }
           console.log(`[PIPELINE] Running ${stepName} for ${taskId}...`);
-          exec(`node scripts/${s} ${taskId}`, { cwd: _stepAutomationRoot, timeout: 900000 }, (err, stdout, stderr) => {
+          exec(`node scripts/${s} ${taskId}`, { cwd: _stepAutomationRoot, timeout: 900000, env: buildChildEnv(_stepCtx) }, (err, stdout, stderr) => {
             if (err) {
               console.error(`[PIPELINE] ${stepName} for ${taskId} FAILED:`, stderr);
               resolve({ ok: false, step: stepName, error: stderr || err.message });
@@ -1256,7 +1282,9 @@ cascade_limits:
       }
       if (!cmd) { respondError(res, 400, "Invalid step/target combination"); return; }
 
-      exec(cmd, { cwd: automationRoot }, (err, stdout, stderr) => {
+      // Capture context — this exec runs async and must survive project switches
+      const _runCtx = captureProjectContext();
+      exec(cmd, { cwd: _runCtx.automationRoot }, (err, stdout, stderr) => {
         if (err) console.error(`Run step failed:`, stderr);
         else console.log(`Run step completed:`, stdout.trim());
       });
@@ -1348,13 +1376,19 @@ cascade_limits:
 
       respondJSON(res, 202, { success: true, message: `Goal cascade started for ${goalId}` });
 
+      // Capture project context at goal-cascade start — safe from project switches
+      const _goalCtx = captureProjectContext();
+      const _goalAutomationRoot = _goalCtx.automationRoot;
+      const _goalRepoRoot = _goalCtx.repoRoot;
+      const _goalStateDir = _goalCtx.stateDir;
+
       (async () => {
         try {
           console.log(`[CASCADE] Goal ${goalId}: planning...`);
 
           // Step 1: Plan the goal (decompose into proposals)
           try {
-            execSync(`node scripts/plan-goal-api.mjs ${goalId}`, { cwd: automationRoot, stdio: 'pipe', timeout: 900000 });
+            execSync(`node scripts/plan-goal-api.mjs ${goalId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', timeout: 900000, env: buildChildEnv(_goalCtx) });
             console.log(`[CASCADE] Goal ${goalId}: planning complete`);
           } catch (planErr) {
             console.error(`[CASCADE] Goal plan failed:`, planErr.message?.substring(0,200));
@@ -1363,11 +1397,11 @@ cascade_limits:
 
           // Auto-git-commit goal plan
           try {
-            execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: plan ${goalId}"`, { cwd: repoRoot, stdio: 'pipe', timeout: 10000 });
+            execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: plan ${goalId}"`, { cwd: _goalRepoRoot, stdio: 'pipe', timeout: 10000 });
           } catch (_) {}
 
           // Step 2: Find all spawnable proposals for this goal
-          const proposalsDir = path.join(getStateDir(), "proposals");
+          const proposalsDir = path.join(_goalStateDir, "proposals");
           const goalProposals = listFilesInDir(proposalsDir, /\.json$/)
             .map(f => readJSON(path.join(proposalsDir, f)))
             .filter(p => p && (p.parent_goal_id === goalId || (p.proposal_id && p.proposal_id.startsWith(goalId))));
@@ -1379,9 +1413,9 @@ cascade_limits:
           for (const proposal of goalProposals) {
             const newId = nextTaskId();
             try {
-              execSync(`node scripts/spawn-from-goal-proposal.mjs ${proposal.proposal_id} ${newId}`, { cwd: automationRoot, stdio: 'pipe' });
+              execSync(`node scripts/spawn-from-goal-proposal.mjs ${proposal.proposal_id} ${newId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', env: buildChildEnv(_goalCtx) });
               // Link task to goal
-              const taskFile = path.join(getStateDir(), "tasks", `${newId}.json`);
+              const taskFile = path.join(_goalStateDir, "tasks", `${newId}.json`);
               const task = readJSON(taskFile);
               if (task) {
                 task.parent_goal_id = goalId;
@@ -1396,11 +1430,11 @@ cascade_limits:
 
           // Auto-git-commit spawned tasks
           try {
-            execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: spawn ${spawnedTaskIds.length} tasks for ${goalId}"`, { cwd: repoRoot, stdio: 'pipe', timeout: 10000 });
+            execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: spawn ${spawnedTaskIds.length} tasks for ${goalId}"`, { cwd: _goalRepoRoot, stdio: 'pipe', timeout: 10000 });
           } catch (_) {}
 
           // Update goal state
-          const goalFile = path.join(getStateDir(), "goals", `${goalId}.json`);
+          const goalFile = path.join(_goalStateDir, "goals", `${goalId}.json`);
           const goal = readJSON(goalFile);
           if (goal) { goal.state = "IN_PROGRESS"; goal.updated_at = new Date().toISOString(); fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2)); }
 
@@ -1659,11 +1693,13 @@ Apply the fix now.`;
       const applyFile = path.join(tmpDir, `apply-${fixId}.md`);
       fs.writeFileSync(applyFile, applyPrompt);
 
+      // Capture context — this handler is async and must survive project switches
+      const _fixCtx = captureProjectContext();
       const model = process.env.CLAUDE_MODEL || "sonnet";
       // Tool-enabled: Claude can Read/Edit files directly to apply the fix
       const cmd = `cat "${applyFile}" | claude --print --model "${model}" --output-format json --allowed-tools "Read,Edit,Write,Glob,Grep,Bash(git:*)" --permission-mode acceptEdits --max-budget-usd 1.00`;
       const { stdout } = await execAsync(cmd, {
-        cwd: repoRoot,
+        cwd: _fixCtx.repoRoot,
         timeout: 180000,
         maxBuffer: 10 * 1024 * 1024,
         env: { ...process.env }
@@ -1683,11 +1719,11 @@ Apply the fix now.`;
       fix.apply_output = applyOutput.substring(0, 2000);
       fs.writeFileSync(fixFile, JSON.stringify(fix, null, 2));
 
-      // Git commit the fix
+      // Git commit the fix (using captured context)
       try {
         const commitMsg = `[${taskId}] auto-fix: ${fix.content.match(/## Summary\n(.+)/)?.[1] || 'applied auto-fix'}`;
         await execAsync(`git add -A && git diff --cached --quiet || git commit -m "${commitMsg.replace(/"/g, '\\"')}"`, {
-          cwd: repoRoot, timeout: 15000
+          cwd: _fixCtx.repoRoot, timeout: 15000
         });
       } catch (_) {}
 
@@ -1837,8 +1873,9 @@ Apply the fix now.`;
         fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
         respondJSON(res, 200, { ok: true, taskId, action, message: 'Cowork test launched. Check dashboard for results.' });
 
-        // Fire-and-forget: run cowork-test.mjs in background
-        execAsync(`node scripts/cowork-test.mjs ${taskId}`, { cwd: automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 })
+        // Fire-and-forget: run cowork-test.mjs in background (captured context)
+        const _testCtx = captureProjectContext();
+        execAsync(`node scripts/cowork-test.mjs ${taskId}`, { cwd: _testCtx.automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 })
           .then(() => {
             console.log(`[GUARDRAIL-DECISION] Cowork test completed for ${taskId}`);
             const tfDone = readJSON(taskFile);
@@ -1976,7 +2013,7 @@ Apply the fix now.`;
             if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
           } catch (_) {}
           try {
-            await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _retryAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024 });
+            await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _retryAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_retryCtx) });
             const tf = readJSON(taskFile);
             if (tf && stateAfterStep[stepName]) {
               tf.state = stateAfterStep[stepName]; tf.current_step = stepName;
@@ -2145,16 +2182,17 @@ Apply the fix now.`;
 
 // ===== GIT BRANCH HELPERS =====
 
-function createTaskBranch(taskId) {
+function createTaskBranch(taskId, _repoRootOverride) {
+  const _repo = _repoRootOverride || repoRoot;
   const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
   const task = readJSON(taskFile);
   if (!task || !task.branch_name) return false;
   try {
     // Check if branch already exists
-    const existing = execSync(`git branch --list "${task.branch_name}"`, { cwd: repoRoot, encoding: 'utf8' }).trim();
+    const existing = execSync(`git branch --list "${task.branch_name}"`, { cwd: _repo, encoding: 'utf8' }).trim();
     if (existing) { console.log(`[GIT] Branch ${task.branch_name} already exists`); return true; }
     // Create branch from current HEAD
-    execSync(`git branch "${task.branch_name}"`, { cwd: repoRoot, stdio: 'pipe' });
+    execSync(`git branch "${task.branch_name}"`, { cwd: _repo, stdio: 'pipe' });
     console.log(`[GIT] Created branch: ${task.branch_name}`);
     return true;
   } catch (e) {
@@ -2163,28 +2201,29 @@ function createTaskBranch(taskId) {
   }
 }
 
-function mergeTaskBranch(taskId) {
+function mergeTaskBranch(taskId, _repoRootOverride) {
+  const _repo = _repoRootOverride || repoRoot;
   const taskFile = path.join(getStateDir(), "tasks", `${taskId}.json`);
   const task = readJSON(taskFile);
   if (!task || !task.branch_name) return { ok: false, error: 'No branch_name' };
   try {
-    const currentBranch = execSync('git branch --show-current', { cwd: repoRoot, encoding: 'utf8' }).trim();
+    const currentBranch = execSync('git branch --show-current', { cwd: _repo, encoding: 'utf8' }).trim();
     // Only merge if we're on main
     if (currentBranch !== 'main') {
       return { ok: false, error: `Not on main (currently on ${currentBranch})` };
     }
     // Check branch exists
-    const exists = execSync(`git branch --list "${task.branch_name}"`, { cwd: repoRoot, encoding: 'utf8' }).trim();
+    const exists = execSync(`git branch --list "${task.branch_name}"`, { cwd: _repo, encoding: 'utf8' }).trim();
     if (!exists) return { ok: false, error: `Branch ${task.branch_name} does not exist` };
     // Merge with --no-ff for clear history
     const mergeMsg = `merge: ${taskId} — ${task.title || taskId}`;
-    execSync(`git merge --no-ff "${task.branch_name}" -m "${mergeMsg.replace(/"/g, '\\"')}"`, { cwd: repoRoot, stdio: 'pipe' });
+    execSync(`git merge --no-ff "${task.branch_name}" -m "${mergeMsg.replace(/"/g, '\\"')}"`, { cwd: _repo, stdio: 'pipe' });
     // Update task state
     task.state = 'MERGED';
     task.updated_at = new Date().toISOString();
     fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
     // Optionally delete the branch
-    try { execSync(`git branch -d "${task.branch_name}"`, { cwd: repoRoot, stdio: 'pipe' }); } catch (_) {}
+    try { execSync(`git branch -d "${task.branch_name}"`, { cwd: _repo, stdio: 'pipe' }); } catch (_) {}
     console.log(`[GIT] Merged ${task.branch_name} → main`);
     return { ok: true };
   } catch (e) {
@@ -2682,7 +2721,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
   try { // try/finally ensures _runningCascades always decrements
 
   // Create git branch for this task before pipeline starts
-  createTaskBranch(taskId);
+  createTaskBranch(taskId, _repoRoot);
 
   // Mark running
   try {
@@ -2718,7 +2757,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
       if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
     } catch (_) {}
     try {
-      await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _automationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024 });
+      await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _automationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(cascadeCtx.projectCtx) });
       const tf = readJSON(taskFile);
       if (tf && stateAfterStep[stepName]) {
         tf.state = stateAfterStep[stepName];

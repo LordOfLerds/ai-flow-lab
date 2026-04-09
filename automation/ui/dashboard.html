@@ -607,9 +607,21 @@ const APP = {
         if(this.state && Array.isArray(pr))this.state.prompts=pr;
         this._enrichDocsExist(); this._applyOverrides();
     },
+    _lastProjectRoot: null,
     async refresh(){
         const [s,u,d,pr]=await Promise.all([this.fetch('/api/state'),this.fetch('/api/usage'),this.fetch('/api/documents'),this.fetch('/api/prompts')]);
-        if(s){this.state=s; if(Array.isArray(this.state.tasks))this.state.tasks=this.state.tasks.filter(t=>t&&t.task_id);}
+        if(s){
+            // Detect project switch — full reload if project changed
+            const newRoot = s.active_project?.repoRoot;
+            if(this._lastProjectRoot && newRoot && newRoot !== this._lastProjectRoot) {
+                console.log('[DASHBOARD] Project switched:', this._lastProjectRoot, '→', newRoot);
+                this._lastProjectRoot = newRoot;
+                await this.load(); // Full reload (includes git, project info)
+                return;
+            }
+            if(newRoot) this._lastProjectRoot = newRoot;
+            this.state=s; if(Array.isArray(this.state.tasks))this.state.tasks=this.state.tasks.filter(t=>t&&t.task_id);
+        }
         if(Array.isArray(u))this.usage=u;
         if(d)this.docs=d;
         if(this.state && Array.isArray(pr))this.state.prompts=pr;
