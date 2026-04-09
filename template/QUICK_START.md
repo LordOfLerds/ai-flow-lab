@@ -87,7 +87,7 @@ LLM_MODE=api
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-4o
 GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-2.5-flash-lite
 PORT=3847
 ```
 

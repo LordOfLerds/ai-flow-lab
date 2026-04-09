@@ -519,7 +519,7 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
   if (!apiKey || !apiKey.trim()) {
     throw new Error("Missing required env var: GEMINI_API_KEY (set it in .env or use LLM_MODE=cli)");
   }
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-preview-04-17";
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 
   // In APP mode, Gemini uses its API directly (only OpenAI/ChatGPT steps go through
   // the manual prompt queue). So APP mode falls through to the API path below.

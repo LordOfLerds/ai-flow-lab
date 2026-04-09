@@ -128,7 +128,7 @@ LLM_MODE=app              # "app" (ChatGPT) or "api" (API keys)
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-4o
 GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-2.5-flash-lite
 
 # Dashboard
 PORT=3847

@@ -9,7 +9,7 @@ All system prompts used by the AI Flow Lab pipeline. Prompts are hardcoded in th
 | Step | Script | Provider (default) | Tools | Budget |
 |------|--------|--------------------|-------|--------|
 | Architect | `architect-task-api.mjs` | OpenAI (gpt-4o) | None | — |
-| Critique | `critique-task-api.mjs` | Gemini (gemini-2.0-flash) | None | — |
+| Critique | `critique-task-api.mjs` | Gemini (gemini-2.5-flash-lite) | None | — |
 | Synthesize | `synthesize-task-api.mjs` | OpenAI (gpt-4o) | None | — |
 | Execute | `execute-task-api.mjs` | Claude (claude-sonnet-4-20250514) | Read, Edit, Write, Glob, Grep | $2.00 |
 | Cowork Test | `cowork-test.mjs` | Claude (claude-sonnet-4-20250514) | Read, Glob, Grep | $1.00 |

@@ -2321,7 +2321,7 @@ function nextTaskId() {
 async function callGeminiDirect(prompt) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || !apiKey.trim()) throw new Error("No GEMINI_API_KEY available");
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-preview-04-17";
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.3, maxOutputTokens: 4096 } });
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body });
