@@ -276,6 +276,61 @@ canvas.play-zoom { transform: scale(1.05); }
   padding: 40px 0;
   font-style: italic;
 }
+
+/* Responsive HUD for small screens */
+@media (max-width: 600px) {
+  #hud {
+    font-size: 11px;
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  .hud-item .icon {
+    font-size: 12px;
+  }
+
+  .hud-item {
+    gap: 3px;
+  }
+
+  /* Scale powerup and skill indicators */
+  #hud-powerups span {
+    font-size: 8px !important;
+  }
+
+  .hud-skill {
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+  }
+}
+
+/* Additional scaling for very narrow screens */
+@media (max-width: 400px) {
+  #hud {
+    font-size: 9px;
+    gap: 8px;
+    padding: 0 6px;
+    height: 35px;
+  }
+
+  .hud-item .icon {
+    font-size: 10px;
+  }
+
+  .hud-item {
+    gap: 2px;
+  }
+
+  /* Further scale powerup and skill indicators */
+  #hud-powerups span {
+    font-size: 7px !important;
+  }
+
+  .hud-skill {
+    font-size: 7px !important;
+    padding: 1px 3px !important;
+  }
+}
 </style>
 </head>
 <body>
