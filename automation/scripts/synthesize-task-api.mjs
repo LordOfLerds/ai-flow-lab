@@ -54,9 +54,24 @@ function loadTruthFiles() {
       if (fs.existsSync(path.join(root, c))) truthSources.push(c);
     }
   }
-  return truthSources.map(src => {
-    const content = readRepoFile(src);
-    return content.trim() ? `[${src}]\n${content}` : null;
+  // Expand directories into their files (e.g. "docs/ADR/" → all .md files inside)
+  const expanded = [];
+  for (const src of truthSources) {
+    const full = path.join(root, src);
+    try {
+      if (fs.statSync(full).isDirectory()) {
+        const files = fs.readdirSync(full).filter(f => f.endsWith('.md')).sort();
+        for (const f of files) expanded.push(path.join(src, f));
+      } else {
+        expanded.push(src);
+      }
+    } catch (_) { expanded.push(src); }
+  }
+  return expanded.map(src => {
+    try {
+      const content = readRepoFile(src);
+      return content.trim() ? `[${src}]\n${content}` : null;
+    } catch (_) { return null; }
   }).filter(Boolean).join("\n\n");
 }
 

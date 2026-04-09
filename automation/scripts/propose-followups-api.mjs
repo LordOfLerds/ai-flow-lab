@@ -68,12 +68,25 @@ function loadTruthFiles() {
       if (fs.existsSync(path.join(root, c))) truthSources.push(c);
     }
   }
-  const parts = [];
+  // Expand directories into their files (e.g. "docs/ADR/" → all .md files inside)
+  const expanded = [];
   for (const src of truthSources) {
-    const content = readRepoFile(src);
-    if (content.trim()) {
-      parts.push(`[${src}]\n${content}`);
-    }
+    const full = path.join(root, src);
+    try {
+      if (fs.statSync(full).isDirectory()) {
+        const files = fs.readdirSync(full).filter(f => f.endsWith('.md')).sort();
+        for (const f of files) expanded.push(path.join(src, f));
+      } else {
+        expanded.push(src);
+      }
+    } catch (_) { expanded.push(src); }
+  }
+  const parts = [];
+  for (const src of expanded) {
+    try {
+      const content = readRepoFile(src);
+      if (content.trim()) parts.push(`[${src}]\n${content}`);
+    } catch (_) {}
   }
   return parts.join("\n\n");
 }
