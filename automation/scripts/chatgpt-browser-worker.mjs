@@ -18,6 +18,7 @@
  * The session is persisted in automation/state/.chatgpt-profile/
  */
 
+import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
