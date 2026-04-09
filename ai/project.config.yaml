@@ -51,14 +51,11 @@ executor_routing:
     pr_draft: openai
   overrides:
     bug-lane:
-      critique: claude
       execute: claude
     danger-lane:
-      critique: claude
       execute: claude
     docs-lane:
       execute: claude
     analysis-lane:
-      critique: claude
       synthesize: claude
       execute: claude

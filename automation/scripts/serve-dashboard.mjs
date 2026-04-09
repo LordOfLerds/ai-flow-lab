@@ -9,9 +9,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let automationRoot = path.dirname(__dirname);
 
-// The UI directory is ALWAYS from the server's own automation root (where serve-dashboard.mjs lives).
-// This ensures project switches don't load a stale/different dashboard from the target project.
+// The UI and scripts directories are ALWAYS from the server's own automation root.
+// This ensures project switches don't load stale dashboard or script copies from the target project.
 const _serverUIDir = path.join(automationRoot, "ui");
+const _serverScriptsDir = __dirname; // Always run server's scripts, never project's stale copies
 
 // Non-blocking exec wrapper — prevents server from freezing during long step executions
 function execAsync(cmd, opts = {}) {
@@ -567,7 +568,7 @@ cascade_limits:
       console.log(`API: Triggering run-goal-first-task for ${goalId}, first task: ${firstTaskId}`);
 
       try {
-        execSync(`node scripts/run-goal-first-task.mjs ${goalId} ${firstTaskId}`, {
+        execSync(`node ${_serverScriptsDir}/run-goal-first-task.mjs ${goalId} ${firstTaskId}`, {
           cwd: automationRoot,
           stdio: "pipe"
         });
@@ -594,7 +595,7 @@ cascade_limits:
       console.log(`API: Triggering run-task for ${taskId}`);
 
       try {
-        execSync(`node scripts/run-task.mjs ${taskId}`, {
+        execSync(`node ${_serverScriptsDir}/run-task.mjs ${taskId}`, {
           cwd: automationRoot,
           stdio: "pipe"
         });
@@ -806,7 +807,7 @@ cascade_limits:
         return;
       }
       const result = execSync(
-        `node scripts/new-task.mjs "${taskId}" "${laneType || 'feature-lane'}" "${title}" "${executor || 'codex'}"`,
+        `node ${_serverScriptsDir}/new-task.mjs "${taskId}" "${laneType || 'feature-lane'}" "${title}" "${executor || 'codex'}"`,
         { cwd: automationRoot, stdio: "pipe" }
       ).toString();
       // Patch in description and parentGoalId if provided
@@ -906,7 +907,7 @@ cascade_limits:
 
       // Run async — don't block
 
-      exec(`node scripts/init-project.mjs ${args}`, { cwd: automationRoot }, (err, stdout, stderr) => {
+      exec(`node ${_serverScriptsDir}/init-project.mjs ${args}`, { cwd: automationRoot }, (err, stdout, stderr) => {
         if (err) console.error(`init-project ${mode} failed:`, stderr);
         else console.log(`init-project ${mode} completed:`, stdout.substring(0, 200));
       });
@@ -924,7 +925,7 @@ cascade_limits:
       if (!fs.existsSync(absPath)) { respondError(res, 404, "Path not found: " + absPath); return; }
 
 
-      const output = execSync(`node scripts/analyze-codebase.mjs "${absPath}"`, {
+      const output = execSync(`node ${_serverScriptsDir}/analyze-codebase.mjs "${absPath}"`, {
         cwd: automationRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024
       });
       respondJSON(res, 200, JSON.parse(output));
@@ -1150,7 +1151,7 @@ cascade_limits:
           const s = scriptMap[stepName];
           if (!s) { resolve({ ok: false, error: `No script for ${stepName}` }); return; }
           console.log(`[PIPELINE] Running ${stepName} for ${taskId}...`);
-          exec(`node scripts/${s} ${taskId}`, { cwd: _stepAutomationRoot, timeout: 900000, env: buildChildEnv(_stepCtx) }, (err, stdout, stderr) => {
+          exec(`node ${_serverScriptsDir}/${s} ${taskId}`, { cwd: _stepAutomationRoot, timeout: 900000, env: buildChildEnv(_stepCtx) }, (err, stdout, stderr) => {
             if (err) {
               console.error(`[PIPELINE] ${stepName} for ${taskId} FAILED:`, stderr);
               resolve({ ok: false, step: stepName, error: stderr || err.message });
@@ -1273,16 +1274,16 @@ cascade_limits:
       const { goalId, taskId, step } = body;
       let cmd = "";
       if (step === "plan-goal" && goalId) {
-        cmd = `node scripts/plan-goal-api.mjs ${goalId}`;
+        cmd = `node ${_serverScriptsDir}/plan-goal-api.mjs ${goalId}`;
       } else if (taskId && step) {
         const scriptMap = {
-          'architect': `node scripts/architect-task-api.mjs ${taskId}`,
-          'critique': `node scripts/critique-task-api.mjs ${taskId}`,
-          'synthesize': `node scripts/synthesize-task-api.mjs ${taskId}`,
-          'execute': `node scripts/execute-task-api.mjs ${taskId}`,
-          'merge': `node scripts/merge-task.mjs ${taskId}`,
-          'propose-followups': `node scripts/propose-followups-api.mjs ${taskId}`,
-          'pr-draft': `node scripts/generate-pr-draft.mjs ${taskId}`,
+          'architect': `node ${_serverScriptsDir}/architect-task-api.mjs ${taskId}`,
+          'critique': `node ${_serverScriptsDir}/critique-task-api.mjs ${taskId}`,
+          'synthesize': `node ${_serverScriptsDir}/synthesize-task-api.mjs ${taskId}`,
+          'execute': `node ${_serverScriptsDir}/execute-task-api.mjs ${taskId}`,
+          'merge': `node ${_serverScriptsDir}/merge-task.mjs ${taskId}`,
+          'propose-followups': `node ${_serverScriptsDir}/propose-followups-api.mjs ${taskId}`,
+          'pr-draft': `node ${_serverScriptsDir}/generate-pr-draft.mjs ${taskId}`,
         };
         cmd = scriptMap[step];
       }
@@ -1385,7 +1386,7 @@ cascade_limits:
 
           // Step 1: Plan the goal (decompose into proposals)
           try {
-            execSync(`node scripts/plan-goal-api.mjs ${goalId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', timeout: 900000, env: buildChildEnv(_goalCtx) });
+            execSync(`node ${_serverScriptsDir}/plan-goal-api.mjs ${goalId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', timeout: 900000, env: buildChildEnv(_goalCtx) });
             console.log(`[CASCADE] Goal ${goalId}: planning complete`);
           } catch (planErr) {
             console.error(`[CASCADE] Goal plan failed:`, planErr.message?.substring(0,200));
@@ -1410,7 +1411,7 @@ cascade_limits:
           for (const proposal of goalProposals) {
             const newId = nextTaskId();
             try {
-              execSync(`node scripts/spawn-from-goal-proposal.mjs ${proposal.proposal_id} ${newId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', env: buildChildEnv(_goalCtx) });
+              execSync(`node ${_serverScriptsDir}/spawn-from-goal-proposal.mjs ${proposal.proposal_id} ${newId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', env: buildChildEnv(_goalCtx) });
               // Link task to goal
               const taskFile = path.join(_goalStateDir, "tasks", `${newId}.json`);
               const task = readJSON(taskFile);
@@ -1581,7 +1582,7 @@ cascade_limits:
 
       // Use the existing spawn script
       try {
-        execSync(`node scripts/spawn-followup-task.mjs ${proposalId} ${newId}`, {
+        execSync(`node ${_serverScriptsDir}/spawn-followup-task.mjs ${proposalId} ${newId}`, {
           cwd: automationRoot,
           stdio: 'pipe',
           timeout: 15000
@@ -1872,7 +1873,7 @@ Apply the fix now.`;
 
         // Fire-and-forget: run cowork-test.mjs in background (captured context)
         const _testCtx = captureProjectContext();
-        execAsync(`node scripts/cowork-test.mjs ${taskId}`, { cwd: _testCtx.automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 })
+        execAsync(`node ${_serverScriptsDir}/cowork-test.mjs ${taskId}`, { cwd: _testCtx.automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 })
           .then(() => {
             console.log(`[GUARDRAIL-DECISION] Cowork test completed for ${taskId}`);
             const tfDone = readJSON(taskFile);
@@ -2010,7 +2011,7 @@ Apply the fix now.`;
             if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
           } catch (_) {}
           try {
-            await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _retryAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_retryCtx) });
+            await execAsync(`node ${_serverScriptsDir}/${scriptMap[stepName]} ${taskId}`, { cwd: _retryAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_retryCtx) });
             const tf = readJSON(taskFile);
             if (tf && stateAfterStep[stepName]) {
               tf.state = stateAfterStep[stepName]; tf.current_step = stepName;
@@ -2096,7 +2097,7 @@ Apply the fix now.`;
               for (const proposal of spawnable) {
                 const newId = nextTaskId();
                 try {
-                  execSync(`node scripts/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, {
+                  execSync(`node ${_serverScriptsDir}/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, {
                     cwd: _retryAutomationRoot, stdio: 'pipe', timeout: 15000
                   });
                   console.log(`[RETRY] Spawned follow-up ${newId} from ${proposal.proposal_id}`);
@@ -2754,7 +2755,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
       if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
     } catch (_) {}
     try {
-      await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _automationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(cascadeCtx.projectCtx) });
+      await execAsync(`node ${_serverScriptsDir}/${scriptMap[stepName]} ${taskId}`, { cwd: _automationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(cascadeCtx.projectCtx) });
       const tf = readJSON(taskFile);
       if (tf && stateAfterStep[stepName]) {
         tf.state = stateAfterStep[stepName];
@@ -2826,7 +2827,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
             fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
 
             try {
-              await execAsync(`node scripts/cowork-test.mjs ${taskId}`, { cwd: _automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 });
+              await execAsync(`node ${_serverScriptsDir}/cowork-test.mjs ${taskId}`, { cwd: _automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 });
               // cowork-test.mjs sets task state to TESTED or TEST_FAILED
               const tfAfterTest = readJSON(taskFile);
               if (tfAfterTest && tfAfterTest.state === 'TEST_FAILED') {
@@ -2972,7 +2973,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
       const newId = nextTaskId();
       cascadeCtx.tasksSpawned++;
       try {
-        execSync(`node scripts/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, { cwd: _automationRoot, stdio: 'pipe' });
+        execSync(`node ${_serverScriptsDir}/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, { cwd: _automationRoot, stdio: 'pipe' });
         console.log(`[CASCADE] Spawned follow-up ${newId} from ${proposal.proposal_id}`);
         // Add to existingTasks so subsequent dedup checks see it
         existingTasks.push({ task_id: newId, title: proposal.title });
