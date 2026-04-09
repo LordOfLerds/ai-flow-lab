@@ -1346,19 +1346,10 @@ cascade_limits:
       // Run in background — delegate to shared cascadeRunTask
       (async () => {
         try {
-          // Allow API params to override yaml config
-          const ctx = {
-            maxDepth: effectiveDepth,
-            maxFollowupsPerTask: maxFollowupsPerTask ?? cfg.max_followups_per_task,
-            maxTotalTasks: maxTotalTasks ?? cfg.max_total_tasks,
-            tasksSpawned: 1,
-            errors: []
-          };
-          await cascadeRunTask(taskId, ctx.maxDepth, 0, ctx);
-          if (ctx.errors.length > 0) {
-            console.log(`[CASCADE] Completed with ${ctx.errors.length} error(s): ${ctx.errors.map(e => `${e.taskId}/${e.step}`).join(", ")}`);
-          }
-          console.log(`[CASCADE] Total tasks spawned: ${ctx.tasksSpawned}/${ctx.maxTotalTasks}`);
+          // Pass null so cascadeRunTask initializes its own context (with projectCtx + _runningCascades).
+          // maxDepth is passed as parameter; cascadeRunTask uses it via the maxDepth arg (first priority over config).
+          await cascadeRunTask(taskId, effectiveDepth, 0, null);
+          console.log(`[CASCADE] Cascade completed for ${taskId}`);
         } catch (e) {
           console.error(`[CASCADE] Fatal error for ${taskId}:`, e.message);
         }
