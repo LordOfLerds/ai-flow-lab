@@ -1,0 +1,35 @@
+{
+  "task_id": "T-0023",
+  "title": "Document  as a compatibility redirect entry point in architecture docs",
+  "repo": "ai-flow-lab",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "parent_task_id": "T-0019",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "docs/T-0023-document-as-a-compatibility-redirect-entry-point-in-architecture-docs",
+  "worktree_path": "../wt/T-0023",
+  "spec_path": "ai/specs/T-0023_spec.md",
+  "review_path": "ai/reviews/T-0023_gemini_review.md",
+  "brief_path": "ai/briefs/T-0023_implementation.md",
+  "result_path": "ai/results/T-0023_executor_report.md",
+  "followup_path": "ai/followups/T-0023_followups.md",
+  "owner_lock": "task:T-0023",
+  "created_at": "2026-04-07T20:54:26.845Z",
+  "updated_at": "2026-04-07T20:58:14.714Z",
+  "followup_source_proposal_id": "T-0019-F-2",
+  "planner_notes": {
+    "rationale": "The executor recommended documenting that `game.html` is only a compatibility redirect so future tasks and tests align on `index.html` as the canonical entry point. This is a small docs-only clarification and reduces future ambiguity.",
+    "smallest_safe_scope": "Update `docs/ARCHITECTURE.md` to note `index.html` as the canonical interactive entry and `game.html` as a compatibility redirect, with a brief note that smoke coverage should assert Start UI on the resolved canonical page.",
+    "depends_on": "T-0019",
+    "priority": "medium"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "docs/ARCHITECTURE.md"
+  ],
+  "pr_draft_path": "ai/pr/T-0023_pr_draft.md"
+}

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0001-F-1",
+  "parent_task_id": "T-0001",
+  "title": "Implement player character with physics and controls",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Core gameplay requires responsive player movement, jumping, gravity, and collision bounds. Direct dependency for level/obstacle tasks.",
+  "smallest_safe_scope": "Add player velocity (vx, vy), gravity simulation, ArrowKey/WASD movement input mapping, basic ground collision detection via simple bounds checking.",
+  "depends_on": "T-0001",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:43:58.791Z",
+  "index": 1
+}

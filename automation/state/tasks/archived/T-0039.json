@@ -1,0 +1,14 @@
+{
+  "task_id": "T-0039",
+  "title": "Code truncation in index.html",
+  "description": "The index.html file appears to be truncated (ends with '... [truncated]'), indicating the implementation is incomplete. The full code needs to be included.",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "parent_task_id": "T-9998",
+  "origin": "cowork-test",
+  "state": "NEW",
+  "runtime_status": "IDLE",
+  "created_at": "2026-04-08T08:05:59.616Z",
+  "updated_at": "2026-04-08T08:05:59.616Z"
+}

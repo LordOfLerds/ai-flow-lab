@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0029-F-3",
+  "parent_task_id": "T-0029",
+  "title": "Add game over screen with stats and level select",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Currently death just shows \"You Died! Press R to retry\" with a dark overlay. There's no game-over flow, no stats summary (enemies killed, coins collected, distance traveled), and no way to select a level. This task enhances the death/game-over experience with a proper stats screen and retry/menu options.",
+  "smallest_safe_scope": "Enhanced death overlay with stats (score, coins, deaths, enemies stomped), \"Retry\" and \"Main Menu\" buttons. No level select yet.",
+  "depends_on": "T-0029",
+  "priority": "normal",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T23:45:16.254Z",
+  "index": 3
+}

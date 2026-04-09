@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0017-F-1",
+  "parent_task_id": "T-0017",
+  "title": "Expose progress scoring unit through game config",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "The executor identified the progress unit as a hard-coded pacing constant (`8px`). Moving that value into existing game configuration is a small, reviewable improvement that lets maintainers tune score pacing without changing scoring logic.",
+  "smallest_safe_scope": "Define the progress scoring unit in the existing config path, wire `ScoreTracker` instantiation to read it from config, and update docs/tests to reflect the configurable source while preserving current default behavior.",
+  "depends_on": "T-0017",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:03:41.991Z",
+  "index": 1
+}

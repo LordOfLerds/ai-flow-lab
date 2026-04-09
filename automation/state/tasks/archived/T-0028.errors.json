@@ -1,0 +1,14 @@
+[
+  {
+    "step": "architect",
+    "message": "[routing] Step=\"architect\" Lane=\"feature-lane\" → Provider=\"openai\" (mode=app)\n\n[APP MODE] Prompt queued: 1775603764638-T-0028-architect\n  Prompt: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775603764638-T-0028-architect.prompt.md\n  Waiting for response at: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775603764638-T-0028-architect.response.md\n\n---\nCommand failed: node scripts/architect-task-api.mjs T-0028 [KILLED signal=SIGTERM — likely timeout]",
+    "timestamp": "2026-04-07T23:31:13.321Z",
+    "depth": 1
+  },
+  {
+    "step": "execute",
+    "message": "[CLI] Codex timed out after 5min for execute/T-0028, falling back to Claude CLI\n\n---\n[routing] Step=\"execute\" Lane=\"feature-lane\" → Provider=\"codex\" (mode=app)\n[routing] Provider \"codex\" → codex CLI (mode=app ignored)\n[CLI] Calling codex exec for execute/T-0028 (prompt: 69258 chars, file: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/tmp/cli-prompt-T-0028-execute-codex.md)\n[CLI] Calling claude --print for execute/T-0028 (prompt: 69258 chars)\n\n---\nCommand failed: node scripts/execute-task-api.mjs T-0028\n[CLI] Codex timed out after 5min for execute/T-0028, falling back to Claude CLI [KILLED signal=SIGTERM — likely timeout]",
+    "timestamp": "2026-04-07T23:40:59.940Z",
+    "depth": 0
+  }
+]

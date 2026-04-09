@@ -134,7 +134,8 @@
         /* PIPELINE */
         .pipeline-flow { display: flex; flex-direction: column; gap: 0; }
         .pipeline-task-group { margin-bottom: 24px; }
-        .pipeline-task-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px 10px 0 0; cursor: pointer; }
+        .pipeline-task-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px 10px 0 0; cursor: pointer; }
+        .pipeline-task-header .badge { flex-shrink: 0; }
         .pipeline-task-header:hover { border-color: var(--border-light); }
         .pipeline-task-header .task-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 600; min-width: 60px; }
         .pipeline-task-header .task-title { font-size: 13px; font-weight: 600; flex: 1; }
@@ -150,7 +151,8 @@
         .pipeline-step .step-name { font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
         .pipeline-step .step-status { text-align: center; }
         .pipeline-step .step-tokens { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: right; }
-        .pipeline-step .step-actions { display: flex; gap: 4px; justify-content: flex-end; }
+        .pipeline-step .step-actions { display: flex; gap: 6px; justify-content: flex-end; }
+        .pipeline-step .badge { margin-left: 4px; }
         .step-connector { width: 2px; height: 16px; background: var(--border-color); margin-left: 40px; }
         .step-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
         .step-icon.done { background: rgba(34,197,94,0.15); color: var(--success); }
@@ -263,6 +265,16 @@
                 <div id="project-name-sidebar"></div>
             </div>
         </div>
+        <!-- Project Selector -->
+        <div id="project-selector" style="padding:8px 12px;border-bottom:1px solid var(--border-color);">
+            <select id="project-dropdown" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);font-size:12px;cursor:pointer;">
+                <option value="">Loading projects...</option>
+            </select>
+            <div style="display:flex;gap:4px;margin-top:6px;">
+                <button class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;font-size:10px;" onclick="showAddProjectModal()">+ Add</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;font-size:10px;" onclick="showImportProjectModal()">&#128229; Import</button>
+            </div>
+        </div>
         <nav class="nav-items">
             <div class="nav-label">Overview</div>
             <a href="#dashboard" class="nav-item active" data-page="dashboard"><span class="nav-icon">&#128200;</span>Dashboard</a>
@@ -273,6 +285,7 @@
             <a href="#documents" class="nav-item" data-page="documents"><span class="nav-icon">&#128196;</span>Documents</a>
             <a href="#branches" class="nav-item" data-page="branches"><span class="nav-icon">&#127807;</span>Branches</a>
             <a href="#decisions" class="nav-item" data-page="decisions"><span class="nav-icon">&#9878;&#65039;</span>Decisions</a>
+            <a href="#tests" class="nav-item" data-page="tests"><span class="nav-icon">&#129514;</span>Tests</a>
             <div class="nav-divider"></div>
             <div class="nav-label">AI</div>
             <a href="#chatgpt" class="nav-item" data-page="chatgpt"><span class="nav-icon">&#128172;</span>ChatGPT</a>
@@ -296,6 +309,9 @@
                     <span id="ai-active-label">Idle</span>
                 </div>
             </div>
+        </div>
+        <div id="sandbox-banner" style="display:none;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 16px;margin:0 24px 0 24px;font-size:12px;color:#f59e0b;cursor:pointer;" onclick="this.style.display='none'">
+            &#9888;&#65039; <strong>Sandbox-Modus erkannt</strong> — Externe APIs (Gemini, OpenAI) sind eingeschr&auml;nkt wegen Netzwerk-Sandbox. F&uuml;r volle Funktionalit&auml;t den Server lokal starten: <code style="background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:3px;">node automation/scripts/serve-dashboard.mjs</code> <span style="float:right;opacity:0.5;">&#10005; klick zum schlie&szlig;en</span>
         </div>
         <div class="content-area">
             <!-- DASHBOARD -->
@@ -326,9 +342,11 @@
 
             <!-- PIPELINE -->
             <div id="pipeline-view" class="view">
-                <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;">
                     <button class="btn btn-secondary btn-sm" onclick="setPipelineView('flow')">&#9776; Flow View</button>
                     <button class="btn btn-secondary btn-sm" onclick="setPipelineView('kanban')">&#9638; Kanban View</button>
+                    <div style="flex:1;"></div>
+                    <button class="btn btn-primary btn-sm" onclick="openTaskModal()">&#128221; New Task</button>
                 </div>
                 <div id="pipeline-content"></div>
             </div>
@@ -372,15 +390,18 @@
                 <div id="resolved-decisions" style="display:flex;flex-direction:column;gap:14px;"></div>
             </div>
 
+            <!-- TESTS -->
+            <div id="tests-view" class="view">
+                <div id="tests-summary" style="margin-bottom:16px;"></div>
+                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;">Test Results</h2>
+                <div id="tests-list" style="display:flex;flex-direction:column;gap:14px;"></div>
+            </div>
+
             <!-- CHATGPT -->
             <div id="chatgpt-view" class="view">
-                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;">Prompt Queue</h2>
-                <div id="prompt-queue" style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px;"></div>
-                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;">Send Response</h2>
-                <div class="card">
-                    <div class="form-group"><label class="form-label">ChatGPT Response</label><textarea id="chatgpt-response" class="form-textarea" placeholder="Paste ChatGPT response here..."></textarea></div>
-                    <button class="btn btn-primary" style="width:100%;" id="submit-response-btn">Submit Response</button>
-                </div>
+                <h2 style="font-size:15px;font-weight:700;margin-bottom:10px;">ChatGPT Prompt Queue</h2>
+                <div id="chatgpt-status-summary" style="margin-bottom:16px;"></div>
+                <div id="prompt-queue" style="display:flex;flex-direction:column;gap:8px;"></div>
             </div>
 
             <!-- TOKENS -->
@@ -388,7 +409,7 @@
                 <div class="usage-grid" id="usage-summary-grid"></div>
                 <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;">Usage Log</h2>
                 <div class="card" style="padding:0;overflow-x:auto;">
-                    <table class="usage-table"><thead><tr><th>Time</th><th>Provider</th><th>Model</th><th>Step</th><th>Task</th><th>Executor</th><th>In</th><th>Out</th><th>Total</th><th>ms</th></tr></thead><tbody id="usage-table-body"></tbody></table>
+                    <table class="usage-table"><thead><tr><th>Time</th><th>Provider</th><th>Model</th><th>Step</th><th>Task</th><th>Executor</th><th>In</th><th>Out</th><th>Total</th><th>Cost</th><th>ms</th></tr></thead><tbody id="usage-table-body"></tbody></table>
                 </div>
             </div>
 
@@ -397,6 +418,7 @@
                 <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;">LLM Mode</h2>
                 <div class="card" style="margin-bottom:28px;"><div style="display:flex;gap:8px;">
                     <button class="btn btn-secondary mode-btn" data-mode="API">API</button>
+                    <button class="btn btn-secondary mode-btn" data-mode="CLI">CLI</button>
                     <button class="btn btn-secondary mode-btn" data-mode="APP">APP</button>
                     <button class="btn btn-secondary mode-btn" data-mode="MOCK">MOCK</button>
                 </div></div>
@@ -552,11 +574,13 @@ const APP = {
     page:'dashboard', state:null, usage:[], docs:null, git:null, project:null, pipelineView:'flow',
     timer:null,
     _expandedTasks: new Set(),
+    _completedOpen: false,
     _activeBranchTab: 'git-history',
+    _modeOverride: null, // client-side mode override (when server hasn't been restarted yet)
     // Helper: normalize arrays to keyed objects
     tasksMap(){const m={}; (this.state?.tasks||[]).forEach(t=>m[t.task_id]=t); return m;},
     goalsMap(){const m={}; (this.state?.goals||[]).forEach(g=>m[g.goal_id]=g); return m;},
-    async fetch(url){try{const r=await fetch(url);return await r.json();}catch(e){console.error(url,e);return null;}},
+    async fetch(url){try{const r=await fetch(url,{cache:'no-store'});return await r.json();}catch(e){console.error(url,e);return null;}},
     _enrichDocsExist(){
         // Build docs_exist client-side from /api/documents data so it works even if the server doesn't compute it
         if(!this.state?.tasks||!this.docs) return;
@@ -572,17 +596,24 @@ const APP = {
             });
         }
     },
+    _applyOverrides(){
+        if(this._modeOverride && this.state) this.state.mode = this._modeOverride;
+    },
     async load(){
-        const [s,u,d,g,p]=await Promise.all([this.fetch('/api/state'),this.fetch('/api/usage'),this.fetch('/api/documents'),this.fetch('/api/git'),this.fetch('/api/project')]);
-        if(s)this.state=s; if(Array.isArray(u))this.usage=u; else this.usage=[];
+        const [s,u,d,g,p,pr]=await Promise.all([this.fetch('/api/state'),this.fetch('/api/usage'),this.fetch('/api/documents'),this.fetch('/api/git'),this.fetch('/api/project'),this.fetch('/api/prompts')]);
+        if(s){this.state=s; if(Array.isArray(this.state.tasks))this.state.tasks=this.state.tasks.filter(t=>t&&t.task_id);}
+        if(Array.isArray(u))this.usage=u; else this.usage=[];
         if(d)this.docs=d; if(g)this.git=g; if(p)this.project=p;
-        this._enrichDocsExist();
+        if(this.state && Array.isArray(pr))this.state.prompts=pr;
+        this._enrichDocsExist(); this._applyOverrides();
     },
     async refresh(){
-        const [s,u,d]=await Promise.all([this.fetch('/api/state'),this.fetch('/api/usage'),this.fetch('/api/documents')]);
-        if(s)this.state=s; if(Array.isArray(u))this.usage=u;
+        const [s,u,d,pr]=await Promise.all([this.fetch('/api/state'),this.fetch('/api/usage'),this.fetch('/api/documents'),this.fetch('/api/prompts')]);
+        if(s){this.state=s; if(Array.isArray(this.state.tasks))this.state.tasks=this.state.tasks.filter(t=>t&&t.task_id);}
+        if(Array.isArray(u))this.usage=u;
         if(d)this.docs=d;
-        this._enrichDocsExist();
+        if(this.state && Array.isArray(pr))this.state.prompts=pr;
+        this._enrichDocsExist(); this._applyOverrides();
     }
 };
 
@@ -592,14 +623,15 @@ const PIPELINE_STEPS = [
     { key:'architect',  label:'Architect',    ai:'openai', icon:'\u{1F3D7}', states:['NEW','ARCHITECTED'] },
     { key:'critique',   label:'Critique',     ai:'gemini', icon:'\u{1F50D}', states:['ARCHITECTED','CRITIQUED'] },
     { key:'synthesize', label:'Synthesize',   ai:'openai', icon:'\u{1F9EA}', states:['CRITIQUED','SYNTHESIZED'] },
-    { key:'execute',    label:'Execute',      ai:'claude', icon:'\u{2699}',  states:['SYNTHESIZED','IMPLEMENTING'], intervention:true },
-    { key:'review',     label:'Review',       ai:'user',   icon:'\u{1F441}', states:['IMPLEMENTING','REVIEWED'], intervention:true },
-    { key:'merge',      label:'Merge',        ai:'user',   icon:'\u{1F517}', states:['REVIEWED','MERGED'], intervention:true },
-    { key:'followups',  label:'Follow-ups',   ai:'openai', icon:'\u{1F4AC}', states:['MERGED','FOLLOWUPS_PROPOSED'] },
-    { key:'pr-draft',   label:'PR Draft',     ai:'openai', icon:'\u{1F4DD}', states:['FOLLOWUPS_PROPOSED','PR_DRAFTED'] }
+    { key:'execute',    label:'Execute',      ai:'auto',   icon:'\u{2699}',  states:['SYNTHESIZED','IMPLEMENTING'] }, // ai resolved dynamically from task.executor
+    { key:'followups',  label:'Follow-ups',   ai:'openai', icon:'\u{1F4AC}', states:['IMPLEMENTING','FOLLOWUPS_PROPOSED'] },
+    { key:'pr-draft',   label:'PR Draft',     ai:'openai', icon:'\u{1F4DD}', states:['FOLLOWUPS_PROPOSED','PR_DRAFTED'] },
+    { key:'merge',      label:'Merge',        ai:'auto',   icon:'\u{1F517}', states:['PR_DRAFTED','MERGED'] }
 ];
 
-const STATE_ORDER = ['NEW','ARCHITECTED','CRITIQUED','SYNTHESIZED','IMPLEMENTING','REVIEWED','MERGED','FOLLOWUPS_PROPOSED','PR_DRAFTED'];
+const STATE_ORDER = ['NEW','ARCHITECTED','CRITIQUED','SYNTHESIZED','IMPLEMENTING','EXECUTED','COWORK_TESTING','TESTED','TEST_FAILED','BLOCKED_ON_DECISION','FOLLOWUPS_PROPOSED','PR_DRAFTED','MERGED'];
+const COMPLETED_STATES = new Set(['MERGED','PR_DRAFTED','FOLLOWUPS_PROPOSED','TESTED']);
+const POST_MERGE_STEPS = new Set([]); // merge is now last step, no post-merge steps
 
 function getStepStatus(task, step) {
     const taskState = task.state || 'NEW';
@@ -612,7 +644,7 @@ function getStepStatus(task, step) {
 }
 
 function getStepTokens(taskId, stepKey) {
-    const stepMap = { plan:'plan-goal', architect:'architect', critique:'critique', synthesize:'synthesize', followups:'propose-followups', 'pr-draft':'pr-draft' };
+    const stepMap = { plan:'plan-goal', architect:'architect', critique:'critique', synthesize:'synthesize', execute:'execute', merge:'merge', followups:'propose-followups', 'pr-draft':'pr-draft' };
     const mapped = stepMap[stepKey];
     if(!mapped) return null;
     const entries = APP.usage.filter(u => u.taskId === taskId && u.step === mapped);
@@ -627,6 +659,80 @@ function getStepTokens(taskId, stepKey) {
     return result;
 }
 
+// ===== APP MODE: INLINE PROMPT HELPERS =====
+const STEP_KEY_TO_QUEUE = { plan:'plan-goal', architect:'architect', critique:'critique', synthesize:'synthesize', execute:'execute', merge:'merge', followups:'propose-followups', 'pr-draft':'pr-draft' };
+const APP_MODE_STEPS = new Set(['architect','synthesize','followups','pr-draft']); // Only OpenAI steps → manual ChatGPT prompt queue in APP mode (critique=gemini→API, execute=codex/claude→CLI)
+
+APP._lockedPrompts = new Set();
+
+function getPromptForStep(taskId, stepKey) {
+    const prompts = APP.state?.prompts || [];
+    const queueStep = STEP_KEY_TO_QUEUE[stepKey] || stepKey;
+    // Find prompts matching this task+step, newest first (already sorted by server)
+    const matches = prompts.filter(p => p.taskId === taskId && p.step === queueStep);
+    if (!matches.length) return null;
+    // Prefer pending, else return newest
+    const pending = matches.find(p => p.status === 'pending' && !p.hasResponse);
+    return pending || matches[0];
+}
+
+function isAppMode() {
+    return (APP.state?.mode || 'API').toUpperCase() === 'APP';
+}
+
+function renderInlinePromptWidget(prompt) {
+    if (!prompt) return '';
+    const pid = prompt.id;
+    const isPending = prompt.status === 'pending' && !prompt.hasResponse;
+    const isCompleted = prompt.status === 'completed' || prompt.hasResponse;
+    const isLocked = APP._lockedPrompts.has(pid);
+    const promptText = (prompt.text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const stepLabel = (prompt.step || '').replace(/_/g,' ').replace(/-/g,' ');
+    const sizeKB = prompt.promptSize ? (prompt.promptSize / 1024).toFixed(1) + ' KB' : '';
+
+    if (isCompleted && !isPending) {
+        return `<div style="margin:6px 0 2px 28px;padding:8px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px;font-size:11px;color:var(--success);display:flex;align-items:center;gap:6px;">
+            <span>✓ Response submitted</span>
+            <span style="color:var(--text-muted);font-size:10px;">${prompt.completedAt ? timeAgo(new Date(prompt.completedAt)) : ''}</span>
+        </div>`;
+    }
+
+    // Pending — show full widget
+    return `<div style="margin:6px 0 4px 28px;padding:14px;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.25);border-radius:8px;" onclick="event.stopPropagation();">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;color:var(--warning);text-transform:uppercase;letter-spacing:0.5px;">⏳ Waiting for ChatGPT Response</span>
+            ${sizeKB ? `<span style="font-size:10px;color:var(--text-muted);">${sizeKB}</span>` : ''}
+        </div>
+        <div style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-size:11px;max-height:150px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;margin-bottom:10px;" class="mono">${promptText || '(empty)'}</div>
+        <button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:10px;" onclick="event.stopPropagation();copyPromptText('${pid}')">📋 Copy Prompt to Clipboard</button>
+        <div style="border-top:1px solid var(--border-color);padding-top:10px;">
+            <label style="font-size:11px;font-weight:600;display:block;margin-bottom:4px;">Paste ChatGPT Response:</label>
+            <textarea id="response-text-${pid}" class="form-textarea" style="min-height:100px;font-size:12px;${isLocked ? 'opacity:0.6;' : ''}" placeholder="Paste the ChatGPT response here..." ${isLocked ? 'disabled' : ''}></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                ${isLocked
+                    ? `<button class="btn btn-secondary btn-sm" style="flex:1;" onclick="event.stopPropagation();unlockPromptResponse('${pid}')">🔓 Unlock to Edit</button>
+                       <span class="badge badge-success" style="padding:6px 12px;">✓ Locked</span>`
+                    : `<button class="btn btn-primary btn-sm" style="flex:1;" onclick="event.stopPropagation();submitPromptResponse('${pid}')">▶ Submit Response</button>`
+                }
+            </div>
+        </div>
+    </div>`;
+}
+
+function lockPromptResponse(promptId) {
+    APP._lockedPrompts.add(promptId);
+    const ta = document.getElementById('response-text-' + promptId);
+    if (ta) { ta.disabled = true; ta.style.opacity = '0.6'; }
+}
+
+function unlockPromptResponse(promptId) {
+    APP._lockedPrompts.delete(promptId);
+    const ta = document.getElementById('response-text-' + promptId);
+    if (ta) { ta.disabled = false; ta.style.opacity = '1'; }
+    // Re-render to update buttons
+    render();
+}
+
 // ===== NAVIGATION =====
 function navigateTo(page) {
     APP.page = page;
@@ -634,7 +740,7 @@ function navigateTo(page) {
     // Hide branch detail panel when leaving branches view
     if (page !== 'branches') { const bdp = $('branch-detail-panel'); if(bdp) bdp.classList.remove('active'); }
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.toggle('active',i.dataset.page===page));
-    const titles = {dashboard:'Dashboard',pipeline:'Pipeline',goals:'Goals',documents:'Documents',branches:'Branches',decisions:'Decisions',chatgpt:'ChatGPT',tokens:'Token Usage',settings:'Settings'};
+    const titles = {dashboard:'Dashboard',pipeline:'Pipeline',goals:'Goals',documents:'Documents',branches:'Branches',decisions:'Decisions',tests:'Tests',chatgpt:'ChatGPT',tokens:'Token Usage',settings:'Settings'};
     $('page-title').textContent=titles[page]||'Dashboard';
     render();
 }
@@ -645,7 +751,7 @@ function render() {
     switch(APP.page){
         case'dashboard':renderDashboard();break; case'pipeline':renderPipeline();break; case'goals':renderGoals();break;
         case'documents':renderDocuments();break; case'branches':renderBranches();break; case'decisions':renderDecisions();break;
-        case'chatgpt':renderChatGPT();break; case'tokens':renderTokens();break; case'settings':renderSettings();break;
+        case'tests':renderTests();break; case'chatgpt':renderChatGPT();break; case'tokens':renderTokens();break; case'settings':renderSettings();break;
     }
     updateHeader();
 }
@@ -654,12 +760,12 @@ function updateHeader() {
     // AI indicator
     const mode = (APP.state?.mode||'API').toLowerCase();
     const tasks = APP.state?.tasks || [];
-    const active = tasks.find(t=>t.runtime_status==='running');
+    const active = tasks.find(t=>t.runtime_status==='running'||t.runtime_status==='QUEUED');
     let provider = null;
     if(active) provider = active.executor==='codex'?'openai':active.executor==='claude'?'claude':active.executor||'openai';
     if(!provider && APP.usage.length) { const l=APP.usage[APP.usage.length-1]; if(Date.now()-new Date(l.timestamp)<30000) provider=l.provider; }
     const ind = $('ai-active-indicator');
-    const runningTask = tasks.find(t=>t.runtime_status==='running');
+    const runningTask = tasks.find(t=>t.runtime_status==='running'||t.runtime_status==='QUEUED');
     ind.className = 'ai-indicator '+(provider||mode==='mock'?'mock':'idle');
     if(provider) ind.className='ai-indicator '+provider;
     const activeLabel = runningTask ? `${({openai:'OpenAI',gemini:'Gemini',claude:'Claude',codex:'Codex',mock:'Mock'}[runningTask.executor]||runningTask.executor||'AI')} \u2192 ${runningTask.task_id}` :
@@ -674,17 +780,27 @@ function updateHeader() {
     $('e2e-status').innerHTML=`<span class="status-dot ${cls}"></span><span>E2E: ${txt}</span>`;
     const m=APP.state?.mode||'API';
     $('llm-mode').innerHTML=`<span class="status-dot ${m==='MOCK'?'warning':'success'}"></span><span>Mode: ${m}</span>`;
+
+    // Sandbox detection: check if any recent errors mention DNS/network issues
+    const sandboxBanner = $('sandbox-banner');
+    if(sandboxBanner) {
+        const recentErrors = tasks.filter(t=>t.last_error?.message && /EAI_AGAIN|ENOTFOUND|ECONNREFUSED|sandbox|fetch failed/i.test(t.last_error.message));
+        if(recentErrors.length>0) {
+            sandboxBanner.style.display='block';
+        }
+    }
 }
 
 // ===== RENDER: DASHBOARD =====
 function renderDashboard() {
     if(!APP.state)return;
     const tasks=(APP.state.tasks||[]).filter(t=>t.state!=='DELETED'), goals=APP.state.goals||[], dps=APP.state.decision_proposals||[], prs=APP.state.pr_drafts||[];
+    const failedCount = tasks.filter(t=>t.runtime_status==='FAILED').length;
     $('stats-container').innerHTML=`
         <div class="stat-card"><div class="stat-label">Tasks</div><div class="stat-value">${tasks.length}</div><div class="stat-sub">total in pipeline</div></div>
         <div class="stat-card"><div class="stat-label">Goals</div><div class="stat-value">${goals.filter(g=>g.state!=='DONE').length}</div><div class="stat-sub">active</div></div>
         <div class="stat-card"><div class="stat-label">Decisions</div><div class="stat-value">${dps.filter(d=>d.status!=='resolved').length}</div><div class="stat-sub">open</div></div>
-        <div class="stat-card"><div class="stat-label">PR Drafts</div><div class="stat-value">${prs.length}</div><div class="stat-sub">ready</div></div>`;
+        ${failedCount > 0 ? `<div class="stat-card" style="border-color:rgba(239,68,68,0.3);"><div class="stat-label" style="color:#ef4444;">Failed</div><div class="stat-value" style="color:#ef4444;">${failedCount}</div><div class="stat-sub">need attention</div></div>` : `<div class="stat-card"><div class="stat-label">PR Drafts</div><div class="stat-value">${prs.length}</div><div class="stat-sub">ready</div></div>`}`;
 
     const sorted=[...tasks].filter(t=>t.state!=='DELETED').sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at)).slice(0,8);
     $('activity-feed').innerHTML=sorted.length?sorted.map(t=>`
@@ -757,72 +873,152 @@ function renderPipeline() {
         });
     });
 
-    // Build HTML with section headers
+    // Split tasks into active and completed per type
+    // A task is "done" when it reaches MERGED (final pipeline state after reorder)
+    const isTaskDone = t => {
+        if (!COMPLETED_STATES.has(t.state)) return false;
+        // If there's a failed_step but the task is in a completed state, it's still done (stale error)
+        if (t.state === 'MERGED') return true;
+        // PR_DRAFTED / FOLLOWUPS_PROPOSED / TESTED are "near-done" states — show as completed unless failed
+        if (t.failed_step) return false;
+        return true;
+    };
     let html = '';
+    let completedHtml = '';
+    let activeCount = 0, completedCount = 0;
+
     Object.entries(tasksByType).forEach(([typeKey, typeTasks]) => {
         if (!typeTasks.length) return;
-        html += `<div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px;padding:0 4px;">${typeLabels[typeKey]} (${typeTasks.length})</div>`;
+        const activeTasks = typeTasks.filter(t => !isTaskDone(t));
+        const doneTasks = typeTasks.filter(t => isTaskDone(t));
+        activeCount += activeTasks.length;
+        completedCount += doneTasks.length;
 
-        html += typeTasks.map(task => {
-            const steps = PIPELINE_STEPS.filter(s=>s.key!=='plan');
-            const isNewTask = (task.state||'NEW')==='NEW';
-            const isRunningTask = task.runtime_status==='running';
-            // On first render, expand NEW and running tasks; on subsequent renders, use saved state
-            if (!APP._expandedTasks._initialized) {
-                if (isNewTask || isRunningTask) APP._expandedTasks.add(task.task_id);
-            }
-            const isExpanded = APP._expandedTasks.has(task.task_id);
-            const collapsedId = `task-${task.task_id}`;
-
-            return `<div class="pipeline-task-group">
-                <div class="pipeline-task-header ${isExpanded?'expanded':''}" style="cursor:pointer;" onclick="const id='${task.task_id}';document.getElementById('${collapsedId}').classList.toggle('open');this.classList.toggle('expanded');if(APP._expandedTasks.has(id))APP._expandedTasks.delete(id);else APP._expandedTasks.add(id);">
-                    <span class="task-id">${task.task_id}</span>
-                    <span class="task-title" style="flex:1;">${task.title}</span>
-                    <span class="badge badge-${task.executor==='codex'?'openai':task.executor==='claude'?'claude':'info'}" style="font-size:10px;">${task.executor||'?'}</span>
-                    <span class="badge badge-${task.state==='MERGED'||task.state==='PR_DRAFTED'?'success':task.state==='IMPLEMENTING'?'warning':'primary'}" style="font-size:10px;">${task.state||'NEW'}</span>
-                    ${isRunningTask?'<span class="badge badge-warning" style="animation:pulse 1.5s infinite;font-size:10px;">⚙ Running</span>':''}
-                    ${isNewTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startTask('${task.task_id}')" style="margin-left:auto;">▶ Start</button>`:''}
-                    ${!isNewTask&&!isRunningTask?`<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openTaskPanel('${task.task_id}')" style="margin-left:auto;">Details</button>`:''}
-                </div>
-                <div id="${collapsedId}" class="pipeline-steps ${isExpanded?'open':''}">
-                    ${steps.map(step=>{
-                        const status = getStepStatus(task, step);
-                        const tokens = getStepTokens(task.task_id, step.key);
-                        const providerClass = step.ai==='user'?'user':step.ai;
-                        const de = task.docs_exist || {};
-                        const docLink = step.key==='architect'&&task.spec_path&&de.spec_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.spec_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">spec</a>` :
-                                        step.key==='critique'&&task.review_path&&de.review_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.review_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">review</a>` :
-                                        step.key==='synthesize'&&task.brief_path&&de.brief_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.brief_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">brief</a>` :
-                                        step.key==='execute'&&task.result_path&&de.result_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.result_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">result</a>` :
-                                        step.key==='followups'&&task.followup_path&&de.followup_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.followup_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">followups</a>` :
-                                        step.key==='pr-draft'&&task.pr_draft_path&&de.pr_draft_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.pr_draft_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">PR</a>` : '';
-                        return `<div class="pipeline-step">
-                            <div class="step-name">
-                                <div class="step-icon ${status}">${status==='done'?'✓':status==='active'?'▶':'○'}</div>
-                                <span style="flex:1;">${step.label}</span>
-                                <span class="badge badge-${providerClass}" style="font-size:9px;padding:2px 5px;">${step.ai}</span>
-                            </div>
-                            <div>${docLink}</div>
-                            <div class="step-status"><span class="badge badge-${status==='done'?'success':status==='active'?'warning':'info'}" style="font-size:9px;">${status}</span></div>
-                            <div class="step-tokens">${tokens?fmt(tokens.input+tokens.output):'-'}</div>
-                            <div class="step-actions">
-                                ${status==='active' ? `<button class="btn btn-warning btn-sm" onclick="event.stopPropagation();runStep('${task.task_id}','${step.key}',false)" title="Run this step only">▶</button>` : ''}
-                                ${status==='active' ? `<button class="btn btn-success btn-sm" onclick="event.stopPropagation();runStep('${task.task_id}','${step.key}',true)" title="Run from here (auto-advance)">▶▶</button>` : ''}
-                            </div>
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>`;
-        }).join('');
-        html += '</div>';
+        if (activeTasks.length) {
+            html += `<div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px;padding:0 4px;">${typeLabels[typeKey]} (${activeTasks.length} active)</div>`;
+            html += activeTasks.map(task => renderTaskCard(task)).join('');
+            html += '</div>';
+        }
+        if (doneTasks.length) {
+            completedHtml += `<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:6px;padding:0 4px;">${typeLabels[typeKey]} (${doneTasks.length})</div>`;
+            completedHtml += doneTasks.map(task => renderTaskCard(task)).join('');
+            completedHtml += '</div>';
+        }
     });
 
+    if (completedCount > 0) {
+        html += `<details ${APP._completedOpen?'open':''} style="margin-top:16px;" ontoggle="APP._completedOpen=this.open;"><summary style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);cursor:pointer;padding:8px 4px;border-top:1px solid var(--border-color);user-select:none;">Completed (${completedCount})</summary>${completedHtml}</details>`;
+    }
     $('pipeline-content').innerHTML = html;
     APP._expandedTasks._initialized = true;
 }
 
+function renderTaskCard(task) {
+    const steps = PIPELINE_STEPS.filter(s=>s.key!=='plan');
+    const isNewTask = (task.state||'NEW')==='NEW';
+    const isRunningTask = task.runtime_status==='running'||task.runtime_status==='QUEUED';
+    const isFailedTask = task.runtime_status==='FAILED';
+    const isBlockedTask = task.state==='BLOCKED_ON_DECISION';
+    const isTestingTask = task.state==='COWORK_TESTING';
+    if (!APP._expandedTasks._initialized) {
+        if (isNewTask || isRunningTask || isFailedTask || isBlockedTask || isTestingTask) APP._expandedTasks.add(task.task_id);
+    }
+    const isExpanded = APP._expandedTasks.has(task.task_id);
+    const collapsedId = `task-${task.task_id}`;
+
+    return `<div class="pipeline-task-group" ${isFailedTask||isBlockedTask?'style="border:1px solid rgba(239,68,68,0.3);border-radius:8px;"':isTestingTask?'style="border:1px solid rgba(245,158,11,0.3);border-radius:8px;"':''}>
+        <div class="pipeline-task-header ${isExpanded?'expanded':''}" style="cursor:pointer;${isFailedTask||isBlockedTask?'background:rgba(239,68,68,0.06);':isTestingTask?'background:rgba(245,158,11,0.04);':''}" onclick="const id='${task.task_id}';document.getElementById('${collapsedId}').classList.toggle('open');this.classList.toggle('expanded');if(APP._expandedTasks.has(id))APP._expandedTasks.delete(id);else APP._expandedTasks.add(id);">
+            <span class="task-id">${task.task_id}</span>
+            <span class="task-title" style="flex:1;">${task.title}</span>
+            <span class="badge badge-${task.executor==='codex'?'openai':task.executor==='claude'?'claude':'info'}" style="font-size:10px;">${task.executor||'?'}</span>
+            <span class="badge badge-${isFailedTask||task.state==='TEST_FAILED'?'error':task.state==='MERGED'||task.state==='PR_DRAFTED'||task.state==='TESTED'?'success':task.state==='IMPLEMENTING'||task.state==='COWORK_TESTING'?'warning':task.state==='BLOCKED_ON_DECISION'?'error':'primary'}" style="font-size:10px;">${task.state||'NEW'}</span>
+            ${isFailedTask && !(COMPLETED_STATES.has(task.state) && POST_MERGE_STEPS.has(task.failed_step))?`<span class="badge badge-error" style="font-size:10px;">✗ ${task.failed_step||'error'}</span>`:''}
+            ${COMPLETED_STATES.has(task.state) && task.failed_step ? `<span class="badge badge-warning" style="font-size:10px;">⚠ ${task.failed_step} skipped</span>`:''}
+            ${isRunningTask?'<span class="badge badge-warning" style="animation:pulse 1.5s infinite;font-size:10px;">⚙ Running</span>':''}
+            ${task.state==='COWORK_TESTING'?'<span class="badge badge-warning" style="animation:pulse 1.5s infinite;font-size:10px;">🧪 Testing</span>':''}
+            ${task.state==='BLOCKED_ON_DECISION'?'<span class="badge badge-error" style="font-size:10px;">⏸ Needs Decision</span>':''}
+            ${isRunningTask?`<button class="btn btn-sm" onclick="event.stopPropagation();cancelTask('${task.task_id}')" style="margin-left:auto;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:10px;padding:3px 10px;">✕ Cancel</button>`:''}
+            ${isFailedTask?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();retryTask('${task.task_id}')" style="margin-left:auto;">↻ Retry</button>`:''}
+            ${isNewTask&&!isFailedTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" style="margin-left:auto;">▶ Start</button>`:''}
+            ${!isNewTask&&!isRunningTask&&!isFailedTask?`<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openTaskPanel('${task.task_id}')" style="margin-left:auto;">Details</button>`:''}
+        </div>
+        <div id="${collapsedId}" class="pipeline-steps ${isExpanded?'open':''}">
+            ${task.state==='BLOCKED_ON_DECISION' && task.guardrail_result ? `<div style="margin:8px 12px;padding:12px;border-radius:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);" onclick="event.stopPropagation();">
+                <div style="font-size:11px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:6px;">🔴 Guardrail: Critical Issues Detected</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">The executor produced changes that exceed safety thresholds. Review and decide:</div>
+                ${(task.guardrail_result.issues||[]).map(i => `<div style="font-size:10px;font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.2);padding:4px 8px;border-radius:4px;margin-bottom:4px;color:var(--text-secondary);">[${i.severity}] ${escHtml(i.file)}: ${escHtml(i.reason)}</div>`).join('')}
+                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-success btn-sm" onclick="event.stopPropagation();guardrailDecision('${task.task_id}','accept')" style="font-size:10px;padding:4px 12px;">✓ Accept Changes</button>
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();guardrailDecision('${task.task_id}','restore')" style="font-size:10px;padding:4px 12px;">↩ Restore Snapshot</button>
+                    <button class="btn btn-sm" onclick="event.stopPropagation();guardrailDecision('${task.task_id}','test')" style="font-size:10px;padding:4px 12px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">🧪 Run Cowork Test</button>
+                </div>
+            </div>` : ''}
+            ${task.state==='COWORK_TESTING' ? `<div style="margin:8px 12px;padding:10px;border-radius:8px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);">
+                <div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;margin-bottom:4px;">⚠️ Guardrail: Minor Issues — Cowork Test Running</div>
+                ${(task.guardrail_result?.issues||[]).map(i => `<div style="font-size:10px;font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.15);padding:3px 6px;border-radius:3px;margin-bottom:3px;color:var(--text-muted);">${escHtml(i.file)}: ${escHtml(i.reason)}</div>`).join('')}
+            </div>` : ''}
+            ${task.test_result ? `<div style="margin:8px 12px;padding:10px;border-radius:8px;background:${task.test_result.result==='PASS'?'rgba(34,197,94,0.06)':'rgba(239,68,68,0.06)'};border:1px solid ${task.test_result.result==='PASS'?'rgba(34,197,94,0.2)':'rgba(239,68,68,0.2)'};" onclick="event.stopPropagation();">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <div style="font-size:10px;font-weight:700;color:${task.test_result.result==='PASS'?'#22c55e':'#ef4444'};text-transform:uppercase;">${task.test_result.result==='PASS'?'✅':'❌'} Cowork Test: ${task.test_result.result}</div>
+                    <a href="#tests" onclick="event.stopPropagation();navigateTo('tests');" style="font-size:10px;color:var(--accent);text-decoration:none;">View All Tests →</a>
+                </div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">${escHtml(task.test_result.summary||'')}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    ${(task.test_result.checks||[]).map(c => `<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:${c.status==='PASS'?'rgba(34,197,94,0.12)':'rgba(239,68,68,0.12)'};color:${c.status==='PASS'?'#22c55e':'#ef4444'};" title="${escHtml(c.detail||'')}">${c.status==='PASS'?'✓':'✗'} ${escHtml(c.criterion||'')}</span>`).join('')}
+                </div>
+                ${(task.test_result.created_bugs||[]).length ? `<div style="margin-top:6px;font-size:10px;color:var(--warning);">🐛 Auto-created: ${task.test_result.created_bugs.join(', ')}</div>` : ''}
+            </div>` : ''}
+            ${isFailedTask ? `<div style="margin:8px 12px;padding:10px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">
+                <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:4px;">Pipeline Error</div>
+                <div style="font-size:11px;color:var(--text-primary);margin-bottom:4px;">Failed at step: <strong style="color:#ef4444;">${task.failed_step||'unknown'}</strong></div>
+                ${task.last_error?.message ? `<div style="font-size:10px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.2);padding:6px 8px;border-radius:4px;max-height:80px;overflow-y:auto;word-break:break-all;">${escHtml(task.last_error.message)}</div>` : ''}
+                ${task.last_error?.diagnosis ? `<details style="margin-top:6px;" open>
+                    <summary style="font-size:10px;font-weight:700;color:#f59e0b;cursor:pointer;user-select:none;">🔍 Auto-Diagnosis</summary>
+                    <div style="font-size:11px;color:var(--text-secondary);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);padding:8px 10px;border-radius:4px;margin-top:4px;line-height:1.5;white-space:pre-wrap;">${escHtml(task.last_error.diagnosis)}</div>
+                </details>` : ''}
+                <div id="fix-area-${task.task_id}" style="margin-top:6px;"></div>
+                <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();retryTask('${task.task_id}')" style="font-size:10px;padding:4px 10px;">↻ Retry from ${task.failed_step||'failed step'}</button>
+                    <button class="btn btn-sm" onclick="event.stopPropagation();diagnoseTask('${task.task_id}')" style="font-size:10px;padding:4px 10px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">🔍 Re-diagnose</button>
+                    <button class="btn btn-sm" onclick="event.stopPropagation();generateFix('${task.task_id}')" style="font-size:10px;padding:4px 10px;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);">🔧 Generate Fix</button>
+                </div>
+            </div>` : ''}
+            ${steps.map(step=>{
+                const status = getStepStatus(task, step);
+                const isStepFailed = isFailedTask && task.failed_step === step.key;
+                const tokens = getStepTokens(task.task_id, step.key);
+                // Resolve provider dynamically for execute step (uses task.executor)
+                const resolvedAi = step.key==='execute' ? (task.executor||'claude') : step.ai;
+                const providerClass = resolvedAi==='user'?'user':resolvedAi==='codex'?'openai':resolvedAi;
+                const de = task.docs_exist || {};
+                const docLink = step.key==='architect'&&task.spec_path&&de.spec_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.spec_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">spec</a>` :
+                                step.key==='critique'&&task.review_path&&de.review_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.review_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">review</a>` :
+                                step.key==='synthesize'&&task.brief_path&&de.brief_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.brief_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">brief</a>` :
+                                step.key==='execute'&&task.result_path&&de.result_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.result_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">result</a>` :
+                                step.key==='followups'&&task.followup_path&&de.followup_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.followup_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">followups</a>` :
+                                step.key==='pr-draft'&&task.pr_draft_path&&de.pr_draft_path ? `<a href="#" onclick="event.stopPropagation();loadDocByPath('${task.pr_draft_path}');return false;" class="badge" style="background:rgba(99,102,241,0.15);color:var(--accent);font-size:9px;text-decoration:none;cursor:pointer;">PR</a>` : '';
+                const appPrompt = isAppMode() && APP_MODE_STEPS.has(step.key) && status !== 'done' ? getPromptForStep(task.task_id, step.key) : null;
+                return `<div class="pipeline-step" ${isStepFailed?'style="background:rgba(239,68,68,0.06);border-left:2px solid #ef4444;"':''}>
+                    <div class="step-name">
+                        <div class="step-icon ${isStepFailed?'failed':status}" ${isStepFailed?'style="color:#ef4444;"':''}>${isStepFailed?'✗':status==='done'?'✓':status==='active'?'▶':'○'}</div>
+                        <span style="flex:1;${isStepFailed?'color:#ef4444;font-weight:600;':''}">${step.label}</span>
+                        <span class="badge badge-${providerClass}" style="font-size:9px;padding:2px 5px;">${resolvedAi}</span>
+                    </div>
+                    <div>${docLink}</div>
+                    <div class="step-status"><span class="badge badge-${isStepFailed?'error':status==='done'?'success':status==='active'?'warning':'info'}" style="font-size:9px;">${isStepFailed?'FAILED':status}</span></div>
+                    <div class="step-tokens">${tokens?fmt(tokens.input+tokens.output):'-'}</div>
+                    <div class="step-actions">
+                        ${isStepFailed ? `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();retryTask('${task.task_id}')" title="Retry this step">↻</button>` : ''}
+                        ${status==='active'&&!isFailedTask&&!isRunningTask ? `<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" title="Run cascade from here">▶ Cascade</button>` : ''}
+                    </div>
+                </div>${appPrompt ? renderInlinePromptWidget(appPrompt) : ''}`;
+            }).join('')}
+        </div>
+    </div>`;
+}
+
 function renderPipelineKanban(tasks) {
-    const laneColors = {NEW:'var(--info)',ARCHITECTED:'var(--openai)',CRITIQUED:'var(--gemini)',SYNTHESIZED:'var(--accent)',IMPLEMENTING:'var(--warning)',REVIEWED:'var(--claude)',MERGED:'var(--success)',FOLLOWUPS_PROPOSED:'#14b8a6',PR_DRAFTED:'var(--success)'};
+    const laneColors = {NEW:'var(--info)',ARCHITECTED:'var(--openai)',CRITIQUED:'var(--gemini)',SYNTHESIZED:'var(--accent)',IMPLEMENTING:'var(--warning)',EXECUTED:'var(--claude)',COWORK_TESTING:'#f59e0b',TESTED:'var(--success)',TEST_FAILED:'#ef4444',BLOCKED_ON_DECISION:'#ef4444',REVIEWED:'var(--claude)',MERGED:'var(--success)',FOLLOWUPS_PROPOSED:'#14b8a6',PR_DRAFTED:'var(--success)'};
     $('pipeline-content').innerHTML = `<div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:16px;">
         ${STATE_ORDER.map(lane=>{
             const t = tasks.filter(x=>x.state===lane);
@@ -833,26 +1029,30 @@ function renderPipelineKanban(tasks) {
                 </div>
                 ${t.length?t.map(task=>{
                     const isNew = task.state==='NEW';
-                    const isRunning = task.runtime_status==='running';
-                    const canAdvance = lane!=='MERGED'&&lane!=='PR_DRAFTED';
+                    const isRunning = task.runtime_status==='running'||task.runtime_status==='QUEUED';
+                    const isFailed = task.runtime_status==='FAILED';
+                    const canAdvance = lane!=='MERGED'&&lane!=='PR_DRAFTED'&&!isFailed;
                     const typeEmoji = {'feature-lane':'🚀','bug-lane':'🐛','slice-lane':'🍰','analysis-lane':'🔍','docs-lane':'📖','test-lane':'🧪','danger-lane':'⚠️','refactor-lane':'🔧','chore-lane':'🪣'}[task.lane_type]||'📋';
                     // Count docs for this task
                     const de = task.docs_exist || {};
                     const docCount = (de.spec_path?1:0) + (de.review_path?1:0) + (de.brief_path?1:0) + (de.result_path?1:0) + (de.followup_path?1:0) + (de.pr_draft_path?1:0);
-                    return `<div class="card" style="padding:12px;margin-bottom:8px;cursor:pointer;" onclick="openTaskPanel('${task.task_id}')">
+                    return `<div class="card" style="padding:12px;margin-bottom:8px;cursor:pointer;${isFailed?'border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.04);':''}" onclick="openTaskPanel('${task.task_id}')">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                         <span style="font-size:16px;">${typeEmoji}</span>
                         <span class="mono" style="font-size:11px;color:var(--accent);font-weight:600;">${task.task_id}</span>
+                        ${isFailed?`<span class="badge badge-error" style="margin-left:auto;font-size:9px;">✗ ${task.failed_step||'error'}</span>`:''}
                         ${isRunning?'<span class="badge badge-warning" style="margin-left:auto;animation:pulse 1.5s infinite;font-size:9px;">⚙</span>':''}
                     </div>
                     <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;">${task.title}</div>
+                    ${isFailed&&task.last_error?.message?`<div style="font-size:10px;color:#ef4444;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(task.last_error.message)}">${escHtml(task.last_error.message.substring(0,80))}</div>`:''}
                     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
                         <span class="badge badge-${task.executor==='codex'?'openai':task.executor==='claude'?'claude':'info'}" style="font-size:9px;">${task.executor||'?'}</span>
                         ${docCount>0?`<span class="badge badge-info" style="font-size:9px;">${docCount} docs</span>`:''}
                         ${task.parent_goal_id?`<span class="badge badge-info" style="font-size:9px;">${task.parent_goal_id}</span>`:''}
                     </div>
                     <div style="display:flex;gap:3px;justify-content:flex-end;">
-                        ${isNew?`<button class="btn btn-success btn-sm" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();startTask('${task.task_id}')" title="Start Pipeline">▶</button>`:''}
+                        ${isFailed?`<button class="btn btn-danger btn-sm" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();retryTask('${task.task_id}')" title="Retry failed step">↻ Retry</button>`:''}
+                        ${isNew&&!isFailed?`<button class="btn btn-success btn-sm" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();startCascade('${task.task_id}')" title="Start Cascade">▶</button>`:''}
                         ${canAdvance&&!isNew?`<button class="btn btn-primary btn-sm" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();advanceTask('${task.task_id}','${nextLane}')" title="Advance to ${nextLane}">✓</button>`:''}
                     </div>
                 </div>`;}).join(''):'<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:30px;">Empty</div>'}
@@ -867,8 +1067,10 @@ const STEP_CHAIN = [
     {step: 'architect', resultState: 'ARCHITECTED'},
     {step: 'critique', resultState: 'CRITIQUED'},
     {step: 'synthesize', resultState: 'SYNTHESIZED'},
+    {step: 'execute', resultState: 'IMPLEMENTING'},
     {step: 'propose-followups', resultState: 'FOLLOWUPS_PROPOSED'},
-    {step: 'pr-draft', resultState: 'PR_DRAFTED'}
+    {step: 'pr-draft', resultState: 'PR_DRAFTED'},
+    {step: 'merge', resultState: 'MERGED'}
 ];
 
 async function runSingleStep(taskId, step) {
@@ -888,7 +1090,7 @@ async function waitForState(taskId, expectedState, timeoutMs = 60000) {
         const t = APP.tasksMap()[taskId];
         if (!t) return false;
         if (t.state === expectedState) return true;
-        if (t.runtime_status !== 'running' && t.state !== expectedState) {
+        if (t.runtime_status !== 'running' && t.runtime_status !== 'QUEUED' && t.state !== expectedState) {
             // Check if maybe it advanced past our expected state
             const idx = STEP_CHAIN.findIndex(s => s.resultState === expectedState);
             const curIdx = STEP_CHAIN.findIndex(s => s.resultState === t.state);
@@ -927,11 +1129,15 @@ async function runStep(taskId, step, autoAdvance = false) {
 }
 
 function checkDocsForState(task) {
-    // Validate that required docs exist before allowing advance
+    // Validate that required docs actually exist on disk (via docs_exist) before allowing advance
     const state = task.state || 'NEW';
-    if (state === 'ARCHITECTED' && !task.spec_path) return false;
-    if (state === 'CRITIQUED' && !task.review_path) return false;
-    if (state === 'SYNTHESIZED' && !task.brief_path) return false;
+    const de = task.docs_exist || {};
+    if (state === 'ARCHITECTED' && !de.spec_path) return false;
+    if (state === 'CRITIQUED' && !de.review_path) return false;
+    if (state === 'SYNTHESIZED' && !de.brief_path) return false;
+    if (state === 'IMPLEMENTING' && !de.result_path) return false;
+    // Don't allow advance if task is in FAILED state
+    if (task.runtime_status === 'FAILED') return false;
     return true;
 }
 
@@ -939,11 +1145,17 @@ async function advanceTask(taskId, targetState) {
     // Find the task and validate docs
     const tasks = APP.tasksMap();
     const task = tasks[taskId];
+    if (task && task.runtime_status === 'FAILED') {
+        toast(`Cannot advance: task is in FAILED state (failed at ${task.failed_step || 'unknown step'}). Retry the failed step first.`, 'error');
+        return;
+    }
     if (task && !checkDocsForState(task)) {
+        const de = task.docs_exist || {};
         const missing = [];
-        if (task.state === 'ARCHITECTED' && !task.spec_path) missing.push('Spec');
-        if (task.state === 'CRITIQUED' && !task.review_path) missing.push('Review');
-        if (task.state === 'SYNTHESIZED' && !task.brief_path) missing.push('Brief');
+        if (task.state === 'ARCHITECTED' && !de.spec_path) missing.push('Spec');
+        if (task.state === 'CRITIQUED' && !de.review_path) missing.push('Review');
+        if (task.state === 'SYNTHESIZED' && !de.brief_path) missing.push('Brief');
+        if (task.state === 'IMPLEMENTING' && !de.result_path) missing.push('Execution Result');
         toast(`Cannot advance: missing ${missing.join(', ')} document(s). Run the pipeline step first.`, 'warning');
         return;
     }
@@ -1010,9 +1222,9 @@ function pollTaskCompletion(taskId, interval=3000) {
     const poll = setInterval(async ()=>{
         await APP.refresh();
         const t = (APP.state?.tasks||[]).find(t=>t.task_id===taskId);
-        if(t && t.runtime_status !== 'running') {
+        if(t && t.runtime_status !== 'running' && t.runtime_status !== 'QUEUED') {
             clearInterval(poll);
-            toast(`${taskId}: pipeline done → ${t.state}`, t.state==='PR_DRAFTED'?'success':'warning');
+            toast(`${taskId}: pipeline done → ${t.state}`, t.state==='MERGED'?'success':'warning');
             render();
         } else { render(); }
     }, interval);
@@ -1048,8 +1260,23 @@ function openTaskPanel(taskId) {
                 <span class="badge badge-primary">${task.state}</span>
                 <span class="badge badge-${task.executor==='codex'?'openai':task.executor==='claude'?'claude':'info'}">${task.executor||'?'}</span>
                 ${task.parent_goal_id?`<span class="badge badge-info">${task.parent_goal_id}</span>`:''}
-                ${task.runtime_status?`<span class="badge badge-${task.runtime_status==='DONE'?'success':'warning'}">${task.runtime_status}</span>`:''}
+                ${task.runtime_status?`<span class="badge badge-${task.runtime_status==='FAILED'?'error':task.runtime_status==='DONE'?'success':'warning'}">${task.runtime_status}</span>`:''}
             </div>
+            ${task.runtime_status==='FAILED' ? `<div style="padding:10px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">
+                <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:4px;">Pipeline Error</div>
+                <div style="font-size:11px;color:var(--text-primary);margin-bottom:4px;">Failed at step: <strong style="color:#ef4444;">${task.failed_step||'unknown'}</strong></div>
+                ${task.last_error?.message ? `<div style="font-size:10px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.2);padding:6px 8px;border-radius:4px;max-height:80px;overflow-y:auto;word-break:break-all;">${escHtml(task.last_error.message)}</div>` : ''}
+                ${task.last_error?.diagnosis ? `<details style="margin-top:6px;" open>
+                    <summary style="font-size:10px;font-weight:700;color:#f59e0b;cursor:pointer;user-select:none;">🔍 Auto-Diagnosis</summary>
+                    <div style="font-size:11px;color:var(--text-secondary);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);padding:8px 10px;border-radius:4px;margin-top:4px;line-height:1.5;white-space:pre-wrap;">${escHtml(task.last_error.diagnosis)}</div>
+                </details>` : ''}
+                <div id="fix-area-panel-${taskId}" style="margin-top:6px;"></div>
+                <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn btn-danger btn-sm" onclick="retryTask('${taskId}')" style="font-size:10px;padding:4px 10px;">↻ Retry from ${task.failed_step||'failed step'}</button>
+                    <button class="btn btn-sm" onclick="diagnoseTask('${taskId}')" style="font-size:10px;padding:4px 10px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">🔍 Re-diagnose</button>
+                    <button class="btn btn-sm" onclick="generateFix('${taskId}')" style="font-size:10px;padding:4px 10px;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);">🔧 Generate Fix</button>
+                </div>
+            </div>` : ''}
             ${task.branch_name?`<div><div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Branch</div><div class="mono" style="font-size:12px;color:var(--text-secondary);">${task.branch_name}</div></div>`:''}
             ${task.description?`<div><div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Description</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.5;">${task.description}</div></div>`:''}
             <div><div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Documents</div>
@@ -1066,32 +1293,84 @@ function openTaskPanel(taskId) {
                 ${steps.map(step=>{
                     const st = getStepStatus(task, step);
                     const tok = getStepTokens(taskId, step.key);
+                    const panelPrompt = isAppMode() && APP_MODE_STEPS.has(step.key) && st !== 'done' ? getPromptForStep(taskId, step.key) : null;
                     return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-color);">
                         <span class="badge badge-${st==='done'?'success':st==='active'?'warning':'info'}" style="min-width:50px;justify-content:center;">${st}</span>
                         <span style="font-size:12px;font-weight:600;flex:1;">${step.label}</span>
-                        <span class="badge badge-${step.ai}" style="font-size:9px;">${step.ai}</span>
+                        <span class="badge badge-${step.key==='execute'?(task.executor==='codex'?'openai':task.executor||'claude'):step.ai}" style="font-size:9px;">${step.key==='execute'?(task.executor||'claude'):step.ai}</span>
                         <span class="mono" style="font-size:10px;color:var(--text-muted);">${tok?fmt(tok.input+tok.output)+' tok':'-'}</span>
-                        ${step.intervention&&st!=='done'?`<button class="btn btn-warning btn-sm" onclick="runStep('${taskId}','${step.key}')" style="font-size:9px;padding:2px 6px;">&#9654;</button>`:''}
-                    </div>`;
+                        ${step.intervention&&st!=='done'&&task.runtime_status!=='running'&&task.runtime_status!=='QUEUED'?`<button class="btn btn-success btn-sm" onclick="startCascade('${taskId}')" style="font-size:9px;padding:2px 6px;" title="Run cascade">&#9654;</button>`:''}
+                    </div>${panelPrompt ? renderInlinePromptWidget(panelPrompt) : ''}`;
                 }).join('')}
             </div>
+            <div id="proposals-section-${taskId}"><div style="font-size:10px;color:var(--text-muted);">Loading proposals...</div></div>
             <div style="font-size:11px;color:var(--text-muted);">Created: ${task.created_at?new Date(task.created_at).toLocaleString():'-'} &bull; Updated: ${task.updated_at?new Date(task.updated_at).toLocaleString():'-'}</div>
         </div>`;
+
+    // Load proposals for this task asynchronously
+    loadTaskProposals(taskId);
 
     const nextState = STATE_ORDER[Math.min(STATE_ORDER.indexOf(task.state)+1,STATE_ORDER.length-1)];
     const canAdvance = task.state!=='MERGED' && task.state!=='PR_DRAFTED';
     const hasRequiredDocs = checkDocsForState(task);
     const isNew = task.state==='NEW';
-    const isRunning = task.runtime_status==='running';
+    const isRunning = task.runtime_status==='running'||task.runtime_status==='QUEUED';
+    const isFailed = task.runtime_status==='FAILED';
     $('task-panel-footer').innerHTML = `
         <button class="btn btn-secondary" onclick="closeTaskPanel()">Close</button>
         <button class="btn btn-danger btn-sm" onclick="deleteTask('${taskId}')">&#128465; Delete</button>
-        ${isNew ? `<button class="btn btn-success" onclick="startTask('${taskId}')">&#9654; Start Pipeline</button>` : ''}
-        ${isNew ? `<button class="btn btn-primary" onclick="startCascade('${taskId}')" title="Run pipeline + auto-spawn follow-ups recursively">&#127793; Cascade</button>` : ''}
+        ${isFailed ? `<button class="btn btn-danger" onclick="retryTask('${taskId}')">↻ Retry from ${task.failed_step||'failed step'}</button>` : ''}
+        ${isNew && !isFailed ? `<button class="btn btn-success" onclick="startCascade('${taskId}')">&#9654; Start Cascade</button>` : ''}
         ${isRunning ? `<button class="btn btn-warning btn-sm" disabled>&#9881; AI Processing...</button>` : ''}
-        ${canAdvance && !isNew ? `<button class="btn btn-primary" ${hasRequiredDocs?'':'disabled style="opacity:0.5;cursor:not-allowed;" title="Missing required documents for this state"'} onclick="${hasRequiredDocs?`advanceTask('${taskId}','${nextState}');closeTaskPanel();`:''}">${hasRequiredDocs?'':'&#128274; '}Advance to ${nextState} &rarr;</button>` : ''}
+        ${canAdvance && !isNew && !isFailed ? `<button class="btn btn-primary" ${hasRequiredDocs?'':'disabled style="opacity:0.5;cursor:not-allowed;" title="Missing required documents for this state"'} onclick="${hasRequiredDocs?`advanceTask('${taskId}','${nextState}');closeTaskPanel();`:''}">${hasRequiredDocs?'':'&#128274; '}Advance to ${nextState} &rarr;</button>` : ''}
     `;
     $('task-panel').classList.add('active');
+}
+async function loadTaskProposals(taskId) {
+    const el = document.getElementById(`proposals-section-${taskId}`);
+    if (!el) return;
+    try {
+        const res = await fetch(`/api/proposals?parent=${taskId}`);
+        const data = await res.json();
+        const proposals = data.proposals || [];
+        if (proposals.length === 0) {
+            el.innerHTML = `<div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Follow-up Proposals</div>
+                <div style="font-size:11px;color:var(--text-muted);padding:8px 0;">No follow-up proposals generated yet.</div>`;
+            return;
+        }
+        el.innerHTML = `<div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Follow-up Proposals (${proposals.length})</div>
+            ${proposals.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border-color);margin-bottom:4px;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:11px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(p.title)}">${escHtml(p.title)}</div>
+                    <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">
+                        ${p.lane_type||'?'} \u2022 ${p.priority||'normal'} \u2022 spawn: ${p.should_spawn_now?'\u2705 yes':'\u274C no'}
+                    </div>
+                </div>
+                ${p.spawned_as
+                    ? `<span class="badge badge-success" style="font-size:9px;white-space:nowrap;">${p.spawned_as}</span>`
+                    : `<button class="btn btn-success btn-sm" onclick="spawnProposal('${p.proposal_id}','${taskId}')" style="font-size:9px;padding:2px 8px;white-space:nowrap;">\u{1F331} Spawn</button>`
+                }
+            </div>`).join('')}`;
+    } catch (e) {
+        el.innerHTML = `<div style="font-size:10px;color:var(--text-muted);">Could not load proposals.</div>`;
+    }
+}
+async function spawnProposal(proposalId, parentTaskId) {
+    if (!confirm(`Spawn follow-up task from proposal ${proposalId}?`)) return;
+    try {
+        const res = await fetch(`/api/proposals/${proposalId}/spawn`, { method: 'POST', headers: {'Content-Type':'application/json'} });
+        const data = await res.json();
+        if (data.success) {
+            toast(`Spawned ${data.task_id}: ${data.title}`, 'success');
+            await APP.load();
+            renderAll();
+            openTaskPanel(parentTaskId);
+        } else {
+            toast(`Spawn failed: ${data.error}`, 'error');
+        }
+    } catch (e) {
+        toast(`Spawn error: ${e.message}`, 'error');
+    }
 }
 function closeTaskPanel(){$('task-panel').classList.remove('active');}
 
@@ -1759,26 +2038,30 @@ async function renderBranches() {
         const stateColor = {'MERGED':'#22c55e','PR_DRAFTED':'#22c55e','PR_OPEN':'#22c55e','FOLLOWUPS_PROPOSED':'#3b82f6','SYNTHESIZED':'#3b82f6','CRITIQUED':'#3b82f6','ARCHITECTED':'#3b82f6','IMPLEMENTING':'#f59e0b','NEW':'#64748b','QUEUED':'#64748b'}[t.state] || '#64748b';
         const exColor = t.executor==='codex'||t.executor==='openai'?'#10a37f':t.executor==='claude'?'#d97706':'#64748b';
         const hasBranch = t.branch_name && gitBranches.has(t.branch_name);
-        const isRunning = t.runtime_status==='running';
+        const isRunning = t.runtime_status==='running'||t.runtime_status==='QUEUED';
+        const isFailed = t.runtime_status==='FAILED';
         const de = t.docs_exist||{};
         const docCount = (de.spec_path?1:0)+(de.review_path?1:0)+(de.brief_path?1:0)+(de.result_path?1:0)+(de.followup_path?1:0)+(de.pr_draft_path?1:0);
         const indent = depth * 20;
         const children = childMap[t.task_id] || [];
         const canMerge = t.state === 'PR_DRAFTED' && !t.state?.startsWith('MERGED');
+        const dotColor = isFailed ? '#ef4444' : tColor;
+        const dotAnim = isRunning ? 'animation:pulse 1.5s infinite;' : '';
+        const failedStepBadge = isFailed && t.failed_step ? `<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:rgba(239,68,68,0.15);color:#ef4444;font-weight:600;margin-left:4px;" title="${escHtml(t.last_error||'')}">✗ ${t.failed_step}</span>` : '';
 
-        let html = `<tr class="tt-row${isRunning?' tt-running':''}" data-task-id="${t.task_id}" onclick="showTaskTreeDetail('${t.task_id}')" style="cursor:pointer;">
+        let html = `<tr class="tt-row${isRunning?' tt-running':''}" data-task-id="${t.task_id}" onclick="showTaskTreeDetail('${t.task_id}')" style="cursor:pointer;${isFailed?'background:rgba(239,68,68,0.04);':''}">
             <td style="padding:4px 6px;white-space:nowrap;">
                 <span style="display:inline-block;width:${indent}px;"></span>
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${tColor};margin-right:6px;vertical-align:middle;${isRunning?'animation:pulse 1.5s infinite;':''}"></span>
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};margin-right:6px;vertical-align:middle;${dotAnim}"></span>
                 <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);">${t.task_id}</span>
             </td>
-            <td style="padding:4px 6px;font-size:11px;color:var(--text-secondary);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.title||'')}</td>
+            <td style="padding:4px 6px;font-size:11px;color:var(--text-secondary);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.title||'')}${failedStepBadge}</td>
             <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${originColors[origin]}22;color:${originColors[origin]};font-weight:600;">${originIcons[origin]} ${originLabels[origin]}</span></td>
-            <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${stateColor}22;color:${stateColor};font-weight:600;">${t.state||'NEW'}</span></td>
+            <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${isFailed?'rgba(239,68,68,0.15)':stateColor+'22'};color:${isFailed?'#ef4444':stateColor};font-weight:600;">${isFailed?'FAILED':t.state||'NEW'}</span></td>
             <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${tColor}22;color:${tColor};font-weight:600;">${typeKey}</span></td>
             <td style="padding:4px 6px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${exColor}22;color:${exColor};font-weight:600;">${t.executor||'?'}</span></td>
             <td style="padding:4px 6px;text-align:center;font-size:9px;color:var(--text-muted);">${docCount>0?docCount+' docs':''}</td>
-            <td style="padding:4px 6px;text-align:center;">${hasBranch?'<span style="color:#22c55e;font-size:10px;">⬤</span>':canMerge?'<span style="color:#f59e0b;font-size:10px;">○</span>':''}</td>
+            <td style="padding:4px 6px;text-align:center;">${hasBranch?'<span style="color:#22c55e;font-size:10px;">⬤</span>':canMerge?'<span style="color:#f59e0b;font-size:10px;">○</span>':isFailed?'<span style="color:#ef4444;font-size:10px;">✗</span>':''}</td>
         </tr>`;
 
         // Recursively render children (follow-up tasks)
@@ -1899,6 +2182,8 @@ function showTaskTreeDetail(taskId) {
 
     const canMerge = t.state === 'PR_DRAFTED';
     const canStart = t.state === 'NEW';
+    const isFailed = t.runtime_status === 'FAILED';
+    const canRetry = isFailed && t.failed_step;
 
     const de = t.docs_exist||{};
     const docs = [];
@@ -1908,14 +2193,30 @@ function showTaskTreeDetail(taskId) {
     if (de.result_path) docs.push({label:'Result', path: t.result_path});
     if (de.followup_path) docs.push({label:'Follow-ups', path: t.followup_path});
 
+    // Build error banner HTML if task has failed
+    const errorBanner = isFailed ? `
+        <div style="margin-bottom:12px;padding:10px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">
+            <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:4px;">Pipeline Error</div>
+            <div style="font-size:11px;color:var(--text-primary);margin-bottom:4px;">
+                Failed at step: <strong style="color:#ef4444;">${t.failed_step || 'unknown'}</strong>
+            </div>
+            ${t.last_error ? `<div style="font-size:10px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.2);padding:6px 8px;border-radius:4px;max-height:80px;overflow-y:auto;word-break:break-all;">${escHtml(t.last_error)}</div>` : ''}
+            <div style="margin-top:8px;display:flex;gap:6px;">
+                <button class="btn btn-danger btn-sm" onclick="retryTask('${t.task_id}')" style="font-size:10px;padding:4px 10px;">↻ Retry from ${t.failed_step || 'failed step'}</button>
+                <button class="btn btn-sm" onclick="viewTaskErrors('${t.task_id}')" style="font-size:10px;padding:4px 10px;background:var(--bg-hover);border:1px solid var(--border-color);color:var(--text-secondary);">View Error Log</button>
+            </div>
+        </div>
+    ` : '';
+
     panel.innerHTML = `
+        ${errorBanner}
         <div style="margin-bottom:12px;">
             <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px;">${t.task_id}</div>
             <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">${escHtml(t.title||'')}</div>
         </div>
         <table style="width:100%;font-size:11px;border-collapse:collapse;">
             <tr><td style="padding:3px 0;color:var(--text-muted);width:70px;">Origin</td><td style="padding:3px 0;color:var(--text-primary);">${origin}</td></tr>
-            <tr><td style="padding:3px 0;color:var(--text-muted);">State</td><td style="padding:3px 0;"><span style="padding:1px 6px;border-radius:3px;background:${stateColor}22;color:${stateColor};font-weight:600;">${t.state||'NEW'}</span></td></tr>
+            <tr><td style="padding:3px 0;color:var(--text-muted);">State</td><td style="padding:3px 0;"><span style="padding:1px 6px;border-radius:3px;background:${isFailed?'rgba(239,68,68,0.15)':stateColor+'22'};color:${isFailed?'#ef4444':stateColor};font-weight:600;">${isFailed?'FAILED ('+t.failed_step+')':t.state||'NEW'}</span></td></tr>
             <tr><td style="padding:3px 0;color:var(--text-muted);">Type</td><td style="padding:3px 0;"><span style="padding:1px 6px;border-radius:3px;background:${tColor}22;color:${tColor};font-weight:600;">${typeKey}</span></td></tr>
             <tr><td style="padding:3px 0;color:var(--text-muted);">Executor</td><td style="padding:3px 0;">${t.executor||'?'}</td></tr>
             <tr><td style="padding:3px 0;color:var(--text-muted);">Branch</td><td style="padding:3px 0;font-family:'JetBrains Mono',monospace;font-size:10px;word-break:break-all;">${t.branch_name||'—'}</td></tr>
@@ -1927,11 +2228,170 @@ function showTaskTreeDetail(taskId) {
             ${docs.map(d => `<div style="padding:2px 0;"><a href="#" onclick="viewDoc('${d.path}');return false;" style="color:var(--accent);font-size:11px;">${d.label}</a></div>`).join('')}
         </div>` : ''}
         <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-            ${canStart ? `<button class="btn btn-primary btn-sm" onclick="startTask('${t.task_id}')" style="font-size:10px;padding:4px 10px;">▶ Run Pipeline</button>` : ''}
+            ${t.runtime_status==='running'||t.runtime_status==='QUEUED' ? `<button class="btn btn-warning btn-sm" disabled style="font-size:10px;padding:4px 10px;">⚙ AI Processing...</button>` : ''}
+            ${canStart && t.runtime_status!=='running' && t.runtime_status!=='QUEUED' ? `<button class="btn btn-primary btn-sm" onclick="startCascade('${t.task_id}')" style="font-size:10px;padding:4px 10px;">▶ Run Cascade</button>` : ''}
+            ${canRetry ? `<button class="btn btn-danger btn-sm" onclick="retryTask('${t.task_id}')" style="font-size:10px;padding:4px 10px;">↻ Retry</button>` : ''}
             ${canMerge ? `<button class="btn btn-success btn-sm" onclick="mergeTask('${t.task_id}')" style="font-size:10px;padding:4px 10px;">⤵ Merge to main</button>` : ''}
             <button class="btn btn-sm" onclick="openTaskPanel('${t.task_id}')" style="font-size:10px;padding:4px 10px;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-secondary);">Open Details</button>
         </div>
     `;
+}
+
+async function cancelTask(taskId) {
+    if (!confirm('Cancel running task ' + taskId + '? You can retry it later.')) return;
+    toast('Cancelling ' + taskId + '...', 'info');
+    try {
+        const r = await fetch('/api/tasks/' + taskId + '/cancel', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const d = await r.json();
+        if (d.ok) {
+            toast(taskId + ' cancelled' + (d.wasRunning ? ' (processes killed)' : ''), 'success');
+            loadState();
+        } else {
+            toast('Cancel failed: ' + (d.error||'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Cancel request failed: ' + e.message, 'error');
+    }
+}
+
+async function retryTask(taskId) {
+    if (!confirm('Retry ' + taskId + ' from failed step?')) return;
+    toast('Retrying ' + taskId + '...', 'info');
+    try {
+        const r = await fetch('/api/tasks/' + taskId + '/retry', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const d = await r.json();
+        if (d.ok) {
+            toast(taskId + ' retry started!', 'success');
+            loadState();
+        } else {
+            toast('Retry failed: ' + (d.error||'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Retry request failed: ' + e.message, 'error');
+    }
+}
+
+async function guardrailDecision(taskId, action) {
+    const labels = { accept: 'Accepting changes', restore: 'Restoring snapshot', test: 'Requesting Cowork test' };
+    toast(`${labels[action] || action} for ${taskId}...`, 'info');
+    try {
+        const r = await fetch(`/api/tasks/${taskId}/guardrail-decision`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ action })
+        });
+        const d = await r.json();
+        if (d.ok) {
+            toast(d.message || `Guardrail decision "${action}" applied`, 'success');
+            await APP.refresh(); render();
+        } else {
+            toast('Decision failed: ' + (d.error || 'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Decision request failed: ' + e.message, 'error');
+    }
+}
+
+async function diagnoseTask(taskId) {
+    toast('Running diagnosis for ' + taskId + '...', 'info');
+    try {
+        const r = await fetch('/api/tasks/' + taskId + '/diagnose', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const d = await r.json();
+        if (d.ok) {
+            toast(taskId + ' diagnosis complete!', 'success');
+            loadState();
+        } else {
+            toast('Diagnosis failed: ' + (d.error||'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Diagnosis request failed: ' + e.message, 'error');
+    }
+}
+
+async function generateFix(taskId) {
+    toast('Generating fix for ' + taskId + '... (this may take up to 3 min)', 'info');
+    try {
+        const r = await fetch('/api/tasks/' + taskId + '/generate-fix', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const d = await r.json();
+        if (d.ok && d.fix) {
+            toast(taskId + ' fix generated! Review it below.', 'success');
+            showFixProposal(taskId, d.fix);
+            loadState();
+        } else {
+            toast('Fix generation failed: ' + (d.error||'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Fix request failed: ' + e.message, 'error');
+    }
+}
+
+function showFixProposal(taskId, fix) {
+    const riskColors = { LOW: '#22c55e', MEDIUM: '#f59e0b', HIGH: '#ef4444', UNKNOWN: '#6b7280' };
+    const riskColor = riskColors[fix.risk] || riskColors.UNKNOWN;
+    const html = `<details open style="margin-top:6px;">
+        <summary style="font-size:10px;font-weight:700;color:#22c55e;cursor:pointer;user-select:none;">
+            🔧 Proposed Fix <span style="color:${riskColor};margin-left:6px;font-size:9px;padding:1px 5px;border-radius:3px;background:${riskColor}22;border:1px solid ${riskColor}44;">${fix.risk} RISK</span>
+        </summary>
+        <div style="font-size:11px;color:var(--text-secondary);background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.15);padding:8px 10px;border-radius:4px;margin-top:4px;line-height:1.5;white-space:pre-wrap;max-height:300px;overflow-y:auto;">${escHtml(fix.content)}</div>
+        <div style="margin-top:6px;display:flex;gap:6px;">
+            <button class="btn btn-sm" onclick="applyFix('${taskId}')" style="font-size:10px;padding:4px 12px;background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid rgba(34,197,94,0.4);font-weight:700;">✓ Apply Fix</button>
+            <button class="btn btn-sm" onclick="rejectFix('${taskId}')" style="font-size:10px;padding:4px 12px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">✗ Reject</button>
+        </div>
+    </details>`;
+    // Try to insert into both view locations
+    const el1 = document.getElementById('fix-area-' + taskId);
+    const el2 = document.getElementById('fix-area-panel-' + taskId);
+    if (el1) el1.innerHTML = html;
+    if (el2) el2.innerHTML = html;
+}
+
+async function applyFix(taskId) {
+    if (!confirm('Apply the proposed fix for ' + taskId + '? This will modify files and commit changes.')) return;
+    toast('Applying fix for ' + taskId + '...', 'info');
+    try {
+        const r = await fetch('/api/tasks/' + taskId + '/apply-fix', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const d = await r.json();
+        if (d.ok) {
+            toast(taskId + ': ' + d.message, 'success');
+            if (d.needs_restart) {
+                toast('Server restarting in 2s... Dashboard will reconnect.', 'info');
+                setTimeout(() => loadState(), 5000);
+            } else {
+                loadState();
+            }
+        } else {
+            toast('Apply fix failed: ' + (d.error||'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Apply fix request failed: ' + e.message, 'error');
+    }
+}
+
+async function rejectFix(taskId) {
+    try {
+        await fetch('/api/tasks/' + taskId + '/reject-fix', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        toast(taskId + ' fix rejected.', 'info');
+        loadState();
+    } catch (e) {
+        toast('Reject fix failed: ' + e.message, 'error');
+    }
+}
+
+async function viewTaskErrors(taskId) {
+    try {
+        const r = await fetch('/api/tasks/' + taskId + '/errors');
+        const d = await r.json();
+        const errors = d.errors || [];
+        if (errors.length === 0) {
+            toast('No error log found for ' + taskId, 'info');
+            return;
+        }
+        // Show in a simple modal/alert
+        const errText = errors.map((e, i) => `[${i+1}] ${e.timestamp || ''} — Step: ${e.step || '?'}\n${e.error || '(no message)'}`).join('\n\n');
+        alert('Error Log for ' + taskId + ':\n\n' + errText);
+    } catch (e) {
+        toast('Could not load error log: ' + e.message, 'error');
+    }
 }
 
 async function mergeTask(taskId) {
@@ -2071,45 +2531,214 @@ async function resolveDP(id){
     toast('Resolved','success'); await APP.refresh(); render();
 }
 
+// ===== RENDER: TESTS =====
+function renderTests() {
+    // Pull test data from tasks that have test_result
+    const tests = (APP.state?.tasks || [])
+        .filter(t => t.test_result)
+        .map(t => ({
+            task_id: t.task_id,
+            title: t.title || t.task_id,
+            state: t.state,
+            result: t.test_result.result,
+            summary: t.test_result.summary,
+            checks: t.test_result.checks || [],
+            regressions: t.test_result.regressions || [],
+            created_bugs: t.test_result.created_bugs || [],
+            tested_at: t.test_result.tested_at || t.updated_at
+        }))
+        .sort((a, b) => new Date(b.tested_at || 0) - new Date(a.tested_at || 0));
+    const passCount = tests.filter(t => t.result === 'PASS').length;
+    const failCount = tests.filter(t => t.result === 'FAIL').length;
+    const totalChecks = tests.reduce((sum, t) => sum + (t.checks?.length || 0), 0);
+    const passChecks = tests.reduce((sum, t) => sum + (t.checks?.filter(c => c.status === 'PASS').length || 0), 0);
+
+    $('tests-summary').innerHTML = `
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <div class="card" style="padding:14px;flex:1;min-width:120px;">
+                <div style="font-size:20px;font-weight:700;">${tests.length}</div>
+                <div style="font-size:11px;color:var(--text-muted);">Total Tests</div>
+            </div>
+            <div class="card" style="padding:14px;flex:1;min-width:120px;${passCount?'border-color:rgba(34,197,94,0.3);':''}">
+                <div style="font-size:20px;font-weight:700;color:var(--success);">${passCount}</div>
+                <div style="font-size:11px;color:var(--text-muted);">Passed</div>
+            </div>
+            <div class="card" style="padding:14px;flex:1;min-width:120px;${failCount?'border-color:rgba(239,68,68,0.3);':''}">
+                <div style="font-size:20px;font-weight:700;color:var(--danger);">${failCount}</div>
+                <div style="font-size:11px;color:var(--text-muted);">Failed</div>
+            </div>
+            <div class="card" style="padding:14px;flex:1;min-width:120px;">
+                <div style="font-size:20px;font-weight:700;">${passChecks}/${totalChecks}</div>
+                <div style="font-size:11px;color:var(--text-muted);">Checks Passed</div>
+            </div>
+        </div>`;
+
+    if (!tests.length) {
+        $('tests-list').innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px;">No cowork tests have been run yet.<br><span style="font-size:12px;">Tests run automatically for Yellow guardrail tasks, or manually via the Red guardrail decision UI.</span></div>';
+        return;
+    }
+
+    $('tests-list').innerHTML = tests.map(t => {
+        const isPASS = t.result === 'PASS';
+        const borderColor = isPASS ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)';
+        const resultBadge = isPASS
+            ? '<span class="badge badge-success">PASS</span>'
+            : '<span class="badge badge-danger">FAIL</span>';
+        const time = t.tested_at ? new Date(t.tested_at).toLocaleString() : '—';
+
+        const checksHtml = (t.checks || []).map(c => {
+            const icon = c.status === 'PASS' ? '✅' : '❌';
+            return `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <span style="flex-shrink:0;">${icon}</span>
+                <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text-primary);">${escHtml(c.criterion||'')}</div>
+                    <div style="font-size:11px;color:var(--text-muted);">${escHtml(c.detail||'')}</div>
+                </div>
+            </div>`;
+        }).join('');
+
+        const regressionsHtml = (t.regressions || []).length
+            ? `<div style="margin-top:10px;">
+                <div style="font-size:11px;font-weight:600;color:var(--danger);margin-bottom:4px;">⚠ Regressions</div>
+                ${t.regressions.map(r => `<div style="font-size:11px;color:var(--text-secondary);padding:2px 0;">• ${escHtml(r)}</div>`).join('')}
+            </div>`
+            : '';
+
+        const bugsHtml = (t.created_bugs || []).length
+            ? `<div style="margin-top:10px;">
+                <div style="font-size:11px;font-weight:600;color:var(--warning);margin-bottom:4px;">🐛 Auto-Created Bug Tasks</div>
+                ${t.created_bugs.map(b => `<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;margin-right:4px;">${escHtml(b)}</span>`).join('')}
+            </div>`
+            : '';
+
+        return `<div class="card" style="padding:16px;border-color:${borderColor};">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:13px;font-weight:700;color:var(--accent);">${escHtml(t.task_id)}</span>
+                    ${resultBadge}
+                    <span style="font-size:12px;color:var(--text-secondary);">${escHtml(t.title)}</span>
+                </div>
+                <span style="font-size:11px;color:var(--text-muted);">${time}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:6px;">${escHtml(t.summary || '')}</div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">Checks (${(t.checks||[]).filter(c=>c.status==='PASS').length}/${(t.checks||[]).length})</div>
+            ${checksHtml}
+            ${regressionsHtml}
+            ${bugsHtml}
+        </div>`;
+    }).join('');
+}
+
 // ===== RENDER: CHATGPT =====
 function renderChatGPT() {
     const prompts = APP.state?.prompts || [];
-    $('prompt-queue').innerHTML = prompts.length ? prompts.map((p,i)=>`
-        <div class="card" style="padding:14px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-weight:600;">Prompt ${i+1}</span><span class="badge badge-info">${p.status||'pending'}</span></div>
-            <div style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-size:12px;max-height:120px;overflow-y:auto;white-space:pre-wrap;" class="mono">${p.text||'...'}</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;margin-top:8px;" onclick="navigator.clipboard.writeText(APP.state.prompts[${i}]?.text||'').then(()=>toast('Copied','success'))">Copy</button>
-        </div>
-    `).join('') : '<div style="color:var(--text-muted);text-align:center;padding:40px;">No prompts</div>';
+    const pending = prompts.filter(p => p.status === 'pending' && !p.hasResponse);
+    const completed = prompts.filter(p => p.status === 'completed' || p.hasResponse);
+
+    // Summary
+    $('chatgpt-status-summary').innerHTML = isAppMode()
+        ? `<div class="card" style="padding:14px;">
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+                <div><span style="font-size:20px;font-weight:700;color:var(--warning);">${pending.length}</span> <span style="font-size:12px;color:var(--text-muted);">pending</span></div>
+                <div><span style="font-size:20px;font-weight:700;color:var(--success);">${completed.length}</span> <span style="font-size:12px;color:var(--text-muted);">completed</span></div>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">Respond to prompts inline in the <a href="#pipeline" onclick="navigateTo('pipeline');return false;" style="color:var(--accent);font-weight:600;">Pipeline view</a>. Each waiting step shows a prompt widget where you copy the prompt, paste the ChatGPT response, and submit.</p>
+        </div>`
+        : `<div class="card" style="padding:14px;"><p style="font-size:12px;color:var(--text-muted);">ChatGPT prompts are only used in APP mode. Current mode: <strong>${APP.state?.mode||'API'}</strong></p></div>`;
+
+    // Compact list
+    $('prompt-queue').innerHTML = prompts.length ? prompts.map(p => {
+        const stepLabel = p.step ? p.step.replace(/_/g,' ').replace(/-/g,' ') : 'manual';
+        const taskLabel = p.taskId || '';
+        const isPending = p.status === 'pending' && !p.hasResponse;
+        const age = (p.completedAt || p.createdAt) ? timeAgo(new Date(p.completedAt || p.createdAt)) : '';
+        return `<div class="card" style="padding:8px 12px;${isPending ? 'border-left:3px solid var(--warning);' : 'opacity:0.6;'}">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;font-weight:600;">${stepLabel} ${taskLabel ? '<span style="color:var(--text-muted);">(' + taskLabel + ')</span>' : ''}</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    ${age ? `<span style="font-size:10px;color:var(--text-muted);">${age}</span>` : ''}
+                    <span class="badge badge-${isPending ? 'warning' : 'success'}" style="font-size:9px;">${isPending ? '⏳ Waiting' : '✓ Done'}</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('') : '<div style="color:var(--text-muted);text-align:center;padding:30px;">No prompts yet. Start a cascade in APP mode to generate prompts.</div>';
+}
+
+function timeAgo(date) {
+    const s = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (s < 60) return s + 's ago';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+}
+
+function copyPromptText(promptId) {
+    const p = (APP.state?.prompts || []).find(x => x.id === promptId);
+    if (!p || !p.text) { toast('No prompt text found', 'warning'); return; }
+    navigator.clipboard.writeText(p.text).then(() => toast('Prompt copied to clipboard!', 'success')).catch(() => toast('Copy failed', 'danger'));
+}
+
+async function submitPromptResponse(promptId) {
+    const textarea = document.getElementById('response-text-' + promptId);
+    if (!textarea) { toast('Response textarea not found', 'danger'); return; }
+    const response = textarea.value.trim();
+    if (!response) { toast('Please paste the ChatGPT response first', 'warning'); return; }
+
+    const btn = textarea.parentElement.querySelector('button.btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting...'; }
+
+    try {
+        const res = await fetch('/api/prompts/' + encodeURIComponent(promptId) + '/respond', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ response })
+        });
+        const data = await res.json();
+        if (data.success) {
+            toast('Response submitted! Pipeline will continue automatically.', 'success');
+            lockPromptResponse(promptId);
+            await APP.refresh();
+            render();
+        } else {
+            toast('Submit failed: ' + (data.error || 'unknown'), 'danger');
+            if (btn) { btn.disabled = false; btn.textContent = '▶ Submit Response'; }
+        }
+    } catch (e) {
+        toast('Submit error: ' + e.message, 'danger');
+        if (btn) { btn.disabled = false; btn.textContent = '▶ Submit Response'; }
+    }
 }
 
 // ===== RENDER: TOKENS =====
 function renderTokens() {
     if(!APP.usage.length){$('usage-summary-grid').innerHTML='<div style="color:var(--text-muted);text-align:center;padding:40px;grid-column:1/-1;">No usage data</div>';$('usage-table-body').innerHTML='';return;}
-    const byP={};const byE={};let tIn=0,tOut=0,tCalls=0;
+    const byP={};const byE={};let tIn=0,tOut=0,tCalls=0,tCost=0;
     const colors={openai:'var(--openai)',gemini:'var(--gemini)',claude:'var(--claude)',mock:'var(--mock)',codex:'var(--codex)'};
     APP.usage.forEach(u=>{
-        const p=u.provider||'?';if(!byP[p])byP[p]={i:0,o:0,c:0,models:new Set()};
-        byP[p].i+=u.inputTokens||0;byP[p].o+=u.outputTokens||0;byP[p].c++;
-        if(u.model)byP[p].models.add(u.model);tIn+=u.inputTokens||0;tOut+=u.outputTokens||0;tCalls++;
+        const p=u.provider||'?';if(!byP[p])byP[p]={i:0,o:0,c:0,cost:0,models:new Set()};
+        byP[p].i+=u.inputTokens||0;byP[p].o+=u.outputTokens||0;byP[p].c++;byP[p].cost+=u.costUsd||0;
+        if(u.model)byP[p].models.add(u.model);tIn+=u.inputTokens||0;tOut+=u.outputTokens||0;tCalls++;tCost+=u.costUsd||0;
         // Aggregate by executor
-        if(u.taskId){const task=(APP.state?.tasks||[]).find(t=>t.task_id===u.taskId);if(task){const ex=task.executor||'?';if(!byE[ex])byE[ex]={i:0,o:0,c:0};const s=(u.inputTokens||0)+(u.outputTokens||0);byE[ex].i+=u.inputTokens||0;byE[ex].o+=u.outputTokens||0;byE[ex].c++;}}
+        if(u.taskId){const task=(APP.state?.tasks||[]).find(t=>t.task_id===u.taskId);if(task){const ex=task.executor||'?';if(!byE[ex])byE[ex]={i:0,o:0,c:0,cost:0};byE[ex].i+=u.inputTokens||0;byE[ex].o+=u.outputTokens||0;byE[ex].c++;byE[ex].cost+=u.costUsd||0;}}
     });
     const total=tIn+tOut;
+    const costStr=tCost>0?`<div style="font-size:14px;color:#4ade80;margin-top:4px;font-weight:600;">$${tCost.toFixed(4)}</div>`:'';
     // Provider cards
-    let cards=`<div class="usage-card total"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;color:var(--accent);margin-bottom:6px;">Total</div><div class="mono" style="font-size:24px;font-weight:700;">${fmt(total)}</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fmt(tIn)} in / ${fmt(tOut)} out &bull; ${tCalls} calls</div></div>`;
+    let cards=`<div class="usage-card total"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;color:var(--accent);margin-bottom:6px;">Total</div><div class="mono" style="font-size:24px;font-weight:700;">${fmt(total)}</div>${costStr}<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fmt(tIn)} in / ${fmt(tOut)} out &bull; ${tCalls} calls</div></div>`;
     Object.entries(byP).sort((a,b)=>(b[1].i+b[1].o)-(a[1].i+a[1].o)).forEach(([p,d])=>{
         const t=d.i+d.o, pct=total?t/total*100:0;
-        cards+=`<div class="usage-card ${p}"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;color:var(--${p},var(--text-muted));margin-bottom:6px;">${p}</div><div class="mono" style="font-size:24px;font-weight:700;">${fmt(t)}</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fmt(d.i)} in / ${fmt(d.o)} out &bull; ${d.c} calls</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${[...d.models].join(', ')}</div><div class="usage-bar"><div class="usage-bar-fill" style="width:${pct}%;background:var(--${p},var(--accent));"></div></div></div>`;
+        const pCost=d.cost>0?`<div style="font-size:12px;color:#4ade80;margin-top:2px;">$${d.cost.toFixed(4)}</div>`:'';
+        cards+=`<div class="usage-card ${p}"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;color:var(--${p},var(--text-muted));margin-bottom:6px;">${p}</div><div class="mono" style="font-size:24px;font-weight:700;">${fmt(t)}</div>${pCost}<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fmt(d.i)} in / ${fmt(d.o)} out &bull; ${d.c} calls</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${[...d.models].join(', ')}</div><div class="usage-bar"><div class="usage-bar-fill" style="width:${pct}%;background:var(--${p},var(--accent));"></div></div></div>`;
     });
     // Executor cards
     Object.entries(byE).sort((a,b)=>(b[1].i+b[1].o)-(a[1].i+a[1].o)).forEach(([e,d])=>{
         const t=d.i+d.o, pct=total?t/total*100:0;
-        cards+=`<div class="usage-card ${e}"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;color:${colors[e]||'var(--text-muted)'};margin-bottom:6px;">${e} <span style="font-size:8px;opacity:0.7;">(executor)</span></div><div class="mono" style="font-size:24px;font-weight:700;">${fmt(t)}</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fmt(d.i)} in / ${fmt(d.o)} out &bull; ${d.c} calls</div><div class="usage-bar"><div class="usage-bar-fill" style="width:${pct}%;background:${colors[e]||'var(--accent)'};"></div></div></div>`;
+        const eCost=d.cost>0?`<div style="font-size:12px;color:#4ade80;margin-top:2px;">$${d.cost.toFixed(4)}</div>`:'';
+        cards+=`<div class="usage-card ${e}"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;color:${colors[e]||'var(--text-muted)'};margin-bottom:6px;">${e} <span style="font-size:8px;opacity:0.7;">(executor)</span></div><div class="mono" style="font-size:24px;font-weight:700;">${fmt(t)}</div>${eCost}<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fmt(d.i)} in / ${fmt(d.o)} out &bull; ${d.c} calls</div><div class="usage-bar"><div class="usage-bar-fill" style="width:${pct}%;background:${colors[e]||'var(--accent)'};"></div></div></div>`;
     });
     $('usage-summary-grid').innerHTML=cards;
     const sorted=[...APP.usage].reverse().slice(0,100);
-    $('usage-table-body').innerHTML=sorted.map(u=>{const t=(u.inputTokens||0)+(u.outputTokens||0);const task=(APP.state?.tasks||[]).find(tk=>tk.task_id===u.taskId);const executor=task?.executor||'';return`<tr><td style="font-size:10px;color:var(--text-muted);white-space:nowrap;">${new Date(u.timestamp).toLocaleTimeString()}</td><td><span class="badge badge-${u.provider||'info'}">${u.provider||'?'}</span></td><td class="mono" style="font-size:11px;">${u.model||'-'}</td><td>${u.step||'-'}</td><td class="mono" style="color:var(--accent);font-size:11px;">${u.taskId||'-'}</td><td>${executor?`<span class="badge badge-${executor==='codex'?'openai':executor==='claude'?'claude':'info'}" style="font-size:9px;">${executor}</span>`:'-'}</td><td class="mono">${fmt(u.inputTokens||0)}</td><td class="mono">${fmt(u.outputTokens||0)}</td><td class="mono" style="font-weight:600;">${fmt(t)}</td><td class="mono">${u.durationMs||'-'}</td></tr>`;}).join('');
+    $('usage-table-body').innerHTML=sorted.map(u=>{const t=(u.inputTokens||0)+(u.outputTokens||0);const task=(APP.state?.tasks||[]).find(tk=>tk.task_id===u.taskId);const executor=task?.executor||'';const cost=u.costUsd?`$${u.costUsd.toFixed(4)}`:'';return`<tr><td style="font-size:10px;color:var(--text-muted);white-space:nowrap;">${new Date(u.timestamp).toLocaleTimeString()}</td><td><span class="badge badge-${u.provider||'info'}">${u.provider||'?'}</span></td><td class="mono" style="font-size:11px;">${u.model||'-'}</td><td>${u.step||'-'}</td><td class="mono" style="color:var(--accent);font-size:11px;">${u.taskId||'-'}</td><td>${executor?`<span class="badge badge-${executor==='codex'?'openai':executor==='claude'?'claude':'info'}" style="font-size:9px;">${executor}</span>`:'-'}</td><td class="mono">${fmt(u.inputTokens||0)}</td><td class="mono">${fmt(u.outputTokens||0)}</td><td class="mono" style="font-weight:600;">${fmt(t)}</td><td class="mono" style="color:#4ade80;">${cost}</td><td class="mono">${u.durationMs||'-'}</td></tr>`;}).join('');
 }
 
 // ===== RENDER: SETTINGS =====
@@ -2324,9 +2953,33 @@ document.addEventListener('DOMContentLoaded', async()=>{
         if(e.key==='Escape'){$('command-palette').classList.remove('active');closeTaskPanel();closeModal('goal-modal-overlay');closeModal('task-modal-overlay');}
     });
     document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
-    document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>{
-        document.querySelectorAll('.mode-btn').forEach(x=>{x.classList.toggle('btn-primary',x.dataset.mode===b.dataset.mode);x.classList.toggle('btn-secondary',x.dataset.mode!==b.dataset.mode);});
-        if(APP.state)APP.state.mode=b.dataset.mode;toast('Mode: '+b.dataset.mode,'success');updateHeader();
+    document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',async()=>{
+        const newMode = b.dataset.mode.toLowerCase();
+        // Always update UI immediately
+        const applyUI = (m) => {
+            const upper = m.toUpperCase();
+            document.querySelectorAll('.mode-btn').forEach(x=>{x.classList.toggle('btn-primary',x.dataset.mode===upper);x.classList.toggle('btn-secondary',x.dataset.mode!==upper);});
+            if(APP.state) APP.state.mode = upper;
+            updateHeader();
+        };
+        try {
+            const res = await fetch('/api/settings/llm-mode', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({mode:newMode}) });
+            const data = await res.json();
+            if(data.success) {
+                APP._modeOverride = data.mode.toUpperCase();
+                applyUI(data.mode);
+                toast('Mode switched to: '+data.mode.toUpperCase(),'success');
+            } else if(data.error && data.error.includes('not found')) {
+                // Server doesn't have settings endpoint yet — apply client-side only
+                APP._modeOverride = newMode.toUpperCase();
+                applyUI(newMode);
+                toast('Mode set to '+newMode.toUpperCase()+' (restart server to persist)','warning');
+            } else { toast('Mode switch failed: '+(data.error||'unknown'),'error'); }
+        } catch(e) {
+            // Network error — apply client-side as fallback
+            applyUI(newMode);
+            toast('Mode set to '+newMode.toUpperCase()+' (server unreachable)','warning');
+        }
     }));
     $('refresh-btn').addEventListener('click',async()=>{await APP.load();render();toast('Refreshed','success');});
     $('new-goal-btn').addEventListener('click',openGoalModal);
@@ -2345,9 +2998,258 @@ document.addEventListener('DOMContentLoaded', async()=>{
         if (g && g.closest('svg')) showBranchDetail(g.getAttribute('data-hash'));
     });
     navigateTo(location.hash.substring(1)||'dashboard');
-    APP.timer=setInterval(async()=>{await APP.refresh();render();},5000);
+    APP.timer=setInterval(async()=>{
+        await APP.refresh();
+        // Save all textarea values before render (keyed by id)
+        const savedTextareas = {};
+        document.querySelectorAll('textarea[id]').forEach(ta => {
+            if (ta.value.trim()) savedTextareas[ta.id] = ta.value;
+        });
+        const activeId = document.activeElement?.id || null;
+        const wasTyping = document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT');
+
+        render();
+
+        // Restore textarea values after render
+        for (const [id, val] of Object.entries(savedTextareas)) {
+            const ta = document.getElementById(id);
+            if (ta && !ta.value.trim()) ta.value = val;
+        }
+        // Re-focus if user was typing
+        if (wasTyping && activeId) {
+            const el = document.getElementById(activeId);
+            if (el) el.focus();
+        }
+    },5000);
 });
 window.addEventListener('beforeunload',()=>{if(APP.timer)clearInterval(APP.timer);});
+
+// ═══════════════════════════════════════════════════════
+// PROJECT MANAGEMENT (Multi-Project Support)
+// ═══════════════════════════════════════════════════════
+
+APP._projects = [];
+APP._activeProjectId = null;
+
+async function loadProjects() {
+    try {
+        const res = await fetch('/api/projects');
+        const data = await res.json();
+        APP._projects = data.projects || [];
+        APP._activeProjectId = data.active_project;
+        renderProjectSelector();
+    } catch (e) { console.warn('Failed to load projects:', e); }
+}
+
+function renderProjectSelector() {
+    const dd = document.getElementById('project-dropdown');
+    if (!dd) return;
+    dd.innerHTML = '';
+    if (APP._projects.length === 0) {
+        dd.innerHTML = '<option value="">No projects</option>';
+        return;
+    }
+    for (const p of APP._projects) {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        if (p.id === APP._activeProjectId) opt.selected = true;
+        dd.appendChild(opt);
+    }
+    // Update sidebar project name
+    const nameEl = document.getElementById('project-name-sidebar');
+    const active = APP._projects.find(p => p.id === APP._activeProjectId);
+    if (nameEl && active) nameEl.textContent = active.name;
+}
+
+document.getElementById('project-dropdown')?.addEventListener('change', async (e) => {
+    const projectId = e.target.value;
+    if (!projectId || projectId === APP._activeProjectId) return;
+    try {
+        const res = await fetch('/api/projects/switch', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ projectId })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            toast(`Switched to: ${data.project.name}`, 'success');
+            APP._activeProjectId = projectId;
+            // Full reload to get new project state
+            setTimeout(() => window.location.reload(), 500);
+        } else {
+            toast(data.error || 'Switch failed', 'error');
+        }
+    } catch (e) { toast('Switch failed: ' + e.message, 'error'); }
+});
+
+function showAddProjectModal() {
+    const existing = document.getElementById('add-project-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'add-project-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+        <div style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:12px;padding:24px;width:480px;max-width:90vw;">
+            <h3 style="margin:0 0 16px;color:var(--text-primary);">Add Project</h3>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Project Name</label>
+                <input id="add-proj-name" type="text" placeholder="My App" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Path (absolute)</label>
+                <input id="add-proj-path" type="text" placeholder="/Users/me/Dev/my-app" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Setup Mode</label>
+                <select id="add-proj-mode" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);">
+                    <option value="existing">Existing repo (already has automation/)</option>
+                    <option value="new">New project (create scaffold)</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="document.getElementById('add-project-modal').remove()">Cancel</button>
+                <button class="btn btn-primary" onclick="doAddProject()">Add Project</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    document.getElementById('add-proj-name').focus();
+}
+
+async function doAddProject() {
+    const name = document.getElementById('add-proj-name').value.trim();
+    const projPath = document.getElementById('add-proj-path').value.trim();
+    const mode = document.getElementById('add-proj-mode').value;
+
+    if (!projPath) { toast('Please enter a path', 'warning'); return; }
+
+    try {
+        const res = await fetch('/api/projects/add', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ name: name || undefined, path: projPath, mode })
+        });
+        const data = await res.json();
+        if (data.ok || data.project) {
+            toast(`Added: ${data.project.name}`, 'success');
+            document.getElementById('add-project-modal')?.remove();
+            await loadProjects();
+        } else {
+            toast(data.error || data.message || 'Add failed', 'error');
+        }
+    } catch (e) { toast('Add failed: ' + e.message, 'error'); }
+}
+
+function showImportProjectModal() {
+    const existing = document.getElementById('import-project-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'import-project-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+        <div style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:12px;padding:24px;width:520px;max-width:90vw;">
+            <h3 style="margin:0 0 8px;color:var(--text-primary);">Import Project</h3>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0 0 16px;">Claude CLI analyzes your codebase and auto-generates architecture docs, domain model, and invariants. Falls back to ChatGPT prompt if CLI is unavailable.</p>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Project Name</label>
+                <input id="import-proj-name" type="text" placeholder="My Existing App" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Path to existing repo (absolute)</label>
+                <input id="import-proj-path" type="text" placeholder="/Users/me/Dev/existing-project" style="width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);box-sizing:border-box;">
+            </div>
+            <div id="import-status-box" style="display:none;padding:12px;background:var(--bg-secondary);border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--text-secondary);">
+                <div id="import-status-text">Starting import...</div>
+                <div style="margin-top:8px;height:4px;background:var(--border-color);border-radius:2px;overflow:hidden;">
+                    <div id="import-progress" style="height:100%;background:var(--accent);width:0%;transition:width 0.5s;"></div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="btn btn-secondary" id="import-cancel-btn" onclick="document.getElementById('import-project-modal').remove()">Cancel</button>
+                <button class="btn btn-primary" id="import-start-btn" onclick="doImportProject()">Start Import</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    document.getElementById('import-proj-name').focus();
+}
+
+async function doImportProject() {
+    const name = document.getElementById('import-proj-name').value.trim();
+    const projPath = document.getElementById('import-proj-path').value.trim();
+
+    if (!projPath) { toast('Please enter a path', 'warning'); return; }
+
+    // Show progress
+    document.getElementById('import-status-box').style.display = 'block';
+    document.getElementById('import-start-btn').disabled = true;
+    document.getElementById('import-start-btn').textContent = 'Importing...';
+    document.getElementById('import-progress').style.width = '20%';
+    document.getElementById('import-status-text').textContent = 'Starting import analysis...';
+
+    try {
+        const res = await fetch('/api/projects/import', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ path: projPath, name: name || undefined })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            toast(data.error || data.message || 'Import failed', 'error');
+            document.getElementById('import-start-btn').disabled = false;
+            document.getElementById('import-start-btn').textContent = 'Start Import';
+            return;
+        }
+
+        // Poll for completion
+        document.getElementById('import-progress').style.width = '40%';
+        document.getElementById('import-status-text').textContent = 'Claude is analyzing the codebase...';
+
+        const pollImport = setInterval(async () => {
+            try {
+                const statusRes = await fetch('/api/projects/import-status');
+                const status = await statusRes.json();
+                if (status.completed_at) {
+                    clearInterval(pollImport);
+                    document.getElementById('import-progress').style.width = '100%';
+                    if (status.ok) {
+                        document.getElementById('import-status-text').textContent =
+                            `Import complete! ${(status.written||[]).length} files created. Method: ${status.method}`;
+                        toast(`Import complete: ${status.projectName || name}`, 'success');
+                        await loadProjects();
+                        setTimeout(() => {
+                            document.getElementById('import-project-modal')?.remove();
+                        }, 2000);
+                    } else {
+                        document.getElementById('import-status-text').textContent =
+                            `Import failed: ${status.error || 'Unknown error'}`;
+                        toast('Import failed: ' + (status.error || 'Unknown'), 'error');
+                        document.getElementById('import-start-btn').disabled = false;
+                        document.getElementById('import-start-btn').textContent = 'Retry Import';
+                    }
+                } else {
+                    // Still running
+                    const cur = parseInt(document.getElementById('import-progress').style.width) || 40;
+                    if (cur < 85) document.getElementById('import-progress').style.width = (cur + 5) + '%';
+                }
+            } catch (_) {}
+        }, 3000);
+
+    } catch (e) {
+        toast('Import failed: ' + e.message, 'error');
+        document.getElementById('import-start-btn').disabled = false;
+        document.getElementById('import-start-btn').textContent = 'Start Import';
+    }
+}
+
+// Load projects on startup
+loadProjects();
 </script>
 </body>
 </html>

@@ -1,30 +1,44 @@
 # T-0008 Gemini Review
 
 ## Review target
-- **Spec File:** `ai/specs/T-0008_spec.md`
-- **Task:** Verify no additional truth sources already define archive behavior.
+
+Spec for adding a greeting section to the README. This is a straightforward documentation enhancement with minimal risk of breaking changes.
 
 ## Contradictions
-- **Drift Handling:** The spec classifies the existence of `deleteTask` in code/tests as "uncertainty and possible drift." However, `docs/ARCHITECTURE.md` and `AGENTS.md` are explicit: "If docs and tested code disagree, do not decide silently. Document the conflict in `ai/current-state/drift-register.md`." The spec should move from "noting uncertainty" to "requiring registration of drift" for the `deleteTask` functionality, as it exists in tested code but is absent from `DOMAIN_MODEL.md`.
+
+No direct contradictions found. The spec is internally consistent regarding placement (after h1), scope (greeting only, not ToC updates), and constraints (non-intrusive).
 
 ## Missing edge cases
-- **Synonym Search:** The verification should not only search for the literal string "archive" but also related state-management concepts like "soft-delete," "retired," "hidden," or "cleanup" that might exist in `docs/ADR/`.
-- **Existing Drift Register:** The spec does not mention checking the `ai/current-state/drift-register.md` itself. It is possible this lack of "archive" or the presence of "delete" has already been flagged by a previous agent.
+
+1. What if the README uses h1 for something other than the project title (e.g., if it starts with a badge or image)? Should the greeting go after that or immediately after a markdown h1?
+2. What if the README already has a greeting or introduction section under a different name (e.g., "## About")?
+3. Encoding edge case: What if the README contains non-ASCII characters? Greeter should ensure UTF-8 handling.
 
 ## Scope risks
-- **ADR Accessibility:** The spec correctly identifies that ADRs were not provided in the prompt. There is a risk that the Executor might assume because they weren't in the spec context, they don't exist. The spec needs to reinforce that the *actual* filesystem must be searched, not just the text provided in the spec's "Source of truth" summary.
-- **Project Config:** The spec references `ai/project.config.yaml` in its source-of-truth list, but this file was not provided in the truth files for this review. This introduces a risk where the spec relies on a file whose actual existence/schema is unverified.
+
+- Risk: The greeting creation task is well-scoped as written, but the definition of "friendly tone" may be subjective. Consider adding examples.
+- Risk: If a ToC update is truly necessary, blocking it to a follow-up task (P-2) could result in inconsistency during review. This is acceptable given the staged approach, but reviewers should be aware.
 
 ## Missing tests
-- **Verification Checklist:** As this is a `docs-lane` task, "tests" are manual verification steps. The spec lacks a requirement for the executor to provide a specific list of files searched and the grep/search terms used to ensure thoroughness.
-- **Negative Confirmation:** No explicit requirement to confirm that `Task.status` is strictly limited to the union of strings defined in `DOMAIN_MODEL.md` across all documentation.
+
+No specific tests are called out for this documentation change:
+- Should verify the markdown is valid (linter check)
+- Should verify links are unbroken
+- Could verify that the new section is accessible in the GitHub rendering
+- Consider a simple grep/find test to ensure "Welcome" section was actually added
 
 ## Hidden assumptions
-- **Archive != Delete:** The spec assumes that "archive" and "delete" are fundamentally different behaviors. While logically true in most domain models, some systems use "archive" as a synonym for "soft-delete."
-- **Current State:** Assumes that if a behavior is not in the listed docs, it is "undefined," ignoring the possibility that it might be defined in a truth source not listed in `AGENTS.md` (though `AGENTS.md` is meant to be exhaustive).
+
+1. Assumption: The README is in the repo root as `README.md`. If it's in a subdirectory or has a different name, this task would fail.
+2. Assumption: The greeting fits naturally into the README structure (i.e., the README is not a pure API reference that would be awkwardly interrupted by a greeting).
+3. Assumption: The project maintainers want a greeting at all (this was approved at the goal level, but is not stated in the spec as validated).
 
 ## Recommended corrections
-- **Explicit Drift Registration:** Update the "Desired behavior" to mandate that if `deleteTask` remains undocumented in the primary truth files after verification, an entry *must* be created in `ai/current-state/drift-register.md`.
-- **Search Methodology:** Add a constraint requiring the executor to search for synonyms (e.g., "soft-delete", "inactive") in addition to "archive".
-- **ADR Verification:** Strengthen the Acceptance Criteria to require a "null result" report for the `docs/ADR/` directory (e.g., "Checked X ADR files, zero mentions found").
-- **Drift Register Check:** Add `ai/current-state/drift-register.md` to the list of files to be reviewed during verification to see if this discrepancy is already known.
+
+1. Add a note: "Greeting should be added immediately after the first markdown h1 (# title), not after badges or images if they appear first."
+2. Clarify: "If the README already has an introductory or about section, merge the greeting into that section rather than creating a duplicate."
+3. Add: "Greeting implementation should be validated with markdown linting and manual visual review in GitHub."
+
+## Summary
+
+The spec is solid and well-scoped. The corrections are minor clarifications around edge cases and assumptions. Approve with recommended corrections noted for implementation.

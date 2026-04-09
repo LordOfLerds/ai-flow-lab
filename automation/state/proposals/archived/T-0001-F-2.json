@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0001-F-2",
+  "parent_task_id": "T-0001",
+  "title": "Build level system with platforms, terrain, and scrolling",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Game loop and camera are ready; level geometry is required before obstacles, enemies, collectibles can be placed.",
+  "smallest_safe_scope": "Define simple level data structure (tile grid or static platform array), render basic platform geometry, ensure camera clamps to actual level bounds.",
+  "depends_on": "T-0001",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:43:58.791Z",
+  "index": 2
+}

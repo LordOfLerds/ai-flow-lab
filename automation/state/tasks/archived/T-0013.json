@@ -1,0 +1,27 @@
+{
+  "task_id": "T-0013",
+  "title": "User Login",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0013-user-login",
+  "worktree_path": "../wt/T-0013",
+  "spec_path": "ai/specs/T-0013_spec.md",
+  "review_path": "ai/reviews/T-0013_gemini_review.md",
+  "brief_path": "ai/briefs/T-0013_implementation.md",
+  "result_path": "ai/results/T-0013_executor_report.md",
+  "followup_path": "ai/followups/T-0013_followups.md",
+  "owner_lock": "task:T-0013",
+  "created_at": "2026-04-07T07:56:44.570Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "description": "User mit account einlogen mit email mit allen sicherheitsschritten",
+  "current_step": null,
+  "written_files": [
+    "index.html"
+  ],
+  "pr_draft_path": "ai/pr/T-0013_pr_draft.md"
+}

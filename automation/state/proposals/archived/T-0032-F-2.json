@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0032-F-2",
+  "parent_task_id": "T-0032",
+  "title": "Extend executor guardrail to subdirectories",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "rationale": "The current guardrail only snapshots files in the repo root. As the project grows, important files in subdirectories (automation/scripts, docs, etc.) won't be protected.",
+  "smallest_safe_scope": "Add configurable scan depth to snapshotSourceFiles(). Scan repo root + one level of subdirectories. Skip node_modules, .git, dist. No persistent backup.",
+  "depends_on": "T-0032",
+  "priority": "low",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T00:15:42.875Z",
+  "index": 2
+}

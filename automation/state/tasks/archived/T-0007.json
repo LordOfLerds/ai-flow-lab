@@ -1,0 +1,28 @@
+{
+  "task_id": "T-0007",
+  "title": "Add HUD, score tracking, game over, menus, and polish",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0007-add-hud-score-tracking-game-over-menus-and-polish",
+  "worktree_path": "../wt/T-0007",
+  "spec_path": "ai/specs/T-0007_spec.md",
+  "review_path": "ai/reviews/T-0007_gemini_review.md",
+  "brief_path": "ai/briefs/T-0007_implementation.md",
+  "result_path": "ai/results/T-0007_executor_report.md",
+  "followup_path": "ai/followups/T-0007_followups.md",
+  "owner_lock": "task:T-0007",
+  "created_at": "2026-04-07T04:39:48.593Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "description": "Build the heads-up display showing: current score, coins collected, XP bar, current level, active power-ups with timers, and current skin name. Implement game-over screen with final score, XP earned, and restart button. Add a start screen with title, \"Play\" button, and skin selector. Add screen shake on enemy kill, particle effects for coin pickup, and smooth transitions between menus and gameplay. Include speed progression (game scrolls faster over time). Dependencies: Task 1-6",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "pr_draft_path": "ai/pr/T-0007_pr_draft.md",
+  "written_files": [
+    "index.html"
+  ]
+}

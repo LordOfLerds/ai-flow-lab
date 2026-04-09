@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0028-F-2",
+  "parent_task_id": "T-0028",
+  "title": "Build on-canvas HUD with score, coins, level, and health display",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "All gameplay metrics (score, coins, gems, level number, shield HP, powerup timers) are tracked in game state but invisible to the player. This task adds a persistent HUD overlay drawn on top of the game canvas showing these values in real-time. Without a HUD, players can't see their progress or know when powerups are active.",
+  "smallest_safe_scope": "On-canvas HUD with: score counter (top-left), coin counter with icon, gem counter, level number, shield indicator, active powerup timers. No minimap or enemy health bars.",
+  "depends_on": "T-0028",
+  "priority": "normal",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T23:36:42.070Z",
+  "index": 2
+}

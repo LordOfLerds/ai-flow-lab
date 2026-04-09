@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0027-F-4",
+  "parent_task_id": "T-0027",
+  "title": "Build HUD with score, coins, XP bar, and level display",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "The rendering pipeline is structured to support a HUD layer drawn after world rendering. Add on-canvas HUD showing current score, coin count, gem count, XP bar, player level, and current game level number. Wire the HTML HUD elements (already in the DOM) to game state.",
+  "smallest_safe_scope": "On-canvas HUD with score, coins, level number. XP bar fill based on gs.xp.",
+  "depends_on": "T-0027",
+  "priority": "normal",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T23:16:03.473Z",
+  "index": 4
+}

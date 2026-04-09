@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-E2E-01-F-002",
+  "parent_task_id": "T-E2E-01",
+  "title": "Create comprehensive installation and setup documentation",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "rationale": "README currently provides minimal quick start; users need detailed setup instructions for AI agent configuration, prerequisites, and environment setup",
+  "smallest_safe_scope": "Create docs/INSTALLATION.md covering prerequisites, AI agent API setup, environment configuration, and first-run verification",
+  "depends_on": "F-001 (link validation)",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T09:23:47.973Z",
+  "index": 2
+}

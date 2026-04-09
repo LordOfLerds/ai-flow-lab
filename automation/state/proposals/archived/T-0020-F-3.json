@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0020-F-3",
+  "parent_task_id": "T-0020",
+  "title": "Evaluate an offline-friendly cached browser distribution strategy for browser smoke tests",
+  "lane_type": "infrastructure-lane",
+  "executor": "claude",
+  "rationale": "The executor reported that Playwright installation and some package operations are blocked in restricted environments. If those constraints are expected to continue, a cached or vendored browser strategy may be needed for stable automation. This is useful, but less urgent than first making the current harness runnable and documented.",
+  "smallest_safe_scope": "Assess and document one minimal repo-compatible approach for providing a vetted browser binary in restricted/offline environments, without replacing the current harness.",
+  "depends_on": "T-0020",
+  "priority": "low",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T20:41:22.396Z",
+  "index": 3
+}

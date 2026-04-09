@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0019",
+  "parent_goal_id": null,
+  "parent_task_id": "T-0018",
+  "linked_decisions": [],
+  "branch_name": "test/T-0019-add-browser-smoke-coverage-for-start-ui-visibility-across-supported-entry-points",
+  "base_branch": "main",
+  "title": "[T-0019] Add browser smoke coverage for Start UI visibility across supported entry points",
+  "summary": "Add browser smoke coverage for Start UI visibility across supported entry points",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "issues",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0019 completed successfully as a minimal, reviewable test-lane change.\n\nThe executor added a Vitest smoke suite in `starter-test/tests/browser-smoke.test.ts` that:\n- validates `index.html` contains the visible Start UI shell,\n- validates `game.html` redirects to `./index.html` via both meta refres…",
+  "status": "draft",
+  "created_at": "2026-04-07T20:25:50.254Z"
+}

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0020-F-2",
+  "parent_task_id": "T-0020",
+  "title": "Document browser binary discovery and `CHROME_PATH` setup for the headless Start UI smoke test",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "rationale": "The new harness already supports alternate browser paths, but there is no documented setup path for developers or CI maintainers. Small documentation would reduce confusion and make the test usable without changing product code.",
+  "smallest_safe_scope": "Add concise test-runner documentation describing supported browser candidates, `CHROME_PATH` usage, expected skip behavior, and how to run the headless smoke test successfully.",
+  "depends_on": "T-0020",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:41:22.396Z",
+  "index": 2
+}

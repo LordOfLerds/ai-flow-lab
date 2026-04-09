@@ -1,0 +1,23 @@
+{
+  "task_id": "T-E2E-01",
+  "parent_goal_id": null,
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "docs/T-E2E-01-e2e-test-add-version-info-to-readme",
+  "base_branch": "main",
+  "title": "[T-E2E-01] E2E Test: Add version info to README",
+  "summary": "E2E Test: Add version info to README",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "concerns",
+  "non_goals": "(see spec)",
+  "followup_notes": "**SUCCESS**: T-E2E-01 successfully completed its primary objective as an E2E test. A minimal README.md was created in the project root with manual version v0.1.0-dev, brief project description, and links to existing documentation. The task validated the documentation workflow without scope creep, ma…",
+  "status": "draft",
+  "created_at": "2026-04-07T09:23:48.054Z"
+}

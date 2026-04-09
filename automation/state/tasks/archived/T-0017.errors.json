@@ -1,0 +1,8 @@
+[
+  {
+    "step": "architect",
+    "message": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\n[TypeError: fetch failed] {\n  [cause]: Error: getaddrinfo ENOTFOUND api.openai.com\n      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:121:26) {\n    errno: -3008,\n    code: 'ENOTFOUND',\n    syscall: 'getaddrinfo',\n    hostname: 'api.openai.com'\n  }\n}\n\nNode.js v25.8.0\n\n---\n[routing] Step=\"architect\" Lane=\"feature-lane\" → Provider=\"openai\" (mode=api)\n\n---\nCommand failed: node scripts/architect-task-api.mjs T-0017\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\n[TypeError: fetch failed] {\n  [cause]: Error: getaddrinfo ENOTFOUND api.openai.com\n      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:121:26) {\n    errno: -3008,\n    code: 'ENOTFOUND',\n    syscall: 'getaddrinfo',\n    hostname: 'api.openai.com'\n  }\n}\n\nNode.js v25.8.0",
+    "timestamp": "2026-04-07T19:38:55.322Z",
+    "depth": 0
+  }
+]

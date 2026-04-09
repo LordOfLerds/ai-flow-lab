@@ -71,11 +71,17 @@ function inferBaseBranch(task) {
 const task = loadTask(taskId);
 
 // Guard: only generate PR drafts for tasks that are far enough along
-const allowedStates = ["MERGED", "FOLLOWUPS_PROPOSED", "PR_DRAFTED", "REVIEWED"];
-const allowedRuntimeStatuses = ["DONE", "COMPLETED"];
+// PR draft now runs BEFORE merge (after followups), so we allow post-execute states too
+const allowedStates = [
+  "IMPLEMENTING", "IMPLEMENTED", "EXECUTED", "TESTED",  // post-execute
+  "FOLLOWUPS_PROPOSED",                                  // normal flow: after followups
+  "PR_DRAFTED",                                          // re-run
+  "MERGED", "REVIEWED"                                   // legacy / manual re-run
+];
+const allowedRuntimeStatuses = ["DONE", "COMPLETED", "running"];
 if (!allowedStates.includes(task.state) && !allowedRuntimeStatuses.includes(task.runtime_status)) {
   console.error(`Task ${taskId} is in state=${task.state} / runtime=${task.runtime_status}.`);
-  console.error(`PR drafts should only be generated for completed/finalized tasks.`);
+  console.error(`PR drafts should only be generated after execute step completes.`);
   process.exit(1);
 }
 

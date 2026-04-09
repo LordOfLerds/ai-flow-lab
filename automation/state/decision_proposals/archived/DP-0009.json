@@ -1,0 +1,17 @@
+{
+  "decision_proposal_id": "DP-0009",
+  "source_task_id": "T-0014",
+  "source_goal_id": "",
+  "topic": "Resolve DRIFT-002 Domain Mismatch",
+  "rationale": "Complete mismatch between documented system (task management) and implemented system (jump-and-run game) prevents any meaningful development progress",
+  "blocking_scope": "system",
+  "options": [
+    "Keep docs/remove game code",
+    "Keep game code/remove task docs",
+    "Maintain both domains separately"
+  ],
+  "recommended_default": "Keep game code and updated documentation (implementation is more complete than task system)",
+  "urgency": "high",
+  "status": "open",
+  "created_at": "2026-04-07T09:16:45.638Z"
+}

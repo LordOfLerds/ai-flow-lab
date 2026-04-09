@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0020-F-1",
+  "parent_task_id": "T-0020",
+  "title": "Provision a headless-friendly Chrome binary for the Start UI smoke test in CI/test environments",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "The executor report shows the new smoke test is implemented but cannot reliably run because the default macOS Chrome app aborts on headless startup. Providing a known-good Chrome for Testing or equivalent headless-capable binary is the smallest concrete step that converts this from mostly-skip coverage into executable regression coverage.",
+  "smallest_safe_scope": "Add minimal test-environment support so the existing `starter-test` smoke test can launch a known-good browser binary via `CHROME_PATH` or equivalent existing mechanism, and verify the test runs without skipping in that environment.",
+  "depends_on": "T-0020",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:41:22.395Z",
+  "index": 1
+}

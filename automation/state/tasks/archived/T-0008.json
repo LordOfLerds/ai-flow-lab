@@ -1,0 +1,30 @@
+{
+  "task_id": "T-0008",
+  "title": "Score goes higher while player not moving",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "bug/T-0008-score-goes-higher-while-player-not-moving",
+  "worktree_path": "../wt/T-0008",
+  "spec_path": "ai/specs/T-0008_spec.md",
+  "review_path": "ai/reviews/T-0008_gemini_review.md",
+  "brief_path": "ai/briefs/T-0008_implementation.md",
+  "result_path": "ai/results/T-0008_result.md",
+  "followup_path": "ai/followups/T-0008_followups.md",
+  "owner_lock": "task:T-0008",
+  "created_at": "2026-04-07T05:59:34.927Z",
+  "updated_at": "2026-04-07T07:03:36.785Z",
+  "description": "The Score should not go higher while player is not moving it should only be going to the max progress a player made this round in moving forward",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "written_files": [],
+  "open_decisions": [
+    "DP-0001"
+  ],
+  "pr_draft_path": "ai/pr/T-0008_pr_draft.md",
+  "last_error": null
+}

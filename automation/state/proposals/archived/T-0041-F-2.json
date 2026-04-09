@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0041-F-2",
+  "parent_task_id": "T-0041",
+  "title": "Add cowork tests for login flow and persistence",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T12:49:36.841Z",
+  "index": 2
+}

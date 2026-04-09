@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0005-F-1",
+  "parent_task_id": "T-0005",
+  "title": "Build XP, leveling, skills, and skins system",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Progression system adds depth and long-term engagement. Collectibles now provide resource for XP progression.",
+  "smallest_safe_scope": "XP counter, level thresholds, skill unlock display, basic character skin selection.",
+  "depends_on": "T-0001 through T-0005",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:46:30.021Z",
+  "index": 1
+}

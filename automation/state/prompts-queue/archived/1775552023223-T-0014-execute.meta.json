@@ -1,0 +1,11 @@
+{
+  "id": "1775552023223-T-0014-execute",
+  "taskId": "T-0014",
+  "step": "execute",
+  "provider": "openai",
+  "model": "gpt-5.4",
+  "status": "pending",
+  "createdAt": "2026-04-07T08:53:43.224Z",
+  "promptFile": "1775552023223-T-0014-execute.prompt.md",
+  "responseFile": "1775552023223-T-0014-execute.response.md"
+}

@@ -1,0 +1,31 @@
+{
+  "task_id": "T-0026",
+  "title": "Test APP mode: add pause button to game",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0026-test-app-mode-add-pause-button-to-game",
+  "worktree_path": "../wt/T-0026",
+  "spec_path": "ai/specs/T-0026_spec.md",
+  "review_path": "ai/reviews/T-0026_gemini_review.md",
+  "brief_path": "ai/briefs/T-0026_implementation.md",
+  "result_path": "ai/results/T-0026_executor_report.md",
+  "followup_path": "ai/followups/T-0026_followups.md",
+  "owner_lock": "task:T-0026",
+  "created_at": "2026-04-07T22:35:48.259Z",
+  "updated_at": "2026-04-07T22:42:12.383Z",
+  "description": "Add a pause button that pauses the game when clicked. Test task for APP mode verification.",
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "game/game.html",
+    "game/js/game-engine.js",
+    "game/css/game.css"
+  ],
+  "pr_draft_path": "ai/pr/T-0026_pr_draft.md"
+}

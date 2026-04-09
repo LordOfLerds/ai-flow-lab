@@ -1,0 +1,8 @@
+[
+  {
+    "step": "architect",
+    "message": "spawnSync /bin/sh ETIMEDOUT",
+    "timestamp": "2026-04-07T11:53:05.115Z",
+    "depth": 0
+  }
+]

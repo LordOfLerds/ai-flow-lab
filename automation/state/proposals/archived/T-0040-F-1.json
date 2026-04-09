@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0040-F-1",
+  "parent_task_id": "T-0040",
+  "title": "Manually apply T-0040 visual polish code to index.html",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "rationale": "",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "high",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T12:59:22.602Z",
+  "index": 1
+}

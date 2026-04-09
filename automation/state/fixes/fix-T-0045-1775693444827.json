@@ -1,0 +1,9 @@
+{
+  "id": "fix-T-0045-1775693444827",
+  "taskId": "T-0045",
+  "step": "propose-followups",
+  "risk": "UNKNOWN",
+  "content": "The edit is ready — please approve the file write above (it only reformats headings in `ai/followups/T-0045_followups.md`, no logic changes).\n\nOnce approved:\n\n## Post-Fix Actions\n\n1. **Approve the edit above** — reformats the file with `### F-N` H3 headings the parser regex requires.\n2. **Retry `propose-followups` for T-0045** from the dashboard — the script will re-read the now-correctly-formatted file and parse all 5 follow-up blocks successfully. No need to re-queue a new prompt or delete any response file; the content is already correct.\n\nThe root cause matches BUG-004 in `KNOWN_BUGS.md`: the LLM responded in prose/bullet format (`F-1 •`) instead of the required `### F-1` structured format. The content is valid — only the heading markers were missing.",
+  "generated_at": "2026-04-09T00:10:44.827Z",
+  "status": "pending"
+}

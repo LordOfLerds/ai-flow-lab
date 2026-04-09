@@ -1,0 +1,14 @@
+{
+  "task_id": "T-0038",
+  "title": "Missing core game functions after consolidation",
+  "description": "The file consolidation from game.js to index.html removed critical functions: showMainMenu, drawPlayer, updateSkins, loadProfile, saveProfile. These need to be implemented to restore game functionality.",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "parent_task_id": "T-9998",
+  "origin": "cowork-test",
+  "state": "NEW",
+  "runtime_status": "IDLE",
+  "created_at": "2026-04-08T08:05:59.614Z",
+  "updated_at": "2026-04-08T08:05:59.614Z"
+}

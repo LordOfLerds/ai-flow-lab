@@ -1,0 +1,8 @@
+[
+  {
+    "step": "propose-followups",
+    "message": "fatal: ambiguous argument 'main...bug/T-0036-restore-skills-abilities-system-skill-selection-cooldowns-effects': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]'\n\n---\n[routing] Step=\"propose-followups\" Lane=\"bug-lane\" → Provider=\"openai\" (mode=app)\n\n[APP MODE] Prompt queued: 1775641551629-T-0036-propose-followups\n  Prompt: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775641551629-T-0036-propose-followups.prompt.md\n  Waiting for response at: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775641551629-T-0036-propose-followups.response.md\n\n---\nCommand failed: node scripts/propose-followups-api.mjs T-0036\nfatal: ambiguous argument 'main...bug/T-0036-restore-skills-abilities-system-skill-selection-cooldowns-effects': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]' [KILLED signal=SIGTERM — likely timeout]",
+    "timestamp": "2026-04-08T10:01:04.568Z",
+    "depth": 0
+  }
+]

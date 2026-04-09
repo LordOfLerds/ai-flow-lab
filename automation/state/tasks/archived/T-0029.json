@@ -1,0 +1,35 @@
+{
+  "task_id": "T-0029",
+  "title": "Implement enemy AI movement and player-enemy collision",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "T-0028",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0029-implement-enemy-ai-movement-and-player-enemy-collision",
+  "worktree_path": "../wt/T-0029",
+  "spec_path": "ai/specs/T-0029_spec.md",
+  "review_path": "ai/reviews/T-0029_gemini_review.md",
+  "brief_path": "ai/briefs/T-0029_implementation.md",
+  "result_path": "ai/results/T-0029_executor_report.md",
+  "followup_path": "ai/followups/T-0029_followups.md",
+  "owner_lock": "task:T-0029",
+  "created_at": "2026-04-07T23:36:43.026Z",
+  "updated_at": "2026-04-07T23:45:17.126Z",
+  "followup_source_proposal_id": "T-0028-F-1",
+  "planner_notes": {
+    "rationale": "Enemies (walkers and flyers) are rendered at their positions but are completely static. This task adds patrol AI (walkers walk back and forth on platforms, flyers bob vertically), player-enemy collision detection (damage from sides, stomp-kill from above with bounce), and enemy death/removal. This is the next major gameplay feature needed to make the levels challenging.",
+    "smallest_safe_scope": "Walker patrol movement (reverse at edges/walls), flyer vertical bobbing, player-enemy overlap detection, stomp-kill with bounce, side-hit damage/death. No enemy spawning or enemy-enemy interaction.",
+    "depends_on": "T-0028",
+    "priority": "high"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "index.html"
+  ],
+  "pr_draft_path": "ai/pr/T-0029_pr_draft.md"
+}

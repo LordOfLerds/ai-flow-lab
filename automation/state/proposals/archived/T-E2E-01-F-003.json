@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-E2E-01-F-003",
+  "parent_task_id": "T-E2E-01",
+  "title": "Implement automated version management and git tagging workflow",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "rationale": "Manual versioning creates maintenance burden and drift risk; project needs sustainable version management integrated with git workflow",
+  "smallest_safe_scope": "Create package.json with version field, implement version update script, establish git tagging convention, update README to reference automated version",
+  "depends_on": "none",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:23:47.973Z",
+  "index": 3
+}

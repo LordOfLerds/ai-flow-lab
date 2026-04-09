@@ -1,0 +1,38 @@
+{
+  "decision_proposal_id": "DP-GR-T-0040-1775656302482",
+  "topic": "Executor output review: T-0040",
+  "type": "guardrail_review",
+  "task_id": "T-0040",
+  "severity": "red",
+  "issues": [
+    {
+      "file": "index.html",
+      "reason": "Line count dropped from 1932 to 86 (4%)",
+      "severity": "red"
+    },
+    {
+      "file": "index.html",
+      "reason": "60/62 functions missing: syncScoreDisplay, xpForLevel, checkSkillUnlocks, loadLevelProgress, saveLevelProgress, calculateStars, completeLevel, isLevelUnlocked...",
+      "severity": "red"
+    }
+  ],
+  "options": [
+    {
+      "id": "accept",
+      "label": "Accept Changes",
+      "action": "continue_to_merge"
+    },
+    {
+      "id": "restore",
+      "label": "Restore Snapshot",
+      "action": "restore_and_fail"
+    },
+    {
+      "id": "test",
+      "label": "Run Cowork Test",
+      "action": "run_cowork_test"
+    }
+  ],
+  "status": "open",
+  "created_at": "2026-04-08T13:51:42.482Z"
+}

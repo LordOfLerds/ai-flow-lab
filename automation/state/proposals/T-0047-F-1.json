@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0047-F-1",
+  "parent_task_id": "T-0047",
+  "title": "**lane_type:** feature-lane",
+  "lane_type": "** feature-lane",
+  "executor": "** codex",
+  "rationale": "** 100 levels exist but all look visually the same. Each biome should have distinct background colors, tile colors, and ambient effects.",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "** NORMAL",
+  "should_spawn_now": false,
+  "created_at": "2026-04-09T00:03:27.847Z",
+  "index": 1
+}

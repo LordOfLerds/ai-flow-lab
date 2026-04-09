@@ -1,0 +1,12 @@
+{
+  "id": "1775693851938-T-0049-critique",
+  "taskId": "T-0049",
+  "step": "critique",
+  "provider": "gemini-fallback",
+  "model": "manual",
+  "status": "completed",
+  "createdAt": "2026-04-09T00:17:31.940Z",
+  "promptFile": "1775693851938-T-0049-critique.prompt.md",
+  "responseFile": "1775693851938-T-0049-critique.response.md",
+  "completedAt": "2026-04-09T00:18:18.194Z"
+}

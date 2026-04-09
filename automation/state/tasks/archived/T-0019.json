@@ -1,0 +1,36 @@
+{
+  "task_id": "T-0019",
+  "title": "Add browser smoke coverage for Start UI visibility across supported entry points",
+  "repo": "ai-flow-lab",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "parent_task_id": "T-0018",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "test/T-0019-add-browser-smoke-coverage-for-start-ui-visibility-across-supported-entry-points",
+  "worktree_path": "../wt/T-0019",
+  "spec_path": "ai/specs/T-0019_spec.md",
+  "review_path": "ai/reviews/T-0019_gemini_review.md",
+  "brief_path": "ai/briefs/T-0019_implementation.md",
+  "result_path": "ai/results/T-0019_executor_report.md",
+  "followup_path": "ai/followups/T-0019_followups.md",
+  "owner_lock": "task:T-0019",
+  "created_at": "2026-04-07T20:18:10.603Z",
+  "updated_at": "2026-04-07T20:25:50.531Z",
+  "followup_source_proposal_id": "T-0018-F-1",
+  "planner_notes": {
+    "rationale": "The executor explicitly left out automated tests. A small smoke test would protect the T-0018 fix from regressions by checking that the Start UI is visible before game start on `index.html`, root `game.html`, and `automation/ui/game.html` where applicable.",
+    "smallest_safe_scope": "Add minimal browser-based checks for overlay/menu presence and visibility on the supported entry pages, without expanding into full gameplay automation.",
+    "depends_on": "T-0018",
+    "priority": "high"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "starter-test/tests/browser-smoke.test.ts",
+    "starter-test/package.json"
+  ],
+  "pr_draft_path": "ai/pr/T-0019_pr_draft.md"
+}

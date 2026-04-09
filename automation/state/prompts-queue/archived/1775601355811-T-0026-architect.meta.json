@@ -1,0 +1,12 @@
+{
+  "id": "1775601355811-T-0026-architect",
+  "taskId": "T-0026",
+  "step": "architect",
+  "provider": "openai",
+  "model": "gpt-5.4",
+  "status": "completed",
+  "createdAt": "2026-04-07T22:35:55.813Z",
+  "promptFile": "1775601355811-T-0026-architect.prompt.md",
+  "responseFile": "1775601355811-T-0026-architect.response.md",
+  "completedAt": "2026-04-07T22:37:08.060Z"
+}

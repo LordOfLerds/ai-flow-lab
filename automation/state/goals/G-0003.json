@@ -1,13 +1,9 @@
 {
   "goal_id": "G-0003",
-  "title": "Implement comprehensive error handling and resilience layer",
-  "description": "Add proper error handling throughout the pipeline: retry logic for transient API failures, graceful degradation when services are unavailable, user-friendly error messages in the dashboard, error recovery for interrupted pipelines, and automated health checks. This should cover both server-side and client-side error scenarios including network timeouts, API rate limits, invalid task states, and filesystem errors.",
-  "priority": "high",
-  "state": "DONE",
-  "created_at": "2026-04-06T00:08:38.400Z",
-  "updated_at": "2026-04-06T00:13:46.299Z",
-  "open_decisions": [
-    "DP-0002",
-    "DP-0003"
-  ]
+  "title": "Build complete Pixel Runner game with full UI flow, login, levels, shop, battle pass, skins, enemies, and polished visuals",
+  "description": "Transform Pixel Runner from a basic canvas game into a polished, feature-complete jump & run with: (1) Login/registration UI with localStorage persistence, (2) Main menu with level select, shop, profile, (3) 10+ unique levels with varied terrain, backgrounds, and difficulty progression, (4) Enemy variety with different AI behaviors, (5) Coin shop for skins, powerups, and cosmetics, (6) Battle pass / progression system with XP and rewards, (7) Multiple themed environments (forest, cave, ice, lava, sky), (8) Consistent physics and collision detection, (9) Beautiful pixel-art visuals with parallax scrolling, (10) Game over screen with stats, XP rewards, and unlocks. All UI-only changes in index.html.",
+  "priority": "P1",
+  "state": "NEW",
+  "created_at": "2026-04-08T12:03:50.897Z",
+  "updated_at": "2026-04-08T12:03:50.897Z"
 }

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0004-F-1",
+  "parent_task_id": "T-0004",
+  "title": "Implement collectibles, rewards, and power-ups",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Rewards motivate player progression. Gameplay loop is now complete with hazards in place.",
+  "smallest_safe_scope": "Coin entity, pickup collision, score increment, optional power-up (temporary invulnerability or speed boost).",
+  "depends_on": "T-0001, T-0002, T-0003, T-0004",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:46:00.381Z",
+  "index": 1
+}

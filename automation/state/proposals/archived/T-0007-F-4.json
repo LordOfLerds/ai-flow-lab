@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0007-F-4",
+  "parent_task_id": "T-0007",
+  "title": "Implement skill gameplay effects and advanced balancing",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Skills currently display only; active effects add strategic depth and differentiate character choices.",
+  "smallest_safe_scope": "Skill activation mechanics, 3-5 active skill types with cooldowns, balance tuning against difficulty levels.",
+  "depends_on": "T-0001 through T-0007",
+  "priority": "MEDIUM",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:47:30.650Z",
+  "index": 4
+}

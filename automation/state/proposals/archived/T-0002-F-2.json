@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0002-F-2",
+  "parent_task_id": "T-0002",
+  "title": "Add obstacles and enemies",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Hazards create challenge curve. Can build on existing collision and physics system.",
+  "smallest_safe_scope": "Single obstacle type (spike or moving platform), basic patrol AI, damage/death handling.",
+  "depends_on": "T-0001, T-0002, level system (F-1)",
+  "priority": "HIGH",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:44:49.595Z",
+  "index": 2
+}

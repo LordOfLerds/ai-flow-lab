@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0007-F-1",
+  "parent_task_id": "T-0007",
+  "title": "Audio system and sound effects",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Audio feedback significantly improves game feel and player immersion. High-impact polish item.",
+  "smallest_safe_scope": "Web Audio API, SFX for collectibles, level-up, damage, menu interactions, background music loop.",
+  "depends_on": "T-0001 through T-0007",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:47:30.650Z",
+  "index": 1
+}

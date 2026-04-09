@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0030-F-1",
+  "parent_task_id": "T-0030",
+  "title": "Add moving platform collision and ride mechanics",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Moving platforms are rendered with sinusoidal animation but the player passes through them. Position updates happen only in the render layer. This task moves platform position calculation into the game loop and adds one-way collision so the player can land on and ride moving platforms.",
+  "smallest_safe_scope": "Moving platform position update in game loop, player landing on top (one-way collision like static PLATFORM tiles), player rides horizontally/vertically with platform movement. No crushing mechanics, no breakable moving platforms.",
+  "depends_on": "T-0030",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T23:57:51.725Z",
+  "index": 1
+}

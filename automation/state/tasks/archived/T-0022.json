@@ -1,0 +1,33 @@
+{
+  "task_id": "T-0022",
+  "title": "Document browser binary discovery and  setup for the headless Start UI smoke test",
+  "repo": "ai-flow-lab",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "parent_task_id": "T-0020",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "docs/T-0022-document-browser-binary-discovery-and-setup-for-the-headless-start-ui-smoke-test",
+  "worktree_path": "../wt/T-0022",
+  "spec_path": "ai/specs/T-0022_spec.md",
+  "review_path": "ai/reviews/T-0022_gemini_review.md",
+  "brief_path": "ai/briefs/T-0022_implementation.md",
+  "result_path": "ai/results/T-0022_executor_report.md",
+  "followup_path": "ai/followups/T-0022_followups.md",
+  "owner_lock": "task:T-0022",
+  "created_at": "2026-04-07T20:49:18.049Z",
+  "updated_at": "2026-04-07T20:54:26.691Z",
+  "followup_source_proposal_id": "T-0020-F-2",
+  "planner_notes": {
+    "rationale": "The new harness already supports alternate browser paths, but there is no documented setup path for developers or CI maintainers. Small documentation would reduce confusion and make the test usable without changing product code.",
+    "smallest_safe_scope": "Add concise test-runner documentation describing supported browser candidates, `CHROME_PATH` usage, expected skip behavior, and how to run the headless smoke test successfully.",
+    "depends_on": "T-0020",
+    "priority": "medium"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [],
+  "pr_draft_path": "ai/pr/T-0022_pr_draft.md"
+}

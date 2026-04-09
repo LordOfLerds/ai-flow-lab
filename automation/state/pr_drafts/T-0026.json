@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0026",
+  "parent_goal_id": null,
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0026-test-app-mode-add-pause-button-to-game",
+  "base_branch": "main",
+  "title": "[T-0026] Test APP mode: add pause button to game",
+  "summary": "Test APP mode: add pause button to game",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "Concerns",
+  "non_goals": "(see spec)",
+  "followup_notes": "**Priority:** medium\n**Should spawn:** yes\n**Scope:** Add P key as alternative pause trigger alongside Escape. Update input-handler.js.\n**Rationale:** Users expect keyboard shortcuts for common game actions.\n\n\n**Priority:** low\n**Should spawn:** no\n**Scope:** Show settings panel when paused. Require…",
+  "status": "draft",
+  "created_at": "2026-04-07T22:42:12.376Z"
+}

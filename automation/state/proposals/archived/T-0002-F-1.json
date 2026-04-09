@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0002-F-1",
+  "parent_task_id": "T-0002",
+  "title": "Build level system with platforms, terrain, and scrolling",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Player physics now functional; level geometry is essential for meaningful gameplay and collision testing.",
+  "smallest_safe_scope": "Simple tile-map or platform array, basic platform rendering, camera bounds adjustment for larger levels.",
+  "depends_on": "T-0001, T-0002",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:44:49.595Z",
+  "index": 1
+}

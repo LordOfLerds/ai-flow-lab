@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0001-F-4",
+  "parent_task_id": "T-0001",
+  "title": "Implement collectibles, rewards, and power-ups",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Reward loop drives engagement and progression. Can be added once levels and physics are solid.",
+  "smallest_safe_scope": "Coin collectible entity, pickup detection, score increment, visual feedback (particle or sprite change).",
+  "depends_on": "T-0001, player physics (F-1), level system (F-2)",
+  "priority": "MEDIUM",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:43:58.791Z",
+  "index": 4
+}

@@ -591,12 +591,12 @@ const PIPELINE_STEPS = [
     { key:'synthesize', label:'Synthesize',   ai:'openai', icon:'\u{1F9EA}', states:['CRITIQUED','SYNTHESIZED'] },
     { key:'execute',    label:'Execute',      ai:'claude', icon:'\u{2699}',  states:['SYNTHESIZED','IMPLEMENTING'], intervention:true },
     { key:'review',     label:'Review',       ai:'user',   icon:'\u{1F441}', states:['IMPLEMENTING','REVIEWED'], intervention:true },
-    { key:'merge',      label:'Merge',        ai:'user',   icon:'\u{1F517}', states:['REVIEWED','MERGED'], intervention:true },
-    { key:'followups',  label:'Follow-ups',   ai:'openai', icon:'\u{1F4AC}', states:['MERGED','FOLLOWUPS_PROPOSED'] },
-    { key:'pr-draft',   label:'PR Draft',     ai:'openai', icon:'\u{1F4DD}', states:['FOLLOWUPS_PROPOSED','PR_DRAFTED'] }
+    { key:'followups',  label:'Follow-ups',   ai:'openai', icon:'\u{1F4AC}', states:['IMPLEMENTING','FOLLOWUPS_PROPOSED'] },
+    { key:'pr-draft',   label:'PR Draft',     ai:'openai', icon:'\u{1F4DD}', states:['FOLLOWUPS_PROPOSED','PR_DRAFTED'] },
+    { key:'merge',      label:'Merge',        ai:'user',   icon:'\u{1F517}', states:['PR_DRAFTED','MERGED'], intervention:true }
 ];
 
-const STATE_ORDER = ['NEW','ARCHITECTED','CRITIQUED','SYNTHESIZED','IMPLEMENTING','REVIEWED','MERGED','FOLLOWUPS_PROPOSED','PR_DRAFTED'];
+const STATE_ORDER = ['NEW','ARCHITECTED','CRITIQUED','SYNTHESIZED','IMPLEMENTING','REVIEWED','FOLLOWUPS_PROPOSED','PR_DRAFTED','MERGED'];
 
 function getStepStatus(task, step) {
     const taskState = task.state || 'NEW';

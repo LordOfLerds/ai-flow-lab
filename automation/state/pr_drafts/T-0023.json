@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0023",
+  "parent_goal_id": null,
+  "parent_task_id": "T-0019",
+  "linked_decisions": [],
+  "branch_name": "docs/T-0023-document-as-a-compatibility-redirect-entry-point-in-architecture-docs",
+  "base_branch": "main",
+  "title": "[T-0023] Document  as a compatibility redirect entry point in architecture docs",
+  "summary": "Document  as a compatibility redirect entry point in architecture docs",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0023 Follow-ups\n\nTask outcome summary\n\nT-0023 completed its intended narrow scope successfully: docs/ARCHITECTURE.md now states that index.html is the primary browser entry point and game.html is only a compatibility redirect surface. No drift was found that required a registry entry, and no code …",
+  "status": "draft",
+  "created_at": "2026-04-07T20:58:14.477Z"
+}

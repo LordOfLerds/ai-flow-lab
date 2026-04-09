@@ -1,9 +1,0 @@
-{
-  "id": "prompt-1775432554162",
-  "taskId": "G-0001",
-  "step": "decompose-goal",
-  "status": "pending",
-  "promptFile": "prompt-1775432554162.prompt.md",
-  "responseFile": "prompt-1775432554162.response.md",
-  "createdAt": "2026-04-05T23:42:34.162Z"
-}

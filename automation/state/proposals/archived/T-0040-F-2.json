@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0040-F-2",
+  "parent_task_id": "T-0040",
+  "title": "Verify 60fps with parallax, particles, and screen shake active",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T12:59:22.603Z",
+  "index": 2
+}

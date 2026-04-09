@@ -61,6 +61,17 @@ export function createProposal({
   source_task_id = "",
   source_goal_id = ""
 }) {
+  // --- Dedup: skip if an open proposal with the same topic already exists ---
+  const existing = fs.readdirSync(proposalsDir()).filter(f => f.endsWith(".json"));
+  for (const f of existing) {
+    try {
+      const p = JSON.parse(fs.readFileSync(path.join(proposalsDir(), f), "utf8"));
+      if (p.topic === topic && p.status === "open") {
+        console.log(`Skipped duplicate proposal — open "${topic}" already exists as ${p.decision_proposal_id}`);
+        return p;
+      }
+    } catch { /* ignore parse errors */ }
+  }
   const id = nextProposalId();
   const proposal = {
     decision_proposal_id: id,

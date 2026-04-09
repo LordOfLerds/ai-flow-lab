@@ -1,0 +1,32 @@
+{
+  "task_id": "T-0027",
+  "title": "Implement tile rendering and camera system for Pixel Runner",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0027-implement-tile-rendering-and-camera-system-for-pixel-runner",
+  "worktree_path": "../wt/T-0027",
+  "spec_path": "ai/specs/T-0027_spec.md",
+  "review_path": "ai/reviews/T-0027_gemini_review.md",
+  "brief_path": "ai/briefs/T-0027_implementation.md",
+  "result_path": "ai/results/T-0027_executor_report.md",
+  "followup_path": "ai/followups/T-0027_followups.md",
+  "owner_lock": "task:T-0027",
+  "created_at": "2026-04-07T23:00:32.558Z",
+  "updated_at": "2026-04-07T23:16:04.333Z",
+  "description": "Replace the placeholder Game Started text in the render() function of index.html with actual tile-based level rendering. Draw each tile type (GRASS, STONE, SPIKE, ICE, BREAKABLE, PLATFORM, COIN, GEM, powerups, EXIT) using the TILE_COLORS map with pixel-art style rectangles. Implement a camera object that follows the player with lerp smoothing using CONFIG.CAMERA_LERP. Offset all rendering by camera position. Render moving platforms. Add a dark gradient background with parallax scrolling star field. Draw the player sprite using makePlayerSprite() and drawSprite(). The existing level generation (generateLevel), tile constants, and sprite functions are already in index.html - just wire them into the render loop.",
+  "parent_goal_id": "G-0002",
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "index.html",
+    "index.html",
+    "index.html"
+  ],
+  "pr_draft_path": "ai/pr/T-0027_pr_draft.md"
+}

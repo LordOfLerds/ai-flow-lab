@@ -2,103 +2,52 @@
 
 ## Task metadata
 
-- **Task ID:** T-0008
-- **Title:** verify no additional truth sources already define archive behavior
-- **Lane type:** docs-lane
-- **Executor:** codex
+- task_id: T-0008
+- title: Score goes higher while player not moving
+- lane_type: bug-lane
+- executor: codex
 
 ## Problem statement
 
-The task is to verify whether any existing truth sources in the repository already define "archive" behavior for tasks.
-
-Current primary documentation defines the Task entity and core task rules, but the provided truth files do not mention an `archive` concept, archived task state, or archive-related operations. There is also optional code context that includes `deleteTask`, which may indicate behavior in code that is not reflected in the primary docs. Per repository policy, docs remain the primary truth, and any divergence between docs and tested code must be recorded rather than silently resolved.
-
-This spec should therefore define the verification goal narrowly: confirm whether archive behavior is already specified anywhere in the approved truth sources, and document uncertainty where only code or tests suggest adjacent behavior.
+The project README should greet users with a friendly welcome message immediately after the main title. This improves user experience by setting a welcoming tone at first glance.
 
 ## Source of truth
 
-Primary truth sources, per `AGENTS.md` and `ai/project.config.yaml`:
-
-- `docs/DOMAIN_MODEL.md`
-- `docs/INVARIANTS.md`
-- `docs/ARCHITECTURE.md`
-- `docs/ADR/`
-
-Repository findings from provided materials:
-
-- `docs/DOMAIN_MODEL.md`
-  - Defines `Task` with fields:
-    - `id`
-    - `title`
-    - `status: "open" | "done"`
-  - No archive state or archive operation is defined.
-- `docs/INVARIANTS.md`
-  - Defines invariants for `createTask`, `markDone`, and `listTasks`.
-  - No archive behavior is defined.
-- `docs/ARCHITECTURE.md`
-  - Defines workflow truth policy and project structure.
-  - No archive behavior is defined.
-- `AGENTS.md`
-  - Reaffirms source-of-truth ordering and drift handling.
-  - Does not define archive behavior.
-- `ai/project.config.yaml`
-  - Reaffirms truth source locations.
-  - Does not define archive behavior.
-
-Optional code context, which is not primary truth:
-
-- `starter-test/src/tasks.ts` includes `deleteTask`
-- `starter-test/tests/tasks.test.ts` includes deletion tests
-
-This suggests there is implemented and tested deletion behavior, but it does **not** establish archive behavior in the documented truth sources. If code is ahead of docs, that must be treated as uncertainty and possible drift.
+The README file is the primary documentation entry point for all users. Any changes must respect its existing structure, links, and information hierarchy. The change should be non-intrusive and not duplicate or conflict with existing sections.
 
 ## Desired behavior
 
-- Verification should confirm whether any approved truth source already defines archive behavior.
-- Based on the provided truth files, the result should currently be:
-  - no documented archive behavior found in the listed truth sources.
-- The outcome should distinguish clearly between:
-  - **documented truth**: no archive behavior found
-  - **non-truth implementation context**: deletion behavior exists in code/tests, but that is not equivalent to archive behavior and is not sufficient to define it
-- No new business rules for archive should be introduced in this spec.
-- If additional repository review includes `docs/ADR/`, that review should explicitly confirm whether any ADR defines archive semantics. The provided task inputs do not include ADR contents, so this remains an unresolved verification step unless inspected directly.
+- Users opening the README see a friendly greeting after the main h1 title
+- The greeting is concise (3-4 sentences) and sets a welcoming tone
+- The greeting does not break any markdown formatting or links in the document
+- The greeting is positioned consistently with standard README conventions (right after the title, before the main body)
 
 ## Constraints
 
-- Docs are the primary truth.
-- Do not invent archive semantics, archive state values, retention behavior, restore behavior, filtering rules, or interactions with delete.
-- Do not treat tested or implemented behavior as authoritative when docs do not define it.
-- If code or tests appear ahead of docs, state uncertainty explicitly.
-- If a conflict between docs and tested code is confirmed, it must be documented in `ai/current-state/drift-register.md` per:
-  - `docs/ARCHITECTURE.md`
-  - `AGENTS.md`
-- Stay within task scope: verification of existing truth sources only.
+- No changes to existing sections or links
+- No modifications to metadata, badges, or header areas (if present)
+- The greeting must be a markdown section (## Welcome or similar)
+- Must maintain the document's semantic structure
 
 ## Acceptance criteria
 
-- The spec identifies the approved truth sources for determining whether archive behavior already exists.
-- The spec records that, in the provided documentation set:
-  - `Task.status` is only `"open" | "done"`
-  - no archive operation or archived state is documented
-- The spec explicitly notes that code/test deletion behavior is not a valid substitute for documented archive behavior.
-- The spec explicitly states uncertainty about `docs/ADR/` because no ADR contents were provided in the task input.
-- The spec does not define or imply new archive business logic.
-- The spec reflects the drift policy if later verification finds code behavior that conflicts with docs.
+1. A new "## Welcome" or similar greeting section is added immediately after the main h1 title
+2. The greeting contains 3-4 sentences with a friendly, inviting tone
+3. The markdown renders correctly in GitHub (no syntax errors)
+4. All existing links, sections, and structure remain unchanged
+5. The file passes basic markdown validation
 
 ## Risks
 
-- `docs/ADR/` may contain archive-related guidance not included in the task input, so concluding "no archive behavior exists anywhere" without checking ADR contents would be premature.
-- Code and tests currently include deletion behavior that is absent from primary docs; this may create confusion between delete and archive concepts.
-- A future implementer may incorrectly infer archive behavior from adjacent code patterns unless the absence of documented archive semantics is stated clearly.
-- If repository code or tests are ahead of docs, failing to register drift could obscure the actual system state.
+- Risk: If the README has custom formatting or embedded HTML, markdown injection could break rendering
+  - Mitigation: Validate the greeting only uses standard markdown syntax
+- Risk: Greeting could feel out of place if repo has a formal tone established elsewhere
+  - Mitigation: Coordinate greeting tone with project AGENTS.md or CONTRIBUTING guidelines if they exist
+- Risk: ToC may need updating if it exists (handled in follow-up task P-2)
+  - Mitigation: Defer ToC updates to a separate task
 
 ## Open questions
 
-- Does any file under `docs/ADR/` define archive behavior, archived status, soft-delete semantics, or a replacement for delete?
-- Should deletion behavior already present in code/tests be considered documentation drift relative to current truth docs?
-- If archive behavior is needed in the future, should it be modeled as:
-  - a new `Task.status` value,
-  - a separate field,
-  - or a distinct operation?
-  
-These are design questions only and are **not** answered by the current truth sources.
+- Does the README have a table of contents that would need updating?
+- Are there any branding or style guidelines documented in AGENTS.md or elsewhere?
+- Should the greeting mention specific project benefits or just be generic?

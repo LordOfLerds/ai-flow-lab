@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0001-F-003",
+  "parent_task_id": "T-0001",
+  "title": "Implement basic collision detection",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Player needs to stand on platforms and collide with walls. Without collision, physics are unplayable.",
+  "smallest_safe_scope": "Add AABB collision helpers (checkCollision, getCollisionNormal); detect player-to-tilemap collisions; stop player falling through ground; prevent wall clipping.",
+  "depends_on": "F-001, F-002",
+  "priority": "high",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T04:59:00.911Z",
+  "index": 3
+}

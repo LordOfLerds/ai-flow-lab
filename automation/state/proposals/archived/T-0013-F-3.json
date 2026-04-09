@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0013-F-3",
+  "parent_task_id": "T-0013",
+  "title": "Add architecture note documenting mock-login constraints and current auth assumptions",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "rationale": "Since T-0014 already covers backfilling the missing docs, the safe non-duplicative follow-up here is a narrow documentation update specific to the newly introduced mock login behavior so future tasks do not mistake it for real authentication.",
+  "smallest_safe_scope": "Document that the current login is front-end-only, mock/local, non-persistent, uses generic failure messaging, and is not backed by user accounts or sessions; place this in the most appropriate existing project doc location without attempting full doc restoration.",
+  "depends_on": "T-0013, T-0014",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:37:27.756Z",
+  "index": 3
+}

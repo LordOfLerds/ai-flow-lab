@@ -1,0 +1,28 @@
+{
+  "task_id": "T-0005",
+  "title": "Implement collectibles, rewards, and power-ups",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0005-implement-collectibles-rewards-and-power-ups",
+  "worktree_path": "../wt/T-0005",
+  "spec_path": "ai/specs/T-0005_spec.md",
+  "review_path": "ai/reviews/T-0005_gemini_review.md",
+  "brief_path": "ai/briefs/T-0005_implementation.md",
+  "result_path": "ai/results/T-0005_executor_report.md",
+  "followup_path": "ai/followups/T-0005_followups.md",
+  "owner_lock": "task:T-0005",
+  "created_at": "2026-04-07T04:39:48.433Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "description": "Add collectible coins (scattered throughout levels, +10 XP each), gems (rare, +50 XP), and power-up items: speed boost (temporary 1.5x speed), shield (absorbs one hit), and magnet (attracts nearby coins). Each collectible should have a pixel-art sprite and a pickup animation (scale + fade). Track total coins collected per run. Dependencies: Task 3",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "pr_draft_path": "ai/pr/T-0005_pr_draft.md",
+  "written_files": [
+    "index.html"
+  ]
+}

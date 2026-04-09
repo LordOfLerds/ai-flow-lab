@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0004",
+  "parent_goal_id": "G-0001",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0004-add-obstacles-and-enemies",
+  "base_branch": "main",
+  "title": "[T-0004] Add obstacles and enemies",
+  "summary": "Add obstacles and enemies",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": false,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0004 successfully added obstacles and enemies to the game, including spike traps, moving platforms, and basic patrol/chase enemy AI. The implementation integrates collision detection and damage handling into the existing player physics and level system.\n\n\n1. **Enemy AI simplicity**: Patrol and cha…",
+  "status": "draft",
+  "created_at": "2026-04-07T05:46:05.197Z"
+}

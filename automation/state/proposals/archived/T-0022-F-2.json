@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0022-F-2",
+  "parent_task_id": "T-0022",
+  "title": "Add headless browser smoke coverage for gameplay state transitions beyond the Start UI",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "The executor reported that the current browser automation stack is mature and suitable for expansion. A small next increment would be extending real-browser smoke coverage to one narrow post-start flow, building on existing infrastructure. This does not duplicate T-0015, which is focused on mock login validation and state transitions, nor T-0019/T-0020, which are Start UI visibility tasks.",
+  "smallest_safe_scope": "Add one narrowly scoped browser smoke test that starts from the existing entry flow and verifies a single confirmed gameplay-facing state transition after the Start UI, reusing the current headless Chrome tooling.",
+  "depends_on": "T-0020, T-0022",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:54:26.015Z",
+  "index": 2
+}

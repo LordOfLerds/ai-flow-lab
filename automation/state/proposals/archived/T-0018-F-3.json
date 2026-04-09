@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0018-F-3",
+  "parent_task_id": "T-0018",
+  "title": "Clarify intended product status of `automation/ui/game.html` after demo simplification",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "rationale": "The executor explicitly simplified `automation/ui/game.html` to a demo version to fix the bug. Whether that page should remain a lightweight demo or regain full game functionality is a product/maintainer decision before further implementation there.",
+  "smallest_safe_scope": "Decide and document whether `automation/ui/game.html` is an officially supported full game entry point, a demo/testing page, or a legacy page to deprecate.",
+  "depends_on": "T-0018",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T20:18:09.780Z",
+  "index": 3
+}

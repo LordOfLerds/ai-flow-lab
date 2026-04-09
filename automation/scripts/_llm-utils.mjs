@@ -90,7 +90,176 @@ export function normalizeExecutor(value, laneType = "") {
 }
 
 export function getLLMMode() {
-  return process.env.LLM_MODE || "app";
+  return (process.env.LLM_MODE || "mock").toLowerCase();
+}
+
+// --- Executor routing: resolve provider per pipeline step + lane ---
+
+/**
+ * Reads executor_routing from project.config.yaml and returns the provider
+ * for a given pipeline step and lane type.
+ *
+ * Pipeline steps: architect, critique, synthesize, execute, followups, pr_draft
+ * Providers: openai, gemini, claude
+ *
+ * @param {string} step - Pipeline step name
+ * @param {string} laneType - Lane type (e.g. "feature-lane", "bug-lane")
+ * @returns {string} Provider name ("openai" | "gemini" | "claude")
+ */
+export function getProviderForStep(step, laneType = "feature-lane") {
+  const root = repoRoot();
+  const configPath = path.join(root, "ai", "project.config.yaml");
+
+  // Defaults if no config found
+  const defaultRouting = {
+    architect: "openai",
+    critique: "gemini",
+    synthesize: "openai",
+    execute: "codex",
+    followups: "openai",
+    pr_draft: "openai",
+    "propose-followups": "openai"
+  };
+
+  if (!fs.existsSync(configPath)) {
+    return defaultRouting[step] || "openai";
+  }
+
+  try {
+    const raw = fs.readFileSync(configPath, "utf8");
+    const lines = raw.split("\n");
+
+    // Parse executor_routing section
+    let routing = {};
+    let overrides = {};
+    let section = null;     // null | "default" | "overrides"
+    let overrideLane = null; // current lane in overrides
+
+    for (const line of lines) {
+      if (/^executor_routing\s*:/.test(line)) { section = "top"; continue; }
+      if ((section === "top" || section === "default") && /^\s+default\s*:/.test(line)) { section = "default"; continue; }
+      if ((section === "top" || section === "default") && /^\s+overrides\s*:/.test(line)) { section = "overrides"; continue; }
+
+      // Default routing entries
+      if (section === "default" && /^\s{4}\w/.test(line)) {
+        const m = line.match(/^\s{4}(\w[\w-]*):\s*(.+)/);
+        if (m) routing[m[1].trim()] = m[2].trim();
+      }
+
+      // Override lane header
+      if (section === "overrides" && /^\s{4}[\w-]+\s*:/.test(line)) {
+        const m = line.match(/^\s{4}([\w-]+)\s*:/);
+        if (m) overrideLane = m[1].trim();
+      }
+
+      // Override entries
+      if (section === "overrides" && overrideLane && /^\s{6}\w/.test(line)) {
+        const m = line.match(/^\s{6}(\w[\w-]*):\s*(.+)/);
+        if (m) {
+          if (!overrides[overrideLane]) overrides[overrideLane] = {};
+          overrides[overrideLane][m[1].trim()] = m[2].trim();
+        }
+      }
+
+      // End of executor_routing block
+      if (section && /^\S/.test(line) && !/^executor_routing/.test(line)) {
+        break;
+      }
+    }
+
+    // Normalize step name: "propose-followups" → "followups"
+    const normalizedStep = step === "propose-followups" ? "followups" : step;
+
+    // Check lane-specific override first
+    const lane = (laneType || "").trim();
+    if (overrides[lane] && overrides[lane][normalizedStep]) {
+      return overrides[lane][normalizedStep];
+    }
+
+    // Then default routing
+    if (routing[normalizedStep]) {
+      return routing[normalizedStep];
+    }
+
+    // Fallback
+    return defaultRouting[normalizedStep] || "openai";
+  } catch (_) {
+    return defaultRouting[step] || "openai";
+  }
+}
+
+/**
+ * High-level dispatcher: calls the right LLM based on executor_routing config.
+ * Maps provider names to actual API call functions.
+ *
+ * @param {object} opts - { instructions, input, taskId, step, laneType, prompt }
+ *   For Gemini, pass `prompt` (single string) instead of instructions+input.
+ * @returns {Promise<string>} LLM response text
+ */
+export async function callLLMForStep({ instructions, input, taskId, step, laneType, prompt }) {
+  const mode = getLLMMode();
+  const provider = getProviderForStep(step, laneType);
+  console.log(`[routing] Step="${step}" Lane="${laneType}" → Provider="${provider}" (mode=${mode})`);
+
+  // Mock mode: let the individual call* functions handle it
+  if (mode === "mock") {
+    const normalizedProvider = provider === "codex" ? "openai" : provider;
+    switch (normalizedProvider) {
+      case "claude": return await callClaude({ instructions, input, taskId, step });
+      case "gemini": {
+        const gp = prompt || (instructions ? `${instructions}\n\n---\n\n${input}` : input);
+        return await callGemini({ prompt: gp, taskId, step });
+      }
+      case "openai": default: return await callOpenAI({ instructions, input, taskId, step });
+    }
+  }
+
+  // RULE: Claude → ALWAYS use claude CLI (regardless of mode)
+  if (provider === "claude") {
+    console.log(`[routing] Provider "claude" → always Claude CLI (mode=${mode} ignored)`);
+    const cliInstructions = instructions || "";
+    const cliInput = input || prompt || "";
+    return await callClaudeCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
+  }
+
+  // RULE: Codex → ALWAYS use codex CLI, fallback to claude CLI
+  if (provider === "codex") {
+    const cliInstructions = instructions || "";
+    const cliInput = input || prompt || "";
+    try {
+      const { execSync: es } = await import("node:child_process");
+      es("which codex", { stdio: "ignore" });
+      console.log(`[routing] Provider "codex" → codex CLI (mode=${mode} ignored)`);
+      return await callCodexCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
+    } catch {
+      console.log(`[routing] Provider "codex" but codex CLI not found → fallback to Claude CLI`);
+      return await callClaudeCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
+    }
+  }
+
+  // In CLI mode, route remaining providers (openai/gemini) through Claude CLI too
+  if (mode === "cli") {
+    console.log(`[routing] CLI mode: provider "${provider}" → claude CLI`);
+    const cliInstructions = instructions || "";
+    const cliInput = input || prompt || "";
+    return await callClaudeCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
+  }
+
+  // API/APP mode for openai and gemini — use their native APIs or app queue
+  const normalizedProvider = provider === "codex" ? "openai" : provider;
+  switch (normalizedProvider) {
+    case "gemini": {
+      const geminiPrompt = prompt || (instructions ? `${instructions}\n\n---\n\n${input}` : input);
+      return await callGemini({ prompt: geminiPrompt, taskId, step });
+    }
+    case "openai":
+    default: {
+      // If caller passed a single `prompt` (e.g. critique step) instead of instructions+input,
+      // map it to `input` so callOpenAI/callLLMApp can handle it correctly.
+      const effectiveInput = input || prompt || "";
+      return await callOpenAI({ instructions, input: effectiveInput, taskId, step });
+    }
+  }
 }
 
 // --- Mock LLM Support ---
@@ -141,7 +310,7 @@ export function estimateTokens(text) {
   return Math.ceil((text || "").length / 4);
 }
 
-export function logUsage({ taskId, step, provider, model, inputTokens, outputTokens, durationMs }) {
+export function logUsage({ taskId, step, provider, model, inputTokens, outputTokens, durationMs, costUsd, numTurns, cacheReadTokens }) {
   const logDir = path.join(automationRoot(), "state", "usage-log");
   fs.mkdirSync(logDir, { recursive: true });
 
@@ -156,6 +325,10 @@ export function logUsage({ taskId, step, provider, model, inputTokens, outputTok
     outputTokens: outputTokens || 0,
     durationMs: durationMs || 0
   };
+  // Tool-mode fields (from claude --print --output-format json)
+  if (costUsd !== undefined && costUsd !== null) entry.costUsd = costUsd;
+  if (numTurns !== undefined && numTurns !== null) entry.numTurns = numTurns;
+  if (cacheReadTokens) entry.cacheReadTokens = cacheReadTokens;
 
   fs.appendFileSync(logFile, JSON.stringify(entry) + "\n");
 }
@@ -211,8 +384,35 @@ export async function callOpenAI({ instructions, input, retries = 3, taskId = nu
     return mockResponse;
   }
 
-  const apiKey = requireEnv("OPENAI_API_KEY");
-  const model = requireEnv("OPENAI_MODEL");
+  // CLI mode: Try Codex CLI first, then OpenAI API if key exists, then Claude CLI fallback.
+  if (mode === "cli") {
+    // 1. Try Codex CLI (codex exec)
+    try {
+      const { execSync } = await import("node:child_process");
+      execSync("which codex", { stdio: "ignore" });
+      console.log(`[CLI] Codex CLI found, using codex exec for ${step}/${taskId}`);
+      return await callCodexCLI({ instructions, input, taskId, step });
+    } catch {
+      // codex not installed
+    }
+
+    // 2. Try OpenAI API if key is available
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (apiKey && apiKey.trim()) {
+      console.log(`[CLI] No codex CLI, but OPENAI_API_KEY found → using API for ${step}/${taskId}`);
+      // Fall through to API mode below
+    } else {
+      // 3. Last resort: Claude CLI
+      console.log(`[CLI] No codex CLI, no OPENAI_API_KEY → fallback to Claude CLI for ${step}/${taskId}`);
+      return await callClaudeCLI({ instructions, input, taskId, step });
+    }
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("Missing required env var: OPENAI_API_KEY (set it in .env or use LLM_MODE=cli)");
+  }
+  const model = process.env.OPENAI_MODEL || "gpt-4o";
 
   // If app mode, write prompt to queue and wait for response
   if (mode === "app") {
@@ -303,15 +503,28 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
     return mockResponse;
   }
 
-  const apiKey = requireEnv("GEMINI_API_KEY");
-  const model = requireEnv("GEMINI_MODEL");
-
-  // If app mode, write prompt to queue and wait for response
-  if (mode === "app") {
-    return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini", model });
+  // CLI mode: Gemini has no CLI tool. Use API if key available, else Claude CLI fallback.
+  if (mode === "cli") {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey && apiKey.trim()) {
+      console.log(`[CLI] Gemini API key found, using API for ${step}/${taskId}`);
+      // Fall through to API mode below
+    } else {
+      console.log(`[CLI] No GEMINI_API_KEY → fallback to Claude CLI for ${step}/${taskId}`);
+      return await callClaudeCLI({ instructions: "", input: prompt, taskId, step });
+    }
   }
 
-  // API mode
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("Missing required env var: GEMINI_API_KEY (set it in .env or use LLM_MODE=cli)");
+  }
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-preview-04-17";
+
+  // In APP mode, Gemini uses its API directly (only OpenAI/ChatGPT steps go through
+  // the manual prompt queue). So APP mode falls through to the API path below.
+
+  // API mode (also used in APP mode for Gemini)
   const inputTokens = estimateTokens(prompt);
   const startMs = Date.now();
 
@@ -364,11 +577,38 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
       lastError = new Error(`Gemini API error: ${res.status} ${JSON.stringify(data)}`);
       const errorType = classifyError(res.status, lastError);
 
-      if (errorType === "transient" && attempt < retries) {
-        const backoffMs = 2000 * attempt * getRandomJitter();
-        console.log(`Attempt ${attempt}/${retries} failed, retrying in ${backoffMs.toFixed(0)}ms...`);
+      const is429 = res.status === 429;
+      const is503 = res.status === 503;
+      const isOverload = is429 || is503;
+
+      // 429 with "limit: 0" means free-tier is fully exhausted — no point retrying
+      const isQuotaExhausted = is429 && JSON.stringify(data).includes('"limit":0');
+      if (isQuotaExhausted) {
+        console.warn(`[GEMINI] Free-tier quota exhausted for model ${model}. No retries.`);
+        // In APP mode → fall back to prompt queue (ChatGPT manual)
+        if (getLLMMode() === "app") {
+          console.warn(`[GEMINI-FALLBACK] Quota exhausted → falling back to prompt queue for ${step}/${taskId}`);
+          return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini-fallback", model: "manual-chatgpt" });
+        }
+        throw new Error(`Gemini free-tier quota exhausted. Either upgrade to a paid plan at https://ai.google.dev or switch LLM_MODE=cli to route critique through Claude CLI.`);
+      }
+
+      // 503 (overload) — retry with longer backoff
+      const maxRetries = is503 ? Math.max(retries, 6) : retries;
+
+      if (errorType === "transient" && attempt < maxRetries) {
+        const backoffMs = is503
+          ? Math.min(5000 * attempt * attempt * getRandomJitter(), 90000)
+          : 2000 * attempt * getRandomJitter();
+        console.log(`Attempt ${attempt}/${maxRetries} failed (${res.status}), retrying in ${(backoffMs/1000).toFixed(1)}s...`);
         await sleep(backoffMs);
         continue;
+      }
+
+      // If all retries exhausted for 503 in APP mode → fall back to prompt queue
+      if (isOverload && getLLMMode() === "app") {
+        console.warn(`[GEMINI-FALLBACK] ${res.status} after ${attempt} retries — falling back to prompt queue for ${step}/${taskId}`);
+        return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini-fallback", model: "manual-chatgpt" });
       }
 
       throw lastError;
@@ -384,11 +624,464 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
         continue;
       }
 
+      // Network-level errors (DNS, connection refused) → fall back to prompt queue in APP mode
+      const isNetworkError = e.message.includes("EAI_AGAIN") || e.message.includes("ENOTFOUND") ||
+                             e.message.includes("ECONNREFUSED") || e.message.includes("fetch failed");
+      if (isNetworkError && getLLMMode() === "app") {
+        console.warn(`[GEMINI-FALLBACK] Network error (${e.message.substring(0, 80)}) — falling back to prompt queue for ${step}/${taskId}`);
+        return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini-fallback", model: "manual" });
+      }
+
       throw lastError;
     }
   }
 
   throw lastError;
+}
+
+/**
+ * Discover source files in the repo to provide as context for LLM prompts.
+ * @param {number} maxFiles - Max number of files to include
+ * @param {number} maxTotalKb - Max total size in KB
+ * @returns {string} Concatenated file contents as "[path]\n<content>\n" blocks
+ */
+export function discoverSourceContext(maxFiles = 15, maxTotalKb = 80) {
+  const root = repoRoot();
+  const maxBytes = maxTotalKb * 1024;
+  const results = [];
+  let totalSize = 0;
+
+  // Patterns to scan (relative to repo root)
+  const globs = [
+    "index.html", "game.html",
+    "src/**/*.js", "src/**/*.ts", "src/**/*.mjs",
+    "*.js", "*.mjs",
+    "automation/scripts/*.mjs"
+  ];
+
+  // Dirs/files to skip
+  const skipPatterns = [
+    "node_modules", ".git", "state/", "test-fixtures/",
+    "package-lock.json", ".env"
+  ];
+
+  function shouldSkip(relPath) {
+    return skipPatterns.some(p => relPath.includes(p));
+  }
+
+  function scanDir(dir, base) {
+    if (!fs.existsSync(dir)) return;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (results.length >= maxFiles || totalSize >= maxBytes) return;
+      const rel = path.join(base, entry.name);
+      if (shouldSkip(rel)) continue;
+      if (entry.isDirectory()) {
+        scanDir(path.join(dir, entry.name), rel);
+      } else if (/\.(js|mjs|ts|html|css|json|yaml|yml|md)$/i.test(entry.name)) {
+        try {
+          const full = path.join(dir, entry.name);
+          const stat = fs.statSync(full);
+          if (stat.size > 200 * 1024) continue; // skip files > 200KB
+          if (totalSize + stat.size > maxBytes) continue;
+          const content = fs.readFileSync(full, "utf8");
+          results.push({ path: rel, content });
+          totalSize += stat.size;
+        } catch (_) {}
+      }
+    }
+  }
+
+  // First, add high-priority files if they exist
+  const priorityFiles = ["index.html", "game.html", "CLAUDE.md", "AGENTS.md"];
+  for (const pf of priorityFiles) {
+    if (results.length >= maxFiles || totalSize >= maxBytes) break;
+    const full = path.join(root, pf);
+    if (fs.existsSync(full)) {
+      try {
+        const stat = fs.statSync(full);
+        if (stat.size <= 200 * 1024 && totalSize + stat.size <= maxBytes) {
+          const content = fs.readFileSync(full, "utf8");
+          results.push({ path: pf, content });
+          totalSize += stat.size;
+        }
+      } catch (_) {}
+    }
+  }
+
+  // Then scan src/ and root for additional files
+  const dirsToScan = ["src", "lib", "components", "."];
+  for (const d of dirsToScan) {
+    if (results.length >= maxFiles || totalSize >= maxBytes) break;
+    scanDir(path.join(root, d), d === "." ? "" : d);
+  }
+
+  return results.map(r => `[${r.path}]\n${r.content}`).join("\n\n");
+}
+
+export async function callClaude({ instructions, input, retries = 3, taskId = null, step = null }) {
+  const mode = getLLMMode();
+
+  // Mock mode: return fixture data
+  if (mode === "mock") {
+    const mockResponse = loadMockResponse({ taskId, step, provider: "claude" });
+    console.log(`[MOCK] Claude response for ${step}/${taskId} (${mockResponse.length} chars)`);
+    if (taskId && step) {
+      logUsage({ taskId, step, provider: "claude", model: "mock", inputTokens: estimateTokens(input), outputTokens: estimateTokens(mockResponse), durationMs: 0 });
+    }
+    return mockResponse;
+  }
+
+  // ALWAYS prefer Claude CLI — works in any mode, no API key needed
+  console.log(`[CLAUDE] Using Claude CLI for ${step}/${taskId} (mode=${mode})`);
+  try {
+    return await callClaudeCLI({ instructions, input, taskId, step });
+  } catch (cliErr) {
+    console.warn(`[CLAUDE] CLI failed: ${cliErr.message} — trying API fallback`);
+    // Fall through to API if CLI fails and API key exists
+    const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
+    if (!apiKey) {
+      throw new Error(`Claude CLI failed and no ANTHROPIC_API_KEY for fallback: ${cliErr.message}`);
+    }
+    console.log(`[CLAUDE] Falling back to Anthropic API for ${step}/${taskId}`);
+  }
+
+  // API fallback (only reached if CLI failed and API key exists)
+  const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
+
+  // API mode — call Anthropic Messages API
+  const inputTokens = estimateTokens(input);
+  const instructionTokens = estimateTokens(instructions);
+  const startMs = Date.now();
+
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const messages = [{ role: "user", content: input }];
+      const body = { model, max_tokens: 8192, messages };
+      if (instructions && instructions.trim()) {
+        body.system = instructions;
+      }
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const text = (data.content ?? [])
+          .filter(b => b.type === "text")
+          .map(b => b.text)
+          .join("\n")
+          .trim();
+
+        if (!text) {
+          throw new Error("Claude API returned no text output");
+        }
+
+        const durationMs = Date.now() - startMs;
+        const outputTokens = estimateTokens(text);
+        if (taskId && step) {
+          logUsage({ taskId, step, provider: "claude", model, inputTokens: inputTokens + instructionTokens, outputTokens, durationMs });
+        }
+
+        return text;
+      }
+
+      lastError = new Error(`Claude API error: ${res.status} ${JSON.stringify(data)}`);
+      const errorType = classifyError(res.status, lastError);
+
+      if (errorType === "transient" && attempt < retries) {
+        const backoffMs = 1500 * attempt * getRandomJitter();
+        console.log(`[Claude] Attempt ${attempt}/${retries} failed, retrying in ${backoffMs.toFixed(0)}ms...`);
+        await sleep(backoffMs);
+        continue;
+      }
+
+      throw lastError;
+    } catch (e) {
+      lastError = e;
+      const isTimeout = e.message.includes("timeout") || e.message.includes("ETIMEDOUT");
+      if (isTimeout && attempt < retries) {
+        const backoffMs = 1500 * attempt * getRandomJitter();
+        console.log(`[Claude] Attempt ${attempt}/${retries} failed (${e.message}), retrying in ${backoffMs.toFixed(0)}ms...`);
+        await sleep(backoffMs);
+        continue;
+      }
+      throw lastError;
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * Call Claude via Claude Code CLI (claude --print).
+ * No API key needed — uses the user's existing Claude Code authentication.
+ * Falls back to API mode if CLI is not available.
+ */
+/**
+ * Steps that benefit from Claude having tool access (Read/Edit/Write).
+ * Instead of dumping file contents into the prompt, Claude reads and edits files directly.
+ * This is cheaper (less output tokens) and more reliable (targeted edits vs full-file reproduction).
+ */
+const TOOL_ENABLED_STEPS = new Set(["execute", "cowork-test", "diagnose", "generate-fix"]);
+
+/**
+ * Call Claude via CLI. Two modes:
+ *  1. Tool mode (steps in TOOL_ENABLED_STEPS): --allowed-tools "Read,Edit,Write,Glob,Grep"
+ *     Claude reads/edits files directly. Output is a text report, not file contents.
+ *  2. Plain mode (all other steps): text-in, text-out, no tool access.
+ *
+ * Options:
+ *  - useTools: boolean — override auto-detection (force tools on/off)
+ *  - cwd: string — working directory for Claude (defaults to repoRoot)
+ *  - maxBudgetUsd: number — cost cap per call (default $2.00 for tool mode, none for plain)
+ *  - allowedTools: string — override default tool list
+ */
+async function callClaudeCLI({ instructions, input, taskId, step, useTools, cwd: customCwd, maxBudgetUsd, allowedTools }) {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const execFileAsync = promisify(execFile);
+
+  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
+  const startMs = Date.now();
+
+  // Build the prompt: combine instructions + input (guard against undefined)
+  const fullPrompt = instructions ? `${instructions}\n\n---\n\n${input || ""}` : (input || "");
+  if (!fullPrompt.trim()) {
+    throw new Error("Claude CLI: empty prompt — both instructions and input are empty");
+  }
+
+  // Determine if this step should use tool access
+  const enableTools = useTools !== undefined ? useTools : TOOL_ENABLED_STEPS.has(step);
+  const workingDir = customCwd || repoRoot();
+
+  // Write prompt to a temp file to avoid shell escaping issues
+  const tmpDir = path.join(automationRoot(), "state", "tmp");
+  fs.mkdirSync(tmpDir, { recursive: true });
+  const promptFile = path.join(tmpDir, `cli-prompt-${taskId || "anon"}-${step || "generic"}.md`);
+  fs.writeFileSync(promptFile, fullPrompt);
+
+  if (enableTools) {
+    // ═══════════════════════════════════════════════
+    // TOOL MODE: Claude reads/edits files directly
+    // ═══════════════════════════════════════════════
+    const tools = allowedTools || "Read,Edit,Write,Glob,Grep";
+    const budget = maxBudgetUsd || 2.00;
+    console.log(`[CLI] Calling claude --print +tools for ${step}/${taskId} (prompt: ${fullPrompt.length} chars, tools: ${tools}, budget: $${budget})`);
+
+    try {
+      // Build command with tool access, JSON output for structured data, cost cap
+      const cmd = `cat "${promptFile}" | claude --print --model "${model}" --output-format json --allowed-tools "${tools}" --permission-mode acceptEdits --max-budget-usd ${budget}`;
+
+      const { stdout: result } = await execFileAsync("bash", ["-c", cmd], {
+        cwd: workingDir,
+        timeout: 1800000, // 30 min timeout
+        maxBuffer: 10 * 1024 * 1024,
+        env: { ...process.env }
+      });
+
+      const raw = (result || "").trim();
+      if (!raw) {
+        throw new Error("Claude CLI returned empty output (tool mode)");
+      }
+
+      // Parse JSON output
+      let jsonResult;
+      try {
+        jsonResult = JSON.parse(raw);
+      } catch (parseErr) {
+        // If JSON parse fails, treat as plain text (graceful degradation)
+        console.warn(`[CLI] JSON parse failed for tool mode output, treating as plain text`);
+        const durationMs = Date.now() - startMs;
+        if (taskId && step) {
+          logUsage({ taskId, step, provider: "claude-cli-tools", model, inputTokens: estimateTokens(fullPrompt), outputTokens: estimateTokens(raw), durationMs });
+        }
+        try { fs.unlinkSync(promptFile); } catch (_) {}
+        return raw;
+      }
+
+      const text = jsonResult.result || "";
+      const durationMs = jsonResult.duration_ms || (Date.now() - startMs);
+      const costUsd = jsonResult.total_cost_usd || 0;
+      const numTurns = jsonResult.num_turns || 1;
+      const permDenials = jsonResult.permission_denials || [];
+
+      // Extract token usage from modelUsage
+      let inputTokens = 0, outputTokens = 0, cacheReadTokens = 0;
+      if (jsonResult.modelUsage) {
+        for (const [_, info] of Object.entries(jsonResult.modelUsage)) {
+          inputTokens += info.inputTokens || 0;
+          outputTokens += info.outputTokens || 0;
+          cacheReadTokens += info.cacheReadInputTokens || 0;
+        }
+      }
+
+      if (taskId && step) {
+        logUsage({ taskId, step, provider: "claude-cli-tools", model, inputTokens, outputTokens, durationMs, costUsd, numTurns, cacheReadTokens });
+      }
+
+      if (permDenials.length > 0) {
+        console.warn(`[CLI] ${permDenials.length} permission denials:`, permDenials.map(d => d.tool_name).join(", "));
+      }
+
+      console.log(`[CLI] Tool mode response (${text.length} chars, ${numTurns} turns, ${durationMs}ms, $${costUsd.toFixed(4)})`);
+
+      // Clean up temp file
+      try { fs.unlinkSync(promptFile); } catch (_) {}
+
+      return text;
+    } catch (e) {
+      try { fs.unlinkSync(promptFile); } catch (_) {}
+
+      // Fallback: if tool mode fails (old CLI version, permission error), try plain mode
+      if (e.message?.includes("allowed-tools") || e.message?.includes("permission-mode") || e.message?.includes("ENOENT")) {
+        console.warn(`[CLI] Tool mode failed (${e.message.substring(0, 80)}), falling back to plain mode`);
+        return callClaudeCLI({ instructions, input, taskId, step, useTools: false });
+      }
+      throw new Error(`Claude CLI (tool mode) failed: ${e.message}`);
+    }
+  } else {
+    // ═══════════════════════════════════════════════
+    // PLAIN MODE: text in, text out, no tools
+    // ═══════════════════════════════════════════════
+    console.log(`[CLI] Calling claude --print for ${step}/${taskId} (prompt: ${fullPrompt.length} chars)`);
+
+    try {
+      const cmd = `cat "${promptFile}" | claude --print --model "${model}" --output-format text`;
+
+      const { stdout: result } = await execFileAsync("bash", ["-c", cmd], {
+        cwd: workingDir,
+        timeout: 1800000,
+        maxBuffer: 10 * 1024 * 1024,
+        env: { ...process.env }
+      });
+
+      const text = (result || "").trim();
+
+      if (!text) {
+        throw new Error("Claude CLI returned empty output");
+      }
+
+      const durationMs = Date.now() - startMs;
+      const inputTokens = estimateTokens(fullPrompt);
+      const outputTokens = estimateTokens(text);
+      if (taskId && step) {
+        logUsage({ taskId, step, provider: "claude-cli", model, inputTokens, outputTokens, durationMs });
+      }
+
+      console.log(`[CLI] Response received (${text.length} chars, ${durationMs}ms)`);
+
+      try { fs.unlinkSync(promptFile); } catch (_) {}
+      return text;
+    } catch (e) {
+      try { fs.unlinkSync(promptFile); } catch (_) {}
+
+      if (e.code === "ENOENT") {
+        throw new Error(
+          "Claude CLI (claude) not found. Install Claude Code or set ANTHROPIC_API_KEY and use LLM_MODE=api"
+        );
+      }
+      throw new Error(`Claude CLI failed: ${e.message}`);
+    }
+  }
+}
+
+/**
+ * Call OpenAI Codex via Codex CLI (codex exec).
+ * No OPENAI_API_KEY needed — uses the user's existing Codex CLI authentication.
+ * Syntax: codex exec "prompt" → streams progress to stderr, final result to stdout.
+ */
+async function callCodexCLI({ instructions, input, taskId, step }) {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const execFileAsync2 = promisify(execFile);
+
+  const startMs = Date.now();
+  const fullPrompt = instructions ? `${instructions}\n\n---\n\n${input}` : input;
+
+  if (!fullPrompt.trim()) {
+    throw new Error("Codex CLI: empty prompt — both instructions and input are empty");
+  }
+
+  // Write prompt to temp file to avoid CLI argument length issues (prompts can be 80KB+)
+  const tmpDir = path.join(automationRoot(), "state", "tmp");
+  fs.mkdirSync(tmpDir, { recursive: true });
+  const promptFile = path.join(tmpDir, `cli-prompt-${taskId || "anon"}-${step || "generic"}-codex.md`);
+  fs.writeFileSync(promptFile, fullPrompt);
+
+  console.log(`[CLI] Calling codex exec for ${step}/${taskId} (prompt: ${fullPrompt.length} chars, file: ${promptFile})`);
+
+  try {
+    // Async execution with 5-min timeout (shorter than Claude's 15min).
+    // If codex hangs on interactive prompts, timeout triggers fallback to Claude CLI.
+    const cmd = `cat "${promptFile}" | codex exec --full-auto -`;
+
+    const { stdout: result } = await execFileAsync2("bash", ["-c", cmd], {
+      cwd: repoRoot(),
+      timeout: 300000, // 5 min timeout — fallback to Claude if codex hangs
+      maxBuffer: 10 * 1024 * 1024,
+      env: { ...process.env }
+    });
+
+    const text = (result || "").trim();
+
+    if (!text) {
+      throw new Error("Codex CLI returned empty output");
+    }
+
+    const durationMs = Date.now() - startMs;
+    const inputTokens = estimateTokens(fullPrompt);
+    const outputTokens = estimateTokens(text);
+    if (taskId && step) {
+      logUsage({ taskId, step, provider: "codex-cli", model: "codex", inputTokens, outputTokens, durationMs });
+    }
+
+    console.log(`[CLI] codex response received (${text.length} chars, ${durationMs}ms)`);
+
+    // Clean up temp file
+    try { fs.unlinkSync(promptFile); } catch (_) {}
+
+    return text;
+  } catch (e) {
+    // Clean up temp file on error
+    try { fs.unlinkSync(promptFile); } catch (_) {}
+
+    // Timeout fallback: if codex was killed (hung on interactive prompt), fall back to Claude CLI
+    if (e.killed || e.signal === 'SIGTERM') {
+      console.warn(`[CLI] Codex timed out after 5min for ${step}/${taskId}, falling back to Claude CLI`);
+      return callClaudeCLI({ instructions, input, taskId, step });
+    }
+
+    if (e.code === "ENOENT") {
+      throw new Error(
+        "Codex CLI (codex) not found. Install it (npm i -g @openai/codex) or set OPENAI_API_KEY and use LLM_MODE=api"
+      );
+    }
+    throw new Error(`Codex CLI failed: ${e.message}`);
+  }
+}
+
+/**
+ * Check if a CLI tool is available on the system.
+ */
+function isCLIAvailable(command) {
+  try {
+    const { execSync } = require("node:child_process");
+    execSync(`which ${command}`, { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function callLLMApp({ instructions, input, taskId, step, provider, model }) {

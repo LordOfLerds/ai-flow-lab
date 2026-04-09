@@ -190,6 +190,51 @@ async function initNew(projectName, description) {
     }
   }
 
+  // Ensure git repo exists
+  if (!fs.existsSync(path.join(projectRoot, ".git"))) {
+    console.log("Initializing git repository...");
+    try {
+      execSync("git init", { cwd: projectRoot, stdio: "inherit" });
+      execSync('git add -A && git commit -m "Initial commit — AI Flow Lab project setup" --allow-empty', { cwd: projectRoot, stdio: "inherit" });
+    } catch (e) {
+      console.log("  (git init had warnings, continuing...)");
+    }
+  }
+
+  // Create default project.config.yaml if missing
+  const configPath = path.join(projectRoot, "ai", "project.config.yaml");
+  if (!fs.existsSync(configPath)) {
+    console.log("Creating default project.config.yaml...");
+    fs.mkdirSync(path.dirname(configPath), { recursive: true });
+    fs.writeFileSync(configPath, `# AI Flow Lab — Project Configuration
+name: ${projectName}
+description: "${description || ""}"
+
+truth_sources:
+  - CLAUDE.md
+  - docs/DOMAIN_MODEL.md
+  - docs/INVARIANTS.md
+  - docs/ARCHITECTURE.md
+
+executor_routing:
+  default:
+    architect: openai
+    critique: gemini
+    synthesize: openai
+    execute: claude
+    merge: git
+    propose_followups: openai
+    pr_draft: openai
+
+cascade_limits:
+  max_depth: 3
+  max_followups_per_task: 5
+  max_total_tasks: 20
+  dedup_threshold: 0.75
+`);
+    console.log("  ✓ ai/project.config.yaml");
+  }
+
   // Step 2: Generate prompt
   console.log("\nGenerating ChatGPT bootstrap prompt...");
   const template = loadPromptTemplate("project-bootstrap.prompt.md");

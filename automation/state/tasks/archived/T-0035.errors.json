@@ -1,0 +1,8 @@
+[
+  {
+    "step": "execute",
+    "message": "file:///Users/l.erdkoenig/Dev/ai-flow-lab/automation/scripts/_llm-utils.mjs:31\n  task.updated_at = new Date().toISOString();\n                  ^\n\nTypeError: Cannot set properties of undefined (setting 'updated_at')\n    at saveTask (file:///Users/l.erdkoenig/Dev/ai-flow-lab/automation/scripts/_llm-utils.mjs:31:19)\n    at file:///Users/l.erdkoenig/Dev/ai-flow-lab/automation/scripts/execute-task-api.mjs:319:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.8.0\n\n---\n📸 Snapshotted 3 source files\n[routing] Step=\"execute\" Lane=\"bug-lane\" → Provider=\"claude\" (mode=app)\n[routing] Provider \"claude\" → always Claude CLI (mode=app ignored)\n[CLI] Calling claude --print for execute/T-0035 (prompt: 76356 chars)\n[CLI] Response received (50249 chars, 698100ms)\n  Wrote: index.html (47339 chars)\n\n✅ All 1 written files passed safety validation\n\n---\nCommand failed: node scripts/execute-task-api.mjs T-0035\nfile:///Users/l.erdkoenig/Dev/ai-flow-lab/automation/scripts/_llm-utils.mjs:31\n  task.updated_at = new Date().toISOString();\n                  ^\n\nTypeError: Cannot set properties of undefined (setting 'updated_at')\n    at saveTask (file:///Users/l.erdkoenig/Dev/ai-flow-lab/automation/scripts/_llm-utils.mjs:31:19)\n    at file:///Users/l.erdkoenig/Dev/ai-flow-lab/automation/scripts/execute-task-api.mjs:319:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v25.8.0",
+    "timestamp": "2026-04-08T07:28:01.124Z",
+    "depth": 0
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "goal_id": "G-0005",
+  "title": "Pixel Runner v2: 100 Levels, Better Progression, Backend & Polish",
+  "description": "Major game overhaul:\n1. BUGS: checkExitCollision doesn't call completeLevel (only death does), level completion screen missing, all skins unlocked (no progression lock), skills have undefined levelReq in data structure\n2. UI: Back buttons in ALL submenus (Shop has them, Skills/Battle Pass need consistent ESC+button approach), level progress bar during gameplay\n3. WORLD GEN: 100 levels (not 12), progressive difficulty (longer levels, more obstacles, new enemy types), themed biomes properly balanced\n4. PROGRESSION: Lock skins behind level/coin requirements, more skills (6+), meaningful skill tree, better XP curve\n5. BACKEND: User authentication backend (Supabase/Firebase), persistent progress, leaderboard\n6. POLISH: Level complete celebration screen with stars, smooth transitions, sound effects hooks",
+  "priority": "P0",
+  "state": "NEW",
+  "created_at": "2026-04-09T12:00:00Z",
+  "updated_at": "2026-04-09T12:00:00Z"
+}

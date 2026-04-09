@@ -1,0 +1,37 @@
+{
+  "task_id": "T-0028",
+  "title": "Implement player physics, movement, and collision detection",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "T-0027",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0028-implement-player-physics-movement-and-collision-detection",
+  "worktree_path": "../wt/T-0028",
+  "spec_path": "ai/specs/T-0028_spec.md",
+  "review_path": "ai/reviews/T-0028_gemini_review.md",
+  "brief_path": "ai/briefs/T-0028_implementation.md",
+  "result_path": "ai/results/T-0028_executor_report.md",
+  "followup_path": "ai/followups/T-0028_followups.md",
+  "owner_lock": "task:T-0028",
+  "created_at": "2026-04-07T23:16:04.515Z",
+  "updated_at": "2026-04-07T23:40:59.939Z",
+  "followup_source_proposal_id": "T-0027-F-1",
+  "planner_notes": {
+    "rationale": "The rendering system is in place but the player cannot move. This is the critical next step \u2014 add keyboard input handling for left/right movement, gravity, jumping (with coyote time and jump buffering from CONFIG), ground detection via tile collision, wall collision, and ice physics. Wire the existing `keys` input state and `createPlayer()` physics properties into an `updatePlayer()` function called from `gameLoop()`.",
+    "smallest_safe_scope": "Player horizontal movement, gravity, ground/wall tile collision, single jump. No double jump, dash, or special abilities yet.",
+    "depends_on": "T-0027",
+    "priority": "high"
+  },
+  "current_step": null,
+  "last_error": {
+    "step": "execute",
+    "message": "[CLI] Codex timed out after 5min for execute/T-0028, falling back to Claude CLI\n\n---\n[routing] Step=\"execute\" Lane=\"feature-lane\" \u2192 Provider=\"codex\" (mode=app)\n[routing] Provider \"codex\" \u2192 codex CLI (mode=app ignored)\n[CLI] Calling codex exec for execute/T-0028 (prompt: 69258 chars, file: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/tmp/cli-prompt-T-0028-execute-codex.md)\n[CLI] Calling claude --print for execute/T-0028 (prompt: 69258 chars)\n\n---\nCommand failed: node scripts/execute-task-api.mjs T-0028\n[CLI] Codex timed out after 5min for execute/T-0028, falling back to Claude CLI [KILLED signal=SIGTERM \u2014 likely timeout]",
+    "timestamp": "2026-04-07T23:40:47.867Z",
+    "diagnosis": "## Root Cause\nThe Codex CLI timed out because the execute prompt (69,258 chars) exceeded what Codex can process within the 5-minute timeout window.\n\n## Details\nThe implementation brief for T-0028 is unusually large, containing extensive inline code snippets in the prompt itself. Codex received a ~70k character prompt and could not complete execution within the 5-minute limit, triggering SIGTERM. The Claude CLI fallback was then invoked but the parent process had already been killed, so the fallback also failed to produce output.\n\n## Suggested Fix\n1. **Split T-0028** into smaller sub-tasks: separate `getTileAt`/`isSolid`/`isOnIce` helpers from `updatePlayer()` itself \u2014 each prompt stays under ~20k chars.\n2. **Increase the Codex timeout** in the pipeline config (currently 5min) to 10\u201315min for `feature-lane` execute steps, or add prompt-length-based timeout scaling.\n3. **Trim the brief** before passing to Codex \u2014 strip the \"Implementation details\" code blocks from the prompt since those are already in `index.html`; the brief should reference what to do, not reproduce the full solution inline."
+  },
+  "failed_step": "execute",
+  "pr_draft_path": "ai/pr/T-0028_pr_draft.md"
+}

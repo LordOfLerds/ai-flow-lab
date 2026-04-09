@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-E2E-01-F-001",
+  "parent_task_id": "T-E2E-01",
+  "title": "Validate and fix documentation links in README.md",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "rationale": "Executor discovered that some docs/ links may point to files that don't exist yet, which could frustrate users",
+  "smallest_safe_scope": "Check all docs/ links in README.md, create minimal placeholder files where needed, or update links to existing files",
+  "depends_on": "none",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T09:23:47.973Z",
+  "index": 1
+}

@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0006",
+  "parent_goal_id": "G-0001",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0006-build-xp-leveling-skills-and-skins-system",
+  "base_branch": "main",
+  "title": "[T-0006] Build XP, leveling, skills, and skins system",
+  "summary": "Build XP, leveling, skills, and skins system",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": false,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0006 successfully implemented XP, leveling, skills, and character skins systems. The implementation includes XP accumulation from collectibles and defeats, level thresholds unlocking new skins, and skill tree UI for displaying unlocked abilities. Players now have visible progression and character …",
+  "status": "draft",
+  "created_at": "2026-04-07T05:47:06.505Z"
+}

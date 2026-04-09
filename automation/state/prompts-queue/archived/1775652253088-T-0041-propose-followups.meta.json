@@ -1,0 +1,12 @@
+{
+  "id": "1775652253088-T-0041-propose-followups",
+  "taskId": "T-0041",
+  "step": "propose-followups",
+  "provider": "openai",
+  "model": "gpt-5.4",
+  "status": "completed",
+  "createdAt": "2026-04-08T12:44:13.095Z",
+  "promptFile": "1775652253088-T-0041-propose-followups.prompt.md",
+  "responseFile": "1775652253088-T-0041-propose-followups.response.md",
+  "completedAt": "2026-04-08T12:47:51.893Z"
+}

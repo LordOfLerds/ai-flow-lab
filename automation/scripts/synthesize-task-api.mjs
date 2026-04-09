@@ -4,8 +4,11 @@ import {
   ensureTaskPaths,
   readRepoFile,
   writeRepoFile,
-  callOpenAI
+  callLLMForStep,
+  repoRoot
 } from "./_llm-utils.mjs";
+import fs from "node:fs";
+import path from "node:path";
 
 const [taskId] = process.argv.slice(2);
 
@@ -26,6 +29,38 @@ if (!spec.trim()) {
 if (!review.trim()) {
   throw new Error(`Review file missing or empty: ${task.review_path}`);
 }
+
+// Dynamic truth file discovery
+function loadTruthFiles() {
+  const root = repoRoot();
+  let truthSources = [];
+  const configPath = path.join(root, "ai", "project.config.yaml");
+  if (fs.existsSync(configPath)) {
+    try {
+      const raw = fs.readFileSync(configPath, "utf8");
+      const lines = raw.split("\n");
+      let inTruth = false;
+      for (const line of lines) {
+        if (/^truth_sources\s*:/.test(line)) { inTruth = true; continue; }
+        if (inTruth && /^\s+-\s+(.+)/.test(line)) {
+          truthSources.push(line.match(/^\s+-\s+(.+)/)[1].trim());
+        } else if (inTruth && /^\S/.test(line)) { inTruth = false; }
+      }
+    } catch (_) {}
+  }
+  if (truthSources.length === 0) {
+    const candidates = ["CLAUDE.md", "AGENTS.md", "README.md", "docs/DOMAIN_MODEL.md", "docs/INVARIANTS.md", "docs/ARCHITECTURE.md"];
+    for (const c of candidates) {
+      if (fs.existsSync(path.join(root, c))) truthSources.push(c);
+    }
+  }
+  return truthSources.map(src => {
+    const content = readRepoFile(src);
+    return content.trim() ? `[${src}]\n${content}` : null;
+  }).filter(Boolean).join("\n\n");
+}
+
+const truthContext = loadTruthFiles();
 
 const instructions = `You are the architecture synthesizer.
 Return ONLY markdown for an execution-ready implementation brief.
@@ -51,19 +86,9 @@ Write a brief with these sections exactly:
 - ## Risks
 - ## Explicit non-goals
 
-Truth files:
-
-[docs/DOMAIN_MODEL.md]
-${readRepoFile("docs/DOMAIN_MODEL.md")}
-
-[docs/INVARIANTS.md]
-${readRepoFile("docs/INVARIANTS.md")}
-
-[docs/ARCHITECTURE.md]
-${readRepoFile("docs/ARCHITECTURE.md")}
-
-[AGENTS.md]
-${readRepoFile("AGENTS.md")}
+Note: Project truth files (CLAUDE.md, AGENTS.md, DOMAIN_MODEL.md, etc.) are already
+incorporated in the spec and review above. Do NOT request them again — use the spec
+and review as your authoritative sources.
 
 Spec:
 
@@ -76,7 +101,13 @@ Review:
 ${review}
 `;
 
-const text = await callOpenAI({ instructions, input, taskId, step: "synthesize" });
+const text = await callLLMForStep({
+  instructions,
+  input,
+  taskId,
+  step: "synthesize",
+  laneType: task.lane_type || "feature-lane"
+});
 
 writeRepoFile(task.brief_path, text);
 saveTask(taskId, task);

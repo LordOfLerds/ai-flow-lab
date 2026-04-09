@@ -6,8 +6,9 @@ import {
   saveTask,
   readRepoFile,
   writeRepoFile,
-  callOpenAI,
-  repoRoot
+  callLLMForStep,
+  repoRoot,
+  automationRoot
 } from "./_llm-utils.mjs";
 import { createProposal as createDecisionProposal } from "./decision-gate.mjs";
 
@@ -40,6 +41,63 @@ function readTaskArtifact(relPath) {
   return "";
 }
 
+// --- Dynamic truth file discovery (same pattern as architect/critique/synthesize) ---
+function loadTruthFiles() {
+  let truthSources = [];
+  const configPath = path.join(root, "ai", "project.config.yaml");
+  if (fs.existsSync(configPath)) {
+    try {
+      const raw = fs.readFileSync(configPath, "utf8");
+      const lines = raw.split("\n");
+      let inTruth = false;
+      for (const line of lines) {
+        if (/^truth_sources\s*:/.test(line)) { inTruth = true; continue; }
+        if (inTruth && /^\s+-\s+(.+)/.test(line)) {
+          truthSources.push(line.match(/^\s+-\s+(.+)/)[1].trim());
+        } else if (inTruth && /^\S/.test(line)) { inTruth = false; }
+      }
+    } catch (_) {}
+  }
+  if (truthSources.length === 0) {
+    const candidates = [
+      "CLAUDE.md", "AGENTS.md", "README.md",
+      "docs/DOMAIN_MODEL.md", "docs/INVARIANTS.md", "docs/ARCHITECTURE.md",
+      "ai/project.config.yaml"
+    ];
+    for (const c of candidates) {
+      if (fs.existsSync(path.join(root, c))) truthSources.push(c);
+    }
+  }
+  const parts = [];
+  for (const src of truthSources) {
+    const content = readRepoFile(src);
+    if (content.trim()) {
+      parts.push(`[${src}]\n${content}`);
+    }
+  }
+  return parts.join("\n\n");
+}
+
+// --- Load existing tasks for dedup context ---
+function loadExistingTasksSummary() {
+  const tasksDir = path.join(automationRoot(), "state", "tasks");
+  if (!fs.existsSync(tasksDir)) return "(no existing tasks)";
+  const summaries = [];
+  try {
+    const files = fs.readdirSync(tasksDir).filter(f => /^T-\d+\.json$/.test(f));
+    for (const f of files) {
+      try {
+        const t = JSON.parse(fs.readFileSync(path.join(tasksDir, f), "utf8"));
+        summaries.push(`- ${t.task_id}: "${t.title}" [${t.lane_type}] (${t.status || "unknown"})`);
+      } catch (_) {}
+    }
+  } catch (_) {}
+  return summaries.length > 0 ? summaries.join("\n") : "(no existing tasks)";
+}
+
+const truthContext = loadTruthFiles();
+const existingTasksSummary = loadExistingTasksSummary();
+
 const resultText = readTaskArtifact(resultRel);
 const specText = task.spec_path ? readTaskArtifact(task.spec_path) : "";
 const reviewText = task.review_path ? readTaskArtifact(task.review_path) : "";
@@ -47,12 +105,18 @@ const briefText = task.brief_path ? readTaskArtifact(task.brief_path) : "";
 
 let changedFiles = "";
 try {
-  changedFiles = execSync(
-    `git -C "${root}" diff --name-only main...${task.branch_name}`,
-    { encoding: "utf8" }
-  );
+  if (task.branch_name) {
+    changedFiles = execSync(
+      `git -C "${root}" diff --name-only main...${task.branch_name}`,
+      { encoding: "utf8" }
+    );
+  } else {
+    // Fallback: use written_files from task state if no branch
+    console.warn(`[propose-followups] WARNING: No branch_name for ${taskId}, using written_files from task state`);
+    changedFiles = (task.written_files || []).join("\n");
+  }
 } catch {
-  changedFiles = "";
+  changedFiles = (task.written_files || []).join("\n");
 }
 
 const instructions = `You are the lead architect continuing a patch-based development plan.
@@ -62,9 +126,15 @@ Do not propose broad refactors unless clearly necessary.
 Prefer small, reviewable follow-up tasks.
 If no follow-up task is needed, say so explicitly.
 
-CRITICAL: Distinguish between:
+CRITICAL RULES:
 1. Spawnable follow-up tasks — safe work that can proceed without owner input
 2. Decision blockers — questions that require owner/maintainer decision before further implementation
+3. DEDUPLICATION: You are given a list of ALL existing tasks below. Do NOT propose a follow-up
+   that duplicates or substantially overlaps with any existing task. If the work is already
+   covered, skip it or note it as "already handled by T-XXXX".
+4. EXECUTOR REPORT PRIORITY: The executor result report is your PRIMARY input. It tells you
+   exactly what was done, what was NOT done, what issues were discovered, and what the executor
+   recommends as follow-ups. Weight this heavily.
 
 If any follow-up requires an owner decision, emit it in the "Decision blockers" section using:
 
@@ -74,7 +144,22 @@ If any follow-up requires an owner decision, emit it in the "Decision blockers" 
 - blocking_scope: task | goal | system
 - options: option A, option B, option C
 - recommended_default:
-- urgency: high | medium | low`;
+- urgency: high | medium | low
+
+FORMAT RULE (CRITICAL — parser will fail if violated):
+Each follow-up MUST start with a Markdown H3 heading in EXACTLY this format:
+
+### F-1
+### F-2
+
+Rules:
+- Use EXACTLY three hash marks (###), then a space, then F-<number>
+- Do NOT use bold (**F-1**) — the parser cannot read it
+- Do NOT use #### (four hashes) — only ### (three)
+- Do NOT use numbered lists (1. F-1) — only ### headings
+- The ### F-N heading must be on its own line with nothing before it
+- You may add a title after: ### F-1: Some title (that is fine)
+- Each field must be on its own line starting with "- field_name: value"`;
 
 const input = `
 Current completed task:
@@ -104,34 +189,38 @@ In "Candidate follow-up tasks", use this repeated format per candidate:
 - priority:
 - should_spawn_now:
 
-Truth docs:
+---
 
-[docs/DOMAIN_MODEL.md]
-${readRepoFile("docs/DOMAIN_MODEL.md")}
+## EXECUTOR RESULT REPORT (PRIMARY INPUT — read this first!)
+${resultText || "(no executor report available)"}
 
-[docs/INVARIANTS.md]
-${readRepoFile("docs/INVARIANTS.md")}
+---
 
-[docs/ARCHITECTURE.md]
-${readRepoFile("docs/ARCHITECTURE.md")}
+## Existing tasks (DO NOT duplicate these):
+${existingTasksSummary}
 
-Task spec:
-${specText}
+---
 
-Task review:
-${reviewText}
+Task spec (summary — focus on acceptance criteria):
+${specText ? specText.substring(0, 3000) + (specText.length > 3000 ? "\n...(truncated)" : "") : "(no spec)"}
 
-Implementation brief:
-${briefText}
+Task review (summary):
+${reviewText ? reviewText.substring(0, 2000) + (reviewText.length > 2000 ? "\n...(truncated)" : "") : "(no review)"}
 
-Executor result report:
-${resultText}
+Implementation brief (summary):
+${briefText ? briefText.substring(0, 2000) + (briefText.length > 2000 ? "\n...(truncated)" : "") : "(no brief)"}
 
 Changed files:
 ${changedFiles}
 `;
 
-const markdown = await callOpenAI({ instructions, input, taskId, step: "propose-followups" });
+const markdown = await callLLMForStep({
+  instructions,
+  input,
+  taskId,
+  step: "propose-followups",
+  laneType: task.lane_type || "feature-lane"
+});
 
 writeRepoFile(followupPath, markdown);
 
@@ -153,21 +242,106 @@ function parseTruthy(value) {
   ].includes(v);
 }
 
-// Tolerant regex: handles \r\n, extra whitespace after heading
-const candidateBlocks = [...markdown.matchAll(/###\s+(F-\d+)\s*\r?\n([\s\S]*?)(?=\r?\n###\s+F-\d+|\r?\n##\s|$)/g)];
+// Multi-pattern matching with fallback chain for ChatGPT format variations
+// Primary: exact ### F-N (three hashes)
+const primaryBlocks = [...markdown.matchAll(/###\s+(F-\d+)[^\r\n]*\r?\n([\s\S]*?)(?=\r?\n###\s+F-\d+|\r?\n##\s|$)/g)];
 
-if (candidateBlocks.length === 0) {
-  console.warn("WARNING: No follow-up blocks (### F-N) found in output.");
-  console.warn("This may indicate an LLM format issue. Check: " + followupPath);
+// Fallback 1: #### F-N (four hashes — common ChatGPT mistake)
+const fb1Blocks = primaryBlocks.length === 0
+  ? [...markdown.matchAll(/####\s+(F-\d+)[^\r\n]*\r?\n([\s\S]*?)(?=\r?\n####\s+F-\d+|\r?\n##\s|$)/g)]
+  : [];
+
+// Fallback 2: **F-N** or **F-N:** (bold format — ChatGPT's favorite deviation)
+const fb2Blocks = (primaryBlocks.length === 0 && fb1Blocks.length === 0)
+  ? [...markdown.matchAll(/\*\*\s*(F-\d+)\s*\*\*:?[^\r\n]*\r?\n([\s\S]*?)(?=\r?\n\*\*\s*F-\d+|\r?\n##\s|$)/g)]
+  : [];
+
+// Fallback 3: numbered/bulleted list "1. F-1:" or "- F-1:"
+const fb3Blocks = (primaryBlocks.length === 0 && fb1Blocks.length === 0 && fb2Blocks.length === 0)
+  ? [...markdown.matchAll(/(?:^|\n)[-\d.]+\s*(F-\d+):?\s*[^\r\n]*\r?\n([\s\S]*?)(?=\r?\n[-\d.]+\s*F-\d+|\r?\n##\s|$)/g)]
+  : [];
+
+// Fallback 4: bare "F-N" on its own line (no heading/bold/list prefix — ChatGPT sometimes does this)
+const prevFound = primaryBlocks.length > 0 || fb1Blocks.length > 0 || fb2Blocks.length > 0 || fb3Blocks.length > 0;
+const fb4Blocks = !prevFound
+  ? [...markdown.matchAll(/(?:^|\n\n)(F-\d+)\s*\r?\n([\s\S]*?)(?=\r?\n\n\s*F-\d+\s*\r?\n|\r?\n##\s|$)/g)]
+  : [];
+
+// Fallback 5: rescue — any line containing "F-N" followed by structured fields (title:, lane_type:, etc.)
+const anyFound = prevFound || fb4Blocks.length > 0;
+const fb5Blocks = !anyFound
+  ? [...markdown.matchAll(/(?:^|\n).*?(F-\d+).*?\r?\n((?:[\s\S]*?(?:title|lane_type|rationale|executor)[\s\S]*?))(?=\n.*?F-\d+.*?\r?\n|\n##\s|$)/g)]
+  : [];
+
+const candidateBlocks = primaryBlocks.length > 0 ? primaryBlocks
+  : fb1Blocks.length > 0 ? fb1Blocks
+  : fb2Blocks.length > 0 ? fb2Blocks
+  : fb3Blocks.length > 0 ? fb3Blocks
+  : fb4Blocks.length > 0 ? fb4Blocks
+  : fb5Blocks;
+
+const usedFallback = primaryBlocks.length === 0 && candidateBlocks.length > 0;
+if (usedFallback) {
+  const fmt = fb1Blocks.length > 0 ? "#### (4 hashes)"
+    : fb2Blocks.length > 0 ? "**bold**"
+    : fb3Blocks.length > 0 ? "list format"
+    : fb4Blocks.length > 0 ? "bare F-N"
+    : "rescue (loose match)";
+  console.warn(`[propose-followups] WARNING: F-N blocks found via fallback parser (${fmt}). LLM did not use the required ### F-N format.`);
 }
 
-const proposals = candidateBlocks.map((m, idx) => {
+if (candidateBlocks.length === 0) {
+  // Last resort: if the response says "no follow-up needed" or similar, treat as zero proposals (not an error)
+  const noFollowupPatterns = /no follow[- ]?up|no additional|none needed|no tasks? (needed|required|necessary)/i;
+  if (noFollowupPatterns.test(markdown)) {
+    console.log(`[propose-followups] LLM indicated no follow-ups needed for ${taskId}. Writing empty proposals.`);
+    // Write empty proposals array and mark task as done
+    const _autoRoot = automationRoot();
+    const _proposalsDir = path.join(_autoRoot, "state", "proposals");
+    fs.mkdirSync(_proposalsDir, { recursive: true });
+    const emptyProposal = {
+      proposal_id: `FP-${taskId}-none`,
+      parent_task_id: taskId,
+      followups: [],
+      raw_markdown: markdown,
+      created_at: new Date().toISOString()
+    };
+    fs.writeFileSync(path.join(_proposalsDir, `FP-${taskId}-none.json`), JSON.stringify(emptyProposal, null, 2));
+    // Update task state to FOLLOWUPS_PROPOSED
+    const _taskFile = path.join(_autoRoot, "state", "tasks", `${taskId}.json`);
+    const tfDone = JSON.parse(fs.readFileSync(_taskFile, "utf8"));
+    if (tfDone) {
+      tfDone.state = "FOLLOWUPS_PROPOSED";
+      tfDone.updated_at = new Date().toISOString();
+      fs.writeFileSync(_taskFile, JSON.stringify(tfDone, null, 2));
+    }
+    console.log(`[propose-followups] ${taskId}: no follow-ups → FOLLOWUPS_PROPOSED`);
+    process.exit(0);
+  }
+
+  const errMsg = `No follow-up blocks (### F-N) found in LLM output (tried 6 format variants). This usually means the response is malformed, truncated, or the prompt was pasted instead of the response. Check: ${followupPath}`;
+  console.error("[propose-followups] FATAL: " + errMsg);
+  throw new Error(errMsg);
+}
+
+// Deduplicate: if the same F-N appears multiple times (e.g. in "Candidate" AND "Recommended"),
+// keep only the first occurrence (which has the structured fields).
+const seenIds = new Set();
+const uniqueBlocks = candidateBlocks.filter(m => {
+  const id = m[1];
+  if (seenIds.has(id)) return false;
+  seenIds.add(id);
+  return true;
+});
+
+const proposals = uniqueBlocks.map((m, idx) => {
   const id = m[1];
   const body = m[2];
 
   function field(name) {
     const patterns = [
       new RegExp(`-\\s+${name}:\\s*(.*)`, "i"),
+      new RegExp(`[•\\*]\\s*${name}:\\s*(.*)`, "i"),  // Unicode bullet or asterisk
       new RegExp(`\\*\\*${name}\\*\\*:\\s*(.*)`, "i"),
       new RegExp(`${name}:\\s*(.*)`, "i")
     ];
@@ -178,17 +352,45 @@ const proposals = candidateBlocks.map((m, idx) => {
     return "";
   }
 
+  // Robust title extraction: try field() first, then fall back to first non-empty text line after heading
+  let title = field("title");
+  if (!title) {
+    // Try: first line that has meaningful text (not just a field label like "- lane_type:")
+    const lines = body.split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Skip empty lines, field lines (- key: value or **key**: value), and markdown artifacts
+      if (!trimmed) continue;
+      if (/^-\s+\w[\w_]*\s*:/.test(trimmed)) continue;
+      if (/^\*\*\w/.test(trimmed)) continue;
+      if (/^```/.test(trimmed)) continue;
+      // Use this as the title (strip leading - or * if present)
+      title = trimmed.replace(/^[-*]\s*/, "").trim();
+      if (title) break;
+    }
+  }
+  // Final fallback: use the F-N id itself
+  if (!title) title = `Follow-up ${id}`;
+
+  // Robust should_spawn_now: also check for "yes" embedded in longer text
+  let shouldSpawn = parseTruthy(field("should_spawn_now"));
+  if (!shouldSpawn && !field("should_spawn_now")) {
+    // If field was empty, check if there's a "spawn" field with yes/true
+    const spawnField = field("spawn");
+    if (spawnField) shouldSpawn = parseTruthy(spawnField);
+  }
+
   return {
     proposal_id: `${taskId}-${id}`,
     parent_task_id: taskId,
-    title: field("title"),
+    title,
     lane_type: field("lane_type") || "feature-lane",
     executor: field("executor") || "codex",
     rationale: field("rationale"),
     smallest_safe_scope: field("smallest_safe_scope"),
     depends_on: field("depends_on"),
     priority: field("priority") || "normal",
-    should_spawn_now: parseTruthy(field("should_spawn_now")),
+    should_spawn_now: shouldSpawn,
     created_at: new Date().toISOString(),
     index: idx + 1
   };
