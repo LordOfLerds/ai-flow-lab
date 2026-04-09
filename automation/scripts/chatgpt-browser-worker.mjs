@@ -21,9 +21,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { listProjects } from "./project-registry.mjs";
 
 const AUTOMATION_ROOT = process.cwd();
-const QUEUE_DIR = path.join(AUTOMATION_ROOT, "state", "prompts-queue");
 const PROFILE_DIR = path.join(AUTOMATION_ROOT, "state", ".chatgpt-profile");
 const POLL_INTERVAL = 3000; // ms between queue checks
 const RESPONSE_TIMEOUT = 300000; // 5 min max wait for ChatGPT response
@@ -31,6 +31,18 @@ const HEADED = process.argv.includes("--headed");
 
 // ChatGPT URL — project-specific chat or default
 const CHATGPT_URL = process.env.CHATGPT_CHAT_URL || "https://chatgpt.com/";
+
+// Collect all queue dirs: own + registered projects
+function getAllQueueDirs() {
+  const dirs = [path.join(AUTOMATION_ROOT, "state", "prompts-queue")];
+  try {
+    for (const p of listProjects()) {
+      const d = path.join(p.automation_path, "state", "prompts-queue");
+      if (fs.existsSync(d) && !dirs.includes(d)) dirs.push(d);
+    }
+  } catch {}
+  return dirs;
+}
 
 let browser = null;
 let page = null;
@@ -198,27 +210,28 @@ async function sendPromptAndGetResponse(promptText) {
 // ─── Queue Processing ───
 
 function findPendingPrompts() {
-  if (!fs.existsSync(QUEUE_DIR)) return [];
-
-  const files = fs.readdirSync(QUEUE_DIR);
   const pending = [];
 
-  for (const file of files) {
-    if (!file.endsWith(".meta.json")) continue;
+  for (const queueDir of getAllQueueDirs()) {
+    if (!fs.existsSync(queueDir)) continue;
 
-    try {
-      const meta = JSON.parse(fs.readFileSync(path.join(QUEUE_DIR, file), "utf8"));
-      if (meta.status !== "pending") continue;
+    const files = fs.readdirSync(queueDir);
+    for (const file of files) {
+      if (!file.endsWith(".meta.json")) continue;
 
-      // Check that prompt file exists and response doesn't
-      const promptFile = path.join(QUEUE_DIR, meta.promptFile);
-      const responseFile = path.join(QUEUE_DIR, meta.responseFile);
+      try {
+        const meta = JSON.parse(fs.readFileSync(path.join(queueDir, file), "utf8"));
+        if (meta.status !== "pending") continue;
 
-      if (fs.existsSync(promptFile) && !fs.existsSync(responseFile)) {
-        pending.push({ meta, metaFile: file, promptFile, responseFile });
+        const promptFile = path.join(queueDir, meta.promptFile);
+        const responseFile = path.join(queueDir, meta.responseFile);
+
+        if (fs.existsSync(promptFile) && !fs.existsSync(responseFile)) {
+          pending.push({ meta, metaFile: file, promptFile, responseFile, queueDir });
+        }
+      } catch {
+        // Skip malformed meta files
       }
-    } catch {
-      // Skip malformed meta files
     }
   }
 
@@ -227,10 +240,11 @@ function findPendingPrompts() {
   return pending;
 }
 
-async function processPrompt({ meta, metaFile, promptFile, responseFile }) {
+async function processPrompt({ meta, metaFile, promptFile, responseFile, queueDir }) {
   const prompt = fs.readFileSync(promptFile, "utf8");
   console.log(`\n[WORKER] ═══ Processing: ${meta.id} ═══`);
   console.log(`[WORKER] Task: ${meta.taskId || "manual"}, Step: ${meta.step || "unknown"}`);
+  console.log(`[WORKER] Queue: ${path.basename(path.resolve(queueDir, "../.."))}`);
   console.log(`[WORKER] Prompt: ${prompt.length} chars`);
 
   try {
@@ -244,7 +258,7 @@ async function processPrompt({ meta, metaFile, promptFile, responseFile }) {
     fs.writeFileSync(responseFile, response);
 
     // Update meta
-    const metaPath = path.join(QUEUE_DIR, metaFile);
+    const metaPath = path.join(queueDir, metaFile);
     meta.status = "completed";
     meta.completedAt = new Date().toISOString();
     meta.workerType = "chatgpt-browser";
@@ -255,7 +269,7 @@ async function processPrompt({ meta, metaFile, promptFile, responseFile }) {
     console.error(`[WORKER] ✗ Failed: ${meta.id}: ${err.message}`);
 
     // Mark as failed in meta (don't retry automatically)
-    const metaPath = path.join(QUEUE_DIR, metaFile);
+    const metaPath = path.join(queueDir, metaFile);
     meta.status = "failed";
     meta.error = err.message;
     meta.failedAt = new Date().toISOString();
@@ -266,12 +280,17 @@ async function processPrompt({ meta, metaFile, promptFile, responseFile }) {
 // ─── Main Loop ───
 
 async function main() {
+  const queueDirs = getAllQueueDirs();
   console.log("╔═══════════════════════════════════════════════╗");
   console.log("║  ChatGPT Browser Worker                      ║");
   console.log("╚═══════════════════════════════════════════════╝");
-  console.log(`  Queue: ${QUEUE_DIR}`);
   console.log(`  Mode: ${HEADED ? "headed (visible)" : "headless"}`);
   console.log(`  Chat: ${CHATGPT_URL}`);
+  console.log(`  Queues (${queueDirs.length}):`);
+  for (const d of queueDirs) {
+    const project = path.basename(path.resolve(d, "../.."));
+    console.log(`    - ${project}: ${d}`);
+  }
   console.log("");
 
   await launchBrowser();

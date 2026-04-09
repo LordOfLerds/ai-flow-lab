@@ -17,13 +17,31 @@ echo "════════════════════════�
 
 cd "$AUTOMATION_DIR"
 
-# Load .env
+# Load base .env
 if [ -f .env ]; then
   set -a
   source .env
   set +a
-  echo "✓  Loaded .env (CHATGPT_CHAT_URL=${CHATGPT_CHAT_URL:-not set})"
+  echo "✓  Loaded base .env"
 fi
+
+# Load active project .env (overrides base, e.g. CHATGPT_CHAT_URL)
+REGISTRY_FILE="$AUTOMATION_DIR/state/.project-registry/registry.json"
+if [ -f "$REGISTRY_FILE" ]; then
+  # Extract active project's automation path from registry
+  ACTIVE_PATH=$(node -e "
+    const r = JSON.parse(require('fs').readFileSync('$REGISTRY_FILE','utf8'));
+    const p = r.projects.find(p=>p.id===r.active_project) || r.projects[0];
+    if(p) console.log(p.automation_path);
+  " 2>/dev/null)
+  if [ -n "$ACTIVE_PATH" ] && [ -f "$ACTIVE_PATH/.env" ]; then
+    set -a
+    source "$ACTIVE_PATH/.env"
+    set +a
+    echo "✓  Loaded project .env from $(basename "$(dirname "$ACTIVE_PATH")")"
+  fi
+fi
+echo "   CHATGPT_CHAT_URL=${CHATGPT_CHAT_URL:-not set}"
 
 # Check if profile exists (first run = headed)
 PROFILE_DIR="$AUTOMATION_DIR/state/.chatgpt-profile"
