@@ -9,6 +9,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let automationRoot = path.dirname(__dirname);
 
+// The UI directory is ALWAYS from the server's own automation root (where serve-dashboard.mjs lives).
+// This ensures project switches don't load a stale/different dashboard from the target project.
+const _serverUIDir = path.join(automationRoot, "ui");
+
 // Non-blocking exec wrapper — prevents server from freezing during long step executions
 function execAsync(cmd, opts = {}) {
   return new Promise((resolve, reject) => {
@@ -82,7 +86,9 @@ function getStateDir() {
 }
 
 function getUIDir() {
-  return path.join(automationRoot, "ui");
+  // Always serve UI from the server's own automation root, not the active project's.
+  // The dashboard is part of the tool, not the target project.
+  return _serverUIDir;
 }
 
 function parseJsonBody(req) {

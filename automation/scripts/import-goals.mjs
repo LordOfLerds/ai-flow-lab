@@ -16,8 +16,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const automationRoot = path.resolve(__dirname, "..");
-const stateDir = path.join(automationRoot, "state");
+// Allow override via env or --state-dir flag for multi-project support
+const stateDirArg = process.argv.find(a => a.startsWith("--state-dir="));
+const automationRoot = process.env.AUTOMATION_ROOT || path.resolve(__dirname, "..");
+const stateDir = stateDirArg
+  ? stateDirArg.split("=")[1]
+  : path.join(automationRoot, "state");
 const goalsDir = path.join(stateDir, "goals");
 const tasksDir = path.join(stateDir, "tasks");
 
@@ -101,16 +105,28 @@ for (const goal of goals) {
       const executor = executorMap[task.lane_type] || "codex";
 
       const taskState = {
-        id: taskId,
+        task_id: taskId,
         title: task.title,
         description: task.description || "",
         acceptance_criteria: task.acceptance_criteria || [],
         lane_type: laneType,
         executor,
         state: "NEW",
+        parent_task_id: null,
         parent_goal_id: goalId,
+        runtime_status: null,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        current_step: null,
+        spec_path: null,
+        review_path: null,
+        brief_path: null,
+        last_error: null,
+        failed_step: null,
+        result_path: null,
+        written_files: [],
+        guardrail_result: null,
+        followup_path: null
       };
 
       fs.writeFileSync(
