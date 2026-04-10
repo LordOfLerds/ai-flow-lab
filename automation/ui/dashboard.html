@@ -1686,18 +1686,37 @@ async function goalConvertToTasks(goalId) {
     const lastAssistantMsg = [...chat].reverse().find(m => m.role === 'assistant' && !m.isPrompt);
     if (!lastAssistantMsg) { toast('No assistant response to convert', 'warning'); return; }
 
-    // Parse tasks from the message (look for **Title** (type) pattern or numbered list)
+    // Parse tasks from the message — tolerant parser supports multiple formats:
+    // 1. **Title** (type) — Description
+    // 2. • Title (type) — Description. Dependencies: ...
+    // 3. - Title (type) — Description
+    // 4. Numbered: 1. Title (type) — Description
     const lines = lastAssistantMsg.content.split('\n');
     const taskCandidates = [];
     lines.forEach(line => {
-        const match = line.match(/\*\*(.+?)\*\*\s*\((\w+)\)\s*[—–-]\s*(.*)/);
+        const trimmed = line.replace(/^\s*[-•*\d.)\]]+\s*/, '').trim(); // strip bullet/number prefix
+        if (!trimmed) return;
+        // Pattern 1: **Bold Title** (type) — desc
+        let match = trimmed.match(/\*\*(.+?)\*\*\s*\(([^)]+)\)\s*[—–-]\s*(.*)/);
+        if (!match) {
+            // Pattern 2: Title (type) — desc (no bold)
+            match = trimmed.match(/^(.+?)\s*\(([^)]+)\)\s*[—–-]\s*(.*)/);
+        }
         if (match) {
-            taskCandidates.push({title: match[1], type: match[2], desc: match[3]});
+            let desc = match[3] || '';
+            let deps = '';
+            // Extract Dependencies: field from description
+            const depMatch = desc.match(/\bDependenc(?:y|ies)\s*:\s*(.*)/i);
+            if (depMatch) {
+                deps = depMatch[1].trim();
+                desc = desc.substring(0, depMatch.index).replace(/[.;,\s]+$/, '').trim();
+            }
+            taskCandidates.push({title: match[1].trim(), type: match[2].trim(), desc, deps});
         }
     });
 
     if (!taskCandidates.length) {
-        toast('Could not parse tasks from the response. Create tasks manually.', 'warning');
+        toast('Could not parse tasks from the response. Expected format: Title (type) — Description', 'warning');
         return;
     }
 
@@ -1705,9 +1724,11 @@ async function goalConvertToTasks(goalId) {
     for (const tc of taskCandidates) {
         const num = nextTaskNum();
         const taskId = `T-${num}`;
-        const laneType = (['feature','bug','docs','test','refactor','chore','slice','analysis','danger'].includes(tc.type) ? tc.type : 'feature') + '-lane';
+        const typeNorm = tc.type.toLowerCase().replace(/[-_\s]+lane$/,'').replace(/[-_\s]/g,'');
+        const laneType = (['feature','bug','docs','test','refactor','chore','slice','analysis','danger'].includes(typeNorm) ? typeNorm : 'feature') + '-lane';
+        const fullDesc = tc.deps ? `${tc.desc}\n\nDependencies: ${tc.deps}` : tc.desc;
         try {
-            await fetch('/api/tasks/create', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskId, title:tc.title, description:tc.desc, laneType, executor:'codex', parentGoalId:goalId})});
+            await fetch('/api/tasks/create', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskId, title:tc.title, description:fullDesc, laneType, executor:'codex', parentGoalId:goalId})});
             created++;
         } catch(e) { console.error('Failed to create task:', e); }
     }
