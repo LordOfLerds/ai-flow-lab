@@ -566,7 +566,37 @@ const $ = id => document.getElementById(id);
 const fmt = n => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'k' : n.toString();
 const fmtDate = d => { const x = new Date(d), diff = Date.now() - x; return diff < 60000 ? 'just now' : diff < 3600000 ? Math.floor(diff/60000)+'m ago' : diff < 86400000 ? Math.floor(diff/3600000)+'h ago' : x.toLocaleDateString(); };
 function toast(msg, type='info') { const c=$('toast-container'), t=document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=`<span>${{success:'\u2713',error:'\u2717',warning:'\u26A0',info:'\u2139'}[type]||'\u2139'}</span><span>${msg}</span>`; c.appendChild(t); setTimeout(()=>t.remove(),3000); }
-function parseMd(md) { if(!md)return''; return '<div class="markdown-viewer">'+md.replace(/^### (.*?)$/gm,'<h3>$1</h3>').replace(/^## (.*?)$/gm,'<h2>$1</h2>').replace(/^# (.*?)$/gm,'<h1>$1</h1>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>').replace(/^- (.*?)$/gm,'<li>$1</li>').replace(/\n\n/g,'<br><br>')+'</div>'; }
+function parseMd(md) {
+    if(!md)return'';
+    // 1. Extract fenced code blocks before escaping
+    const codeBlocks = [];
+    let safe = md.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+        codeBlocks.push(`<pre style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;overflow-x:auto;margin:8px 0;"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-primary);">${escHtml(code.trim())}</code></pre>`);
+        return `\x00CB${codeBlocks.length-1}\x00`;
+    });
+    // 2. Extract inline code before escaping
+    const inlineCodes = [];
+    safe = safe.replace(/`([^`]+)`/g, (_, code) => {
+        inlineCodes.push(`<code style="background:rgba(0,0,0,0.25);padding:1px 5px;border-radius:3px;font-size:0.9em;">${escHtml(code)}</code>`);
+        return `\x00IC${inlineCodes.length-1}\x00`;
+    });
+    // 3. HTML-escape the rest (XSS protection)
+    safe = escHtml(safe);
+    // 4. Apply markdown transforms
+    safe = safe
+        .replace(/^### (.*?)$/gm,'<h3 style="margin:10px 0 4px;font-size:14px;">$1</h3>')
+        .replace(/^## (.*?)$/gm,'<h2 style="margin:12px 0 6px;font-size:16px;">$1</h2>')
+        .replace(/^# (.*?)$/gm,'<h1 style="margin:14px 0 8px;font-size:18px;">$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g,'<em>$1</em>')
+        .replace(/^- (.*?)$/gm,'<li style="margin-left:16px;">$1</li>')
+        .replace(/((?:<li[^>]*>.*?<\/li>\s*)+)/g,'<ul style="list-style:disc;padding-left:8px;margin:4px 0;">$1</ul>')
+        .replace(/\n\n/g,'<br>');
+    // 5. Restore code blocks and inline code
+    safe = safe.replace(/\x00CB(\d+)\x00/g, (_, i) => codeBlocks[i]);
+    safe = safe.replace(/\x00IC(\d+)\x00/g, (_, i) => inlineCodes[i]);
+    return '<div class="markdown-viewer">'+safe+'</div>';
+}
 function openModal(id){$(id).classList.add('active')} function closeModal(id){$(id).classList.remove('active')}
 
 // ===== APP STATE =====
@@ -766,6 +796,45 @@ function render() {
         case'tests':renderTests();break; case'chatgpt':renderChatGPT();break; case'tokens':renderTokens();break; case'settings':renderSettings();break;
     }
     updateHeader();
+}
+// Safe render that preserves all user input (textarea, input, select) across innerHTML rebuilds
+function safeRender() {
+    // 1. Save all form element values keyed by ID
+    const saved = {};
+    document.querySelectorAll('textarea[id], input[id], select[id]').forEach(el => {
+        saved[el.id] = { value: el.value, tag: el.tagName.toLowerCase() };
+    });
+    // 2. Save focus state, cursor position, scroll positions
+    const activeId = document.activeElement?.id || null;
+    const selStart = document.activeElement?.selectionStart;
+    const selEnd = document.activeElement?.selectionEnd;
+    const scrollPositions = {};
+    document.querySelectorAll('[id]').forEach(el => {
+        if (el.scrollTop > 0) scrollPositions[el.id] = el.scrollTop;
+    });
+
+    render();
+
+    // 3. Restore all saved values unconditionally
+    for (const [id, info] of Object.entries(saved)) {
+        const el = document.getElementById(id);
+        if (el) el.value = info.value;
+    }
+    // 4. Restore focus and cursor position
+    if (activeId) {
+        const el = document.getElementById(activeId);
+        if (el) {
+            el.focus();
+            if (typeof selStart === 'number' && el.setSelectionRange) {
+                try { el.setSelectionRange(selStart, selEnd); } catch(_) {}
+            }
+        }
+    }
+    // 5. Restore scroll positions
+    for (const [id, top] of Object.entries(scrollPositions)) {
+        const el = document.getElementById(id);
+        if (el) el.scrollTop = top;
+    }
 }
 
 function updateHeader() {
@@ -1256,8 +1325,8 @@ function pollTaskCompletion(taskId, interval=3000) {
         if(t && t.runtime_status !== 'running' && t.runtime_status !== 'QUEUED') {
             clearInterval(poll);
             toast(`${taskId}: pipeline done → ${t.state}`, t.state==='MERGED'?'success':'warning');
-            render();
-        } else { render(); }
+            safeRender();
+        } else { safeRender(); }
     }, interval);
 }
 function pollCascadeStatus(interval=5000) {
@@ -1268,12 +1337,12 @@ function pollCascadeStatus(interval=5000) {
             if(s.running.length === 0) {
                 clearInterval(poll);
                 toast(`Cascade complete: ${s.completed}/${s.total} tasks done`, 'success');
-                await APP.refresh(); render();
+                await APP.refresh(); safeRender();
             } else {
                 const current = s.running.map(t=>`${t.id}:${t.step}`).join(', ');
                 document.querySelector('.header-badge')?.remove();
                 toast(`Cascade: ${current}`, 'info');
-                await APP.refresh(); render();
+                await APP.refresh(); safeRender();
             }
         } catch(_) {}
     }, interval);
@@ -1457,6 +1526,18 @@ function renderGoals() {
 
 function openGoalWorkspace(goalId) {
     _activeGoalId = goalId;
+    // Hydrate chat from server state or localStorage if local cache is empty
+    if (!_goalChatHistories[goalId] || !_goalChatHistories[goalId].length) {
+        const goal = APP.goalsMap()[goalId];
+        if (goal?.chat_history?.length) {
+            _goalChatHistories[goalId] = [...goal.chat_history];
+        } else {
+            try {
+                const cached = JSON.parse(localStorage.getItem(`chat_${goalId}`) || '[]');
+                if (cached.length) _goalChatHistories[goalId] = cached;
+            } catch(_){}
+        }
+    }
     $('goal-workspace').style.display = 'block';
     renderGoalWorkspace(goalId);
     // Scroll to workspace
@@ -1495,13 +1576,17 @@ function renderGoalWorkspace(goalId) {
                 </div>
 
                 <!-- Chat messages -->
-                <div id="goal-chat-messages-${goalId}" style="max-height:400px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
-                    ${chatHistory.length ? chatHistory.map(m => `
+                <div id="goal-chat-messages-${goalId}" style="max-height:500px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+                    ${chatHistory.length ? chatHistory.map((m,mi) => `
                         <div style="display:flex;gap:10px;${m.role==='user'?'flex-direction:row-reverse;':''}">
-                            <div style="width:28px;height:28px;border-radius:50%;background:${m.role==='user'?'var(--accent)':'var(--openai)'};display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;">${m.role==='user'?'Y':'AI'}</div>
-                            <div style="max-width:80%;padding:10px 14px;border-radius:10px;font-size:12px;line-height:1.5;background:${m.role==='user'?'rgba(99,102,241,0.1)':'var(--bg-hover)'};color:var(--text-primary);">
-                                ${m.role==='assistant'&&m.isPrompt?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;">Prompt to copy &#128203;</div><div class="mono" style="white-space:pre-wrap;font-size:11px;max-height:200px;overflow-y:auto;cursor:pointer;" onclick="navigator.clipboard.writeText(this.textContent).then(()=>toast('Copied!','success'))">${m.content.replace(/</g,'&lt;')}</div>`
+                            <div style="width:28px;height:28px;border-radius:50%;background:${m.role==='user'?'var(--accent)':'var(--openai)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0;font-weight:700;">${m.role==='user'?'Y':'AI'}</div>
+                            <div style="max-width:82%;padding:10px 14px;border-radius:${m.role==='user'?'12px 12px 2px 12px':'12px 12px 12px 2px'};font-size:12px;line-height:1.6;background:${m.role==='user'?'rgba(99,102,241,0.12)':'var(--bg-hover)'};color:var(--text-primary);position:relative;">
+                                ${m.role==='assistant'&&m.isPrompt?`<div style="font-size:10px;color:var(--warning);margin-bottom:6px;font-weight:600;">&#128203; Prompt to copy into ChatGPT</div><div class="mono" style="white-space:pre-wrap;font-size:11px;max-height:200px;overflow-y:auto;cursor:pointer;background:rgba(0,0,0,0.15);padding:8px;border-radius:6px;" onclick="navigator.clipboard.writeText(this.textContent).then(()=>toast('Copied!','success'))">${m.content.replace(/</g,'&lt;')}</div>`
                                 :parseMd(m.content)}
+                                <div style="display:flex;justify-content:${m.role==='user'?'flex-end':'flex-start'};align-items:center;gap:8px;margin-top:6px;">
+                                    <span style="font-size:9px;color:var(--text-muted);">${m.time?fmtDate(m.time):''}</span>
+                                    ${m.role==='assistant'&&!m.isPrompt?`<button class="btn btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(JSON.stringify(m.content))}).then(()=>toast('Copied!','success'))" style="font-size:9px;padding:1px 6px;background:transparent;border:1px solid var(--border);color:var(--text-muted);">&#128203; Copy</button>`:''}
+                                </div>
                             </div>
                         </div>
                     `).join('') : `<div style="text-align:center;color:var(--text-muted);padding:40px;">
@@ -1572,10 +1657,18 @@ async function goalSetState(goalId, state) {
 
 function goalAddChat(goalId, role, content, isPrompt=false) {
     if (!_goalChatHistories[goalId]) _goalChatHistories[goalId] = [];
-    _goalChatHistories[goalId].push({role, content, isPrompt, time: new Date().toISOString()});
+    const msg = {role, content, isPrompt, time: new Date().toISOString()};
+    _goalChatHistories[goalId].push(msg);
     renderGoalWorkspace(goalId);
     // Scroll to bottom
     setTimeout(()=>{const el=$(`goal-chat-messages-${goalId}`);if(el)el.scrollTop=el.scrollHeight;},50);
+    // Persist to server (fire-and-forget)
+    fetch(`/api/goals/${goalId}/chat`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(msg)
+    }).catch(()=>{});
+    // localStorage fallback for instant reload
+    try { localStorage.setItem(`chat_${goalId}`, JSON.stringify(_goalChatHistories[goalId])); } catch(_){}
 }
 
 async function goalChatDecompose(goalId) {
@@ -1659,14 +1752,19 @@ async function goalChatSend(goalId) {
     if (!text) { toast('Enter a message', 'warning'); return; }
     const mode = (APP.state?.mode||'API').toUpperCase();
     goalAddChat(goalId, 'user', text);
-    input.value = '';
     if (mode === 'APP') {
-        // In APP mode, user sends custom prompts — generate the prompt format
+        input.value = '';
         goalAddChat(goalId, 'assistant', text, true);
         toast('Copy this prompt into ChatGPT', 'info');
     } else {
-        await fetch('/api/chatgpt/queue', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:text, taskId:goalId, step:'manual'})});
-        goalAddChat(goalId, 'assistant', '✅ Prompt sent to API queue.');
+        try {
+            await fetch('/api/chatgpt/queue', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:text, taskId:goalId, step:'manual'})});
+            input.value = '';
+            goalAddChat(goalId, 'assistant', '✅ Prompt sent to API queue.');
+        } catch(e) {
+            toast('Failed to send: ' + e.message, 'error');
+            // Don't clear input — user can retry
+        }
     }
 }
 
@@ -2555,28 +2653,59 @@ function renderDecisions() {
     const dps = APP.state?.decision_proposals || [];
     const open = dps.filter(d=>d.status!=='resolved');
     const resolved = dps.filter(d=>d.status==='resolved');
+
+    function renderComments(p) {
+        const comments = p.comments || [];
+        const attachments = p.attachments || [];
+        return `
+            ${comments.length ? `<div style="margin:10px 0;border-top:1px solid var(--border);padding-top:8px;">
+                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:6px;">Comments (${comments.length})</div>
+                ${comments.map(c=>`<div style="background:var(--bg-hover);padding:8px;border-radius:6px;margin-bottom:4px;font-size:12px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-weight:600;color:var(--text-primary);">${escHtml(c.author||'user')}</span>
+                        <span style="color:var(--text-muted);font-size:10px;">${c.created_at?fmtDate(c.created_at):''}</span>
+                    </div>
+                    <div style="color:var(--text-secondary);white-space:pre-wrap;">${escHtml(c.text)}</div>
+                </div>`).join('')}
+            </div>` : ''}
+            ${attachments.length ? `<div style="margin:6px 0;">
+                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Attachments</div>
+                ${attachments.map(a=>`<a href="/api/decisions/${p.decision_proposal_id}/attachment/${a.filename}" target="_blank" style="display:inline-block;font-size:11px;color:var(--accent);margin-right:8px;padding:3px 8px;background:var(--bg-hover);border-radius:4px;">&#128206; ${escHtml(a.filename)} (${fmt(a.size||0)}B)</a>`).join('')}
+            </div>` : ''}
+            <div style="margin-top:8px;display:flex;gap:6px;align-items:flex-start;">
+                <textarea class="form-textarea" id="comment-${p.decision_proposal_id}" style="min-height:36px;font-size:11px;flex:1;" placeholder="Add question or comment..."></textarea>
+                <button class="btn btn-sm" onclick="addDPComment('${p.decision_proposal_id}')" style="font-size:10px;padding:6px 12px;white-space:nowrap;">Add</button>
+            </div>
+            <div id="drop-${p.decision_proposal_id}" style="margin-top:6px;padding:12px;border:2px dashed var(--border);border-radius:8px;text-align:center;font-size:11px;color:var(--text-muted);cursor:pointer;transition:all 0.2s;"
+                ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(99,102,241,0.05)';"
+                ondragleave="this.style.borderColor='var(--border)';this.style.background='none';"
+                ondrop="event.preventDefault();this.style.borderColor='var(--border)';this.style.background='none';handleDPFileDrop(event,'${p.decision_proposal_id}');"
+                onclick="dpFileSelect('${p.decision_proposal_id}')">
+                &#128206; Drop files here or click to attach
+            </div>`;
+    }
+
     $('open-proposals').innerHTML = open.length ? open.map(p=>{
         const isClarification = p.type === 'clarification';
-        const headerColor = isClarification ? 'rgba(59,130,246,0.15)' : '';
         const headerBorder = isClarification ? 'border-left:3px solid #3b82f6;' : '';
         const icon = isClarification ? '&#10067; ' : '';
         const taskLink = p.source_task_id ? `<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">${p.source_task_id}${p.blocked_step ? ' / '+p.blocked_step : ''}</span>` : '';
         if (isClarification) {
-            // Clarification: free-text answer instead of dropdown
             return `<div class="card" style="${headerBorder}padding:16px;">
-                <div style="font-weight:600;margin-bottom:8px;">${icon}${p.topic||'Clarification'}${taskLink}</div>
-                ${p.rationale?`<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${p.rationale}</div>`:''}
-                <div class="form-group"><label class="form-label">Your Answer</label>
+                <div style="font-weight:600;margin-bottom:8px;">${icon}${escHtml(p.topic||'Clarification')}${taskLink}</div>
+                ${p.rationale?`<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${escHtml(p.rationale)}</div>`:''}
+                ${renderComments(p)}
+                <div class="form-group" style="margin-top:10px;"><label class="form-label">Your Answer</label>
                     <textarea class="form-textarea" id="opt-${p.decision_proposal_id}" style="min-height:80px;" placeholder="Answer the question..."></textarea>
                 </div>
                 <button class="btn btn-primary" style="width:100%;" onclick="resolveClarification('${p.decision_proposal_id}')">&#10003; Answer &amp; Continue Pipeline</button>
             </div>`;
         }
-        // Regular decision: dropdown options
-        return `<div class="card">
-            <div style="font-weight:600;margin-bottom:8px;">${p.topic||p.question||'Decision'}${taskLink}</div>
-            ${p.rationale?`<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${p.rationale}</div>`:''}
-            <div class="form-group"><label class="form-label">Option</label>
+        return `<div class="card" style="padding:16px;">
+            <div style="font-weight:600;margin-bottom:8px;">${escHtml(p.topic||p.question||'Decision')}${taskLink}</div>
+            ${p.rationale?`<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${escHtml(p.rationale)}</div>`:''}
+            ${renderComments(p)}
+            <div class="form-group" style="margin-top:10px;"><label class="form-label">Option</label>
                 <select class="form-select" id="opt-${p.decision_proposal_id}"><option value="">-- Choose --</option>${(p.options||[]).map(o=>`<option value="${typeof o==='object'?o.id||o.label:o}">${typeof o==='object'?o.label:o}</option>`).join('')}</select>
             </div>
             <div class="form-group"><label class="form-label">Rationale</label><textarea class="form-textarea" id="rat-${p.decision_proposal_id}" style="min-height:60px;" placeholder="Why..."></textarea></div>
@@ -2586,9 +2715,10 @@ function renderDecisions() {
     $('resolved-decisions').innerHTML = resolved.map(p=>`
         <div class="card" style="padding:14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-weight:600;">${p.topic||p.question||'Decision'}</span>
+                <span style="font-weight:600;">${escHtml(p.topic||p.question||'Decision')}</span>
                 <span class="badge badge-success">Resolved</span>
             </div>
+            ${(p.comments||[]).length ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${p.comments.length} comment(s)</div>` : ''}
         </div>
     `).join('');
 }
@@ -2596,20 +2726,66 @@ async function resolveDP(id){
     const opt=document.getElementById('opt-'+id)?.value;
     const rat=document.getElementById('rat-'+id)?.value||'';
     if(!opt){toast('Select an option','warning');return;}
-    await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:opt,rationale:rat})});
-    toast('Resolved','success'); await APP.refresh(); render();
+    try {
+        const resp=await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:opt,rationale:rat})});
+        if(!resp.ok) throw new Error(`Server returned ${resp.status}`);
+        toast('Resolved','success'); await APP.refresh(); safeRender();
+    } catch(e) { toast('Failed to resolve: '+e.message,'error'); }
 }
 async function resolveClarification(id){
     const answer=document.getElementById('opt-'+id)?.value?.trim();
     if(!answer){toast('Please provide an answer','warning');return;}
-    await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:answer,rationale:'Clarification answer from owner'})});
-    toast('Answered — pipeline will resume','success'); await APP.refresh(); render();
+    try {
+        const resp=await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:answer,rationale:'Clarification answer from owner'})});
+        if(!resp.ok) throw new Error(`Server returned ${resp.status}`);
+        toast('Answered — pipeline will resume','success'); await APP.refresh(); safeRender();
+    } catch(e) { toast('Failed: '+e.message,'error'); }
 }
 async function resolveClarificationInline(id){
     const answer=document.getElementById('cq-'+id)?.value?.trim();
     if(!answer){toast('Please provide an answer','warning');return;}
-    await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:answer,rationale:'Clarification answer from owner'})});
-    toast('Answered — pipeline will resume','success'); await APP.refresh(); render();
+    try {
+        const resp=await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:answer,rationale:'Clarification answer from owner'})});
+        if(!resp.ok) throw new Error(`Server returned ${resp.status}`);
+        toast('Answered — pipeline will resume','success'); await APP.refresh(); safeRender();
+    } catch(e) { toast('Failed: '+e.message,'error'); }
+}
+
+async function addDPComment(id) {
+    const textEl = document.getElementById('comment-' + id);
+    const text = textEl?.value?.trim();
+    if (!text) { toast('Enter a comment', 'warning'); return; }
+    try {
+        await fetch(`/api/decisions/${id}/comment`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text, author: 'user' }) });
+        toast('Comment added', 'success');
+        textEl.value = '';
+        await APP.refresh(); safeRender();
+    } catch(e) { toast('Failed: ' + e.message, 'error'); }
+}
+async function uploadDPFile(dpId, file) {
+    try {
+        const resp = await fetch(`/api/decisions/${dpId}/attach`, {
+            method: 'POST',
+            headers: { 'Content-Type': file.type || 'application/octet-stream', 'X-Filename': encodeURIComponent(file.name) },
+            body: file
+        });
+        if (!resp.ok) throw new Error(`Upload failed: ${resp.status}`);
+        const result = await resp.json();
+        toast(`Attached: ${result.filename}`, 'success');
+        await APP.refresh(); safeRender();
+    } catch(e) { toast('Upload failed: ' + e.message, 'error'); }
+}
+function handleDPFileDrop(event, dpId) {
+    const files = event.dataTransfer?.files;
+    if (!files?.length) return;
+    for (const file of files) uploadDPFile(dpId, file);
+}
+function dpFileSelect(dpId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.onchange = () => { for (const file of input.files) uploadDPFile(dpId, file); };
+    input.click();
 }
 
 // ===== RENDER: TESTS =====
@@ -3081,26 +3257,7 @@ document.addEventListener('DOMContentLoaded', async()=>{
     navigateTo(location.hash.substring(1)||'dashboard');
     APP.timer=setInterval(async()=>{
         await APP.refresh();
-        // Save all textarea values before render (keyed by id)
-        const savedTextareas = {};
-        document.querySelectorAll('textarea[id]').forEach(ta => {
-            if (ta.value.trim()) savedTextareas[ta.id] = ta.value;
-        });
-        const activeId = document.activeElement?.id || null;
-        const wasTyping = document.activeElement && (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT');
-
-        render();
-
-        // Restore textarea values after render
-        for (const [id, val] of Object.entries(savedTextareas)) {
-            const ta = document.getElementById(id);
-            if (ta && !ta.value.trim()) ta.value = val;
-        }
-        // Re-focus if user was typing
-        if (wasTyping && activeId) {
-            const el = document.getElementById(activeId);
-            if (el) el.focus();
-        }
+        safeRender();
     },5000);
 });
 window.addEventListener('beforeunload',()=>{if(APP.timer)clearInterval(APP.timer);});

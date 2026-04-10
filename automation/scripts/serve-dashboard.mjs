@@ -710,6 +710,60 @@ cascade_limits:
     }
   },
 
+  "POST /api/decisions/:id/comment": async (req, res, params) => {
+    try {
+      const body = await parseJsonBody(req);
+      const dpId = params.id;
+      const dpDir = path.join(getStateDir(), "decision_proposals");
+      const dpFile = path.join(dpDir, `${dpId}.json`);
+      if (!fs.existsSync(dpFile)) { respondError(res, 404, "Decision proposal not found"); return; }
+      const dp = readJSON(dpFile);
+      if (!dp.comments) dp.comments = [];
+      const comment = { author: body.author || 'user', text: body.text || '', created_at: new Date().toISOString() };
+      dp.comments.push(comment);
+      dp.updated_at = new Date().toISOString();
+      fs.writeFileSync(dpFile, JSON.stringify(dp, null, 2));
+      respondJSON(res, 200, { success: true, comment });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/decisions/:id/attach": async (req, res, params) => {
+    try {
+      const dpId = params.id;
+      const dpDir = path.join(getStateDir(), "decision_proposals");
+      const dpFile = path.join(dpDir, `${dpId}.json`);
+      if (!fs.existsSync(dpFile)) { respondError(res, 404, "Decision proposal not found"); return; }
+
+      // Read raw body as file upload (multipart not needed — single file via binary body)
+      const contentType = req.headers['content-type'] || '';
+      const filename = decodeURIComponent(req.headers['x-filename'] || `attachment-${Date.now()}`);
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      const fileBuffer = Buffer.concat(chunks);
+
+      const attachDir = path.join(getStateDir(), "decision_attachments", dpId);
+      fs.mkdirSync(attachDir, { recursive: true });
+      const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const filePath = path.join(attachDir, safeName);
+      fs.writeFileSync(filePath, fileBuffer);
+
+      // Update DP JSON
+      const dp = readJSON(dpFile);
+      if (!dp.attachments) dp.attachments = [];
+      dp.attachments.push({ filename: safeName, path: path.relative(getStateDir(), filePath), size: fileBuffer.length, created_at: new Date().toISOString() });
+      dp.updated_at = new Date().toISOString();
+      fs.writeFileSync(dpFile, JSON.stringify(dp, null, 2));
+
+      respondJSON(res, 200, { success: true, filename: safeName, size: fileBuffer.length });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "GET /api/decisions/:id/attachment/:filename": (req, res, params) => {
+    const filePath = path.join(getStateDir(), "decision_attachments", params.id, params.filename);
+    if (!fs.existsSync(filePath)) { respondError(res, 404, "File not found"); return; }
+    respondFile(res, filePath);
+  },
+
   "GET /api/document": (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const relPath = url.searchParams.get("path");
@@ -1272,6 +1326,26 @@ cascade_limits:
       goal.updated_at = new Date().toISOString();
       fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2));
       respondJSON(res, 200, { success: true, goal });
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/goals/:goalid/chat": async (req, res, params) => {
+    try {
+      const body = await parseJsonBody(req);
+      const goalId = params.goalid;
+      const goalFile = path.join(getStateDir(), "goals", `${goalId}.json`);
+      if (!fs.existsSync(goalFile)) { respondError(res, 404, "Goal not found"); return; }
+      const goal = readJSON(goalFile);
+      if (!goal.chat_history) goal.chat_history = [];
+      goal.chat_history.push({
+        role: body.role || 'user',
+        content: body.content || '',
+        isPrompt: body.isPrompt || false,
+        time: body.time || new Date().toISOString()
+      });
+      goal.updated_at = new Date().toISOString();
+      fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2));
+      respondJSON(res, 200, { success: true });
     } catch (e) { respondError(res, 500, e.message); }
   },
 
