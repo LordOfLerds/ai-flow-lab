@@ -165,7 +165,7 @@ const proposals = candidateBlocks.map((m, idx) => {
     ];
     for (const r of patterns) {
       const mm = body.match(r);
-      if (mm && mm[1].trim()) return mm[1].trim();
+      if (mm && mm[1].trim()) return mm[1].trim().replace(/^\*+\s*/, '').replace(/\*+$/, '');
     }
     return "";
   }

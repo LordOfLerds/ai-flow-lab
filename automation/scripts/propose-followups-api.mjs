@@ -137,7 +137,14 @@ Return ONLY markdown.
 Do not implement code.
 Do not propose broad refactors unless clearly necessary.
 Prefer small, reviewable follow-up tasks.
-If no follow-up task is needed, say so explicitly.
+If no follow-up task is needed, you MUST still emit exactly one block in this format:
+
+### F-1
+- title: No follow-up tasks needed
+- spawn: false
+- reason: <why no follow-up is needed>
+
+Do NOT write free-form prose instead of the ### F-N format. The parser WILL fail.
 
 CRITICAL RULES:
 1. Spawnable follow-up tasks — safe work that can proceed without owner input
@@ -305,7 +312,7 @@ if (usedFallback) {
 
 if (candidateBlocks.length === 0) {
   // Last resort: if the response says "no follow-up needed" or similar, treat as zero proposals (not an error)
-  const noFollowupPatterns = /no follow[- ]?up|no additional|none needed|no tasks? (needed|required|necessary)/i;
+  const noFollowupPatterns = /no follow[- ]?up|no .{0,30}follow[- ]?up|no additional|none needed|no tasks? (needed|required|necessary)|should not spawn|no spawnable|no new .{0,20}task.{0,10}should spawn/i;
   if (noFollowupPatterns.test(markdown)) {
     console.log(`[propose-followups] LLM indicated no follow-ups needed for ${taskId}. Writing empty proposals.`);
     // Write empty proposals array and mark task as done
@@ -360,7 +367,7 @@ const proposals = uniqueBlocks.map((m, idx) => {
     ];
     for (const r of patterns) {
       const mm = body.match(r);
-      if (mm && mm[1].trim()) return mm[1].trim();
+      if (mm && mm[1].trim()) return mm[1].trim().replace(/^\*+\s*/, '').replace(/\*+$/, '');
     }
     return "";
   }

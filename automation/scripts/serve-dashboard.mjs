@@ -1827,13 +1827,105 @@ Apply the fix now.`;
       }
 
       if (action === 'accept') {
-        // Accept changes — continue to merge
+        // Accept changes — auto-continue pipeline from propose-followups
         task.state = 'IMPLEMENTED';
-        task.runtime_status = 'IDLE';
+        task.runtime_status = 'running';
         task.guardrail_result.user_decision = 'accepted';
+        task.current_step = 'propose-followups';
         task.updated_at = new Date().toISOString();
         fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
-        respondJSON(res, 200, { ok: true, taskId, action, message: 'Changes accepted. Task ready for merge — retry to continue pipeline.' });
+        respondJSON(res, 200, { ok: true, taskId, action, message: 'Changes accepted. Pipeline continuing from propose-followups.' });
+
+        // Fire-and-forget: continue pipeline from propose-followups → pr-draft → merge
+        const _acceptCtx = captureProjectContext();
+        const _acceptAutomationRoot = _acceptCtx.automationRoot;
+        const _acceptStateDir = _acceptCtx.stateDir;
+        (async () => {
+          const remainingSteps = ['propose-followups', 'pr-draft', 'merge'];
+          const scriptMap = {
+            'propose-followups': 'propose-followups-api.mjs',
+            'pr-draft': 'generate-pr-draft.mjs',
+            'merge': 'merge-task.mjs'
+          };
+          const stateAfterStep = {
+            'propose-followups': 'FOLLOWUPS_PROPOSED',
+            'pr-draft': 'PR_DRAFTED',
+            'merge': 'MERGED'
+          };
+
+          for (const stepName of remainingSteps) {
+            console.log(`[GUARDRAIL-ACCEPT] ${taskId}: ${stepName}...`);
+            try {
+              const tfc = readJSON(taskFile);
+              if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
+            } catch (_) {}
+            try {
+              await execAsync(`node ${_serverScriptsDir}/${scriptMap[stepName]} ${taskId}`, { cwd: _acceptAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_acceptCtx) });
+              const tf = readJSON(taskFile);
+              if (tf && stateAfterStep[stepName]) {
+                tf.state = stateAfterStep[stepName]; tf.current_step = stepName;
+                tf.last_error = null; tf.failed_step = null;
+                tf.updated_at = new Date().toISOString();
+                fs.writeFileSync(taskFile, JSON.stringify(tf, null, 2));
+              }
+            } catch (stepErr) {
+              const errMsg = stepErr.stderr || stepErr.stdout || stepErr.message || String(stepErr);
+              console.error(`[GUARDRAIL-ACCEPT] ${taskId}: ${stepName} FAILED:`, errMsg.substring(0, 500));
+              const tf = readJSON(taskFile);
+              if (tf) {
+                tf.runtime_status = 'FAILED';
+                tf.failed_step = stepName;
+                tf.last_error = { step: stepName, message: errMsg.substring(0, 2000), timestamp: new Date().toISOString() };
+                tf.updated_at = new Date().toISOString();
+                fs.writeFileSync(taskFile, JSON.stringify(tf, null, 2));
+              }
+              return; // Stop on failure
+            }
+          }
+
+          // Pipeline complete — set IDLE
+          const tfDone = readJSON(taskFile);
+          if (tfDone) {
+            tfDone.runtime_status = 'IDLE';
+            tfDone.updated_at = new Date().toISOString();
+            fs.writeFileSync(taskFile, JSON.stringify(tfDone, null, 2));
+          }
+          console.log(`[GUARDRAIL-ACCEPT] ${taskId}: pipeline complete → MERGED`);
+
+          // Spawn follow-up tasks if any proposals exist
+          try {
+            const proposalsDir = path.join(_acceptStateDir, "proposals");
+            if (fs.existsSync(proposalsDir)) {
+              const proposals = fs.readdirSync(proposalsDir).filter(f => f.startsWith(`${taskId}-F-`) && f.endsWith('.json'));
+              for (const pf of proposals) {
+                const prop = readJSON(path.join(proposalsDir, pf));
+                if (prop && prop.approved !== false) {
+                  const tasksDir2 = path.join(_acceptStateDir, "tasks");
+                  const existing = fs.readdirSync(tasksDir2).filter(f => f.endsWith('.json')).some(f => {
+                    const t = readJSON(path.join(tasksDir2, f));
+                    return t && t.followup_source_proposal_id === prop.proposal_id;
+                  });
+                  if (!existing) {
+                    const newId = `T-${String(fs.readdirSync(tasksDir2).filter(f=>f.match(/^T-\d+\.json$/)).length + 1).padStart(4,'0')}`;
+                    const newTask = {
+                      task_id: newId, title: prop.title, repo: prop.repo || tfDone?.repo,
+                      lane_type: prop.lane_type || 'feature-lane', executor: prop.executor || 'codex',
+                      parent_task_id: taskId, origin: 'architect-followup',
+                      state: 'NEW', runtime_status: 'IDLE',
+                      created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+                      followup_source_proposal_id: prop.proposal_id,
+                      planner_notes: prop.planner_notes || {}
+                    };
+                    fs.writeFileSync(path.join(tasksDir2, `${newId}.json`), JSON.stringify(newTask, null, 2));
+                    console.log(`[GUARDRAIL-ACCEPT] Spawned follow-up ${newId} from ${prop.proposal_id}`);
+                  }
+                }
+              }
+            }
+          } catch (spawnErr) {
+            console.error(`[GUARDRAIL-ACCEPT] Follow-up spawn error:`, spawnErr.message);
+          }
+        })().catch(err => console.error(`[GUARDRAIL-ACCEPT] Unhandled:`, err.message));
       } else if (action === 'restore') {
         // Restore snapshot and fail the task
         const snapshotFile = task.snapshot_path
@@ -2034,12 +2126,13 @@ Apply the fix now.`;
                   fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
                   return; // Stop retry cascade — user must decide
                 } else if (guardrail.level === 'yellow') {
-                  console.log(`[RETRY] ${taskId}: ⚠️  YELLOW — routing to Cowork test`);
-                  tfg.state = 'COWORK_TESTING';
+                  console.log(`[RETRY] ${taskId}: ⚠️  YELLOW — pausing for user decision`);
+                  tfg.state = 'BLOCKED_ON_DECISION';
                   tfg.runtime_status = 'IDLE';
+                  tfg.current_step = 'guardrail-review';
                   tfg.updated_at = new Date().toISOString();
                   fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
-                  // Continue to merge after yellow (Cowork test is async)
+                  return; // Stop retry cascade — user must decide (same as RED)
                 }
               }
             }
@@ -2790,7 +2883,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
 
             // Create Decision Proposal
             try {
-              const proposalsDir = path.join(_stateDir, "proposals");
+              const proposalsDir = path.join(_stateDir, "decision_proposals");
               fs.mkdirSync(proposalsDir, { recursive: true });
               const dpId = `DP-GR-${taskId}-${Date.now()}`;
               const dp = {
@@ -2819,40 +2912,50 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
           }
 
           if (guardrail.level === 'yellow') {
-            // YELLOW: Run Cowork test
-            console.log(`[CASCADE] ${taskId}: ⚠️ YELLOW — running Cowork test`);
-            tfg.state = 'COWORK_TESTING';
-            tfg.current_step = 'cowork-test';
+            // YELLOW: Pause for user decision (same as RED but with different options)
+            // User can: Accept (continue), Run Cowork Test, or Restore snapshot.
+            // Previously this auto-ran cowork-test.mjs, but that wastes API budget
+            // when the user isn't watching and can't review the results.
+            console.log(`[CASCADE] ${taskId}: ⚠️ YELLOW — pausing for user decision (Cowork test available)`);
+            tfg.state = 'BLOCKED_ON_DECISION';
+            tfg.runtime_status = 'IDLE';
+            tfg.current_step = 'guardrail-review';
             tfg.updated_at = new Date().toISOString();
             fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
 
+            // Create Decision Proposal so user sees it in the dashboard
             try {
-              await execAsync(`node ${_serverScriptsDir}/cowork-test.mjs ${taskId}`, { cwd: _automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 });
-              // cowork-test.mjs sets task state to TESTED or TEST_FAILED
-              const tfAfterTest = readJSON(taskFile);
-              if (tfAfterTest && tfAfterTest.state === 'TEST_FAILED') {
-                console.log(`[CASCADE] ${taskId}: Cowork test FAILED — stopping cascade`);
-                tfAfterTest.runtime_status = 'FAILED';
-                tfAfterTest.updated_at = new Date().toISOString();
-                fs.writeFileSync(taskFile, JSON.stringify(tfAfterTest, null, 2));
-                failedStep = 'cowork-test';
-                break;
-              }
-              console.log(`[CASCADE] ${taskId}: Cowork test PASSED — continuing to merge`);
-            } catch (testErr) {
-              console.error(`[CASCADE] ${taskId}: Cowork test execution error:`, testErr.message?.substring(0, 500));
-              const tfErr = readJSON(taskFile);
-              if (tfErr) {
-                tfErr.state = 'TEST_FAILED';
-                tfErr.failed_step = 'cowork-test';
-                tfErr.runtime_status = 'FAILED';
-                tfErr.last_error = { step: 'cowork-test', message: testErr.message?.substring(0, 2000), timestamp: new Date().toISOString() };
-                tfErr.updated_at = new Date().toISOString();
-                fs.writeFileSync(taskFile, JSON.stringify(tfErr, null, 2));
-              }
-              failedStep = 'cowork-test';
-              break;
+              const proposalsDir = path.join(getStateDir(), "decision_proposals");
+              fs.mkdirSync(proposalsDir, { recursive: true });
+              const existingDPs = fs.readdirSync(proposalsDir).filter(f => /^DP-\d+\.json$/.test(f));
+              const dpNum = existingDPs.length > 0 ? Math.max(...existingDPs.map(f => parseInt(f.match(/DP-(\d+)/)[1]))) + 1 : 1;
+              const dpId = `DP-${String(dpNum).padStart(4, '0')}`;
+              const dp = {
+                decision_proposal_id: dpId,
+                source_task_id: taskId,
+                source_goal_id: tfg.parent_goal_id || '',
+                topic: `Guardrail YELLOW: ${guardrail.issues.map(i => i.reason).join('; ').substring(0, 200)}`,
+                rationale: `Execute step completed but guardrail detected minor issues. Review and decide how to proceed.`,
+                blocking_scope: taskId,
+                task_id: taskId,
+                severity: 'yellow',
+                issues: guardrail.issues,
+                options: [
+                  { id: 'accept', label: 'Accept Changes', action: 'continue_to_merge' },
+                  { id: 'test', label: 'Run Cowork Test', action: 'run_cowork_test' },
+                  { id: 'restore', label: 'Restore Snapshot', action: 'restore_and_fail' }
+                ],
+                status: 'open',
+                created_at: new Date().toISOString()
+              };
+              fs.writeFileSync(path.join(proposalsDir, `${dpId}.json`), JSON.stringify(dp, null, 2));
+              console.log(`[CASCADE] ${taskId}: Created Decision Proposal ${dpId} for YELLOW guardrail`);
+            } catch (dpErr) {
+              console.error(`[CASCADE] Failed to create Decision Proposal for YELLOW:`, dpErr.message);
             }
+
+            // Stop cascade — user must decide
+            break;
           }
         }
       }
