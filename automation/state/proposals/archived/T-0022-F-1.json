@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0022-F-1",
+  "parent_task_id": "T-0022",
+  "title": "Document CI environment setup for the headless Chrome Start UI smoke test",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "rationale": "The executor identified a useful next step that does not require product-owner decisions: documenting how the already-existing Chrome discovery/provisioning flow should be run in CI environments such as GitHub Actions or containers. This extends the newly added test documentation without changing implementation.",
+  "smallest_safe_scope": "Add a focused CI section or companion doc describing verified repository-supported setup for running the existing headless Start UI smoke test in CI-like environments, including confirmed invocation path, environment expectations, and known troubleshooting boundaries.",
+  "depends_on": "T-0022",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:54:26.015Z",
+  "index": 1
+}

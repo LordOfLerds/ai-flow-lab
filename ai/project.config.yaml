@@ -1,11 +1,10 @@
 project_name: ai-flow-lab
-
 truth_sources:
-  - docs/DOMAIN_MODEL.md
-  - docs/INVARIANTS.md
-  - docs/ARCHITECTURE.md
-  - docs/ADR/
-
+  - CLAUDE.md
+  - AGENTS.md
+entry_points:
+  - index.html
+  - game.html
 lanes:
   analysis-lane:
     default_executor: claude
@@ -24,8 +23,42 @@ lanes:
     read_only: false
     branch_prefix: danger/
     requires_human_before_pr: true
-
+  docs-lane:
+    default_executor: claude
+    read_only: false
+    branch_prefix: docs/
+  test-lane:
+    default_executor: codex
+    read_only: false
+    branch_prefix: test/
 human_gates:
   before_merge_main: true
   before_prod_deploy: true
   before_destructive_migration: true
+
+cascade:
+  max_depth: 3
+  max_followups_per_task: 2
+  max_total_tasks: 8
+
+executor_routing:
+  default:
+    architect: openai
+    critique: gemini
+    synthesize: openai
+    execute: codex
+    followups: openai
+    pr_draft: openai
+  overrides:
+    bug-lane:
+      critique: claude
+      execute: claude
+    danger-lane:
+      critique: claude
+      execute: claude
+    docs-lane:
+      execute: claude
+    analysis-lane:
+      critique: claude
+      synthesize: claude
+      execute: claude

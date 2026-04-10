@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0026-F-1",
+  "parent_task_id": "T-0026",
+  "title": "Follow-up F-1",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "** Users expect keyboard shortcuts for common game actions.",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "** medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T22:42:12.317Z",
+  "index": 1
+}

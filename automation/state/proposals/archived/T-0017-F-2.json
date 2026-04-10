@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0017-F-2",
+  "parent_task_id": "T-0017",
+  "title": "Add headless browser regression for live HUD score synchronization",
+  "lane_type": "test-lane",
+  "executor": "codex",
+  "rationale": "The executor explicitly noted that coverage remains at the unit level. A small browser-level test would verify module loading, score updates, and DOM synchronization in the real page, protecting against integration regressions not caught by `score-tracker.test.js`.",
+  "smallest_safe_scope": "Add one headless browser test that loads `automation/ui/game.html`, exercises a minimal scoring progression path, and asserts the visible HUD score matches the underlying score state before and after no-progress and forward-progress steps.",
+  "depends_on": "T-0017",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:03:41.991Z",
+  "index": 2
+}

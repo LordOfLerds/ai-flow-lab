@@ -1,0 +1,29 @@
+{
+  "task_id": "T-0009",
+  "title": "Player falls through platform edges",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "bug/T-0009-player-falls-through-platform-edges",
+  "worktree_path": "../wt/T-0009",
+  "spec_path": "ai/specs/T-0009_spec.md",
+  "review_path": "ai/reviews/T-0009_gemini_review.md",
+  "brief_path": "ai/briefs/T-0009_implementation.md",
+  "result_path": "ai/results/T-0009_result.md",
+  "followup_path": "ai/followups/T-0009_followups.md",
+  "owner_lock": "task:T-0009",
+  "created_at": "2026-04-07T07:22:05.217Z",
+  "updated_at": "2026-04-07T07:23:05.392Z",
+  "description": "When the player lands on the very edge of a platform, they sometimes clip through and fall. The collision detection needs to handle edge cases for partial overlap.",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "written_files": [],
+  "open_decisions": [
+    "DP-0002"
+  ],
+  "pr_draft_path": "ai/pr/T-0009_pr_draft.md"
+}

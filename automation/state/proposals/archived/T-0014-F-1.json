@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0014-F-1",
+  "parent_task_id": "T-0014",
+  "title": "Resolve DRIFT-002 - Domain Mismatch Decision",
+  "lane_type": "docs-lane",
+  "executor": "owner-decision",
+  "rationale": "Critical blocker requiring owner decision on whether task management docs or jump-and-run code should be authoritative",
+  "smallest_safe_scope": "Owner decision only - no implementation",
+  "depends_on": "(none)",
+  "priority": "high",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:16:45.633Z",
+  "index": 1
+}

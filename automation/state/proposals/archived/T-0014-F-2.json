@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0014-F-2",
+  "parent_task_id": "T-0014",
+  "title": "Complete localStorage persistence implementation",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "rationale": "Game references localStorage for progress tracking but implementation is incomplete, affecting player progression persistence",
+  "smallest_safe_scope": "Implement basic save/load for player stats (totalCoins, totalGems, bestScore, unlockedSkills, selectedSkin)",
+  "depends_on": "F-1 (if code is kept as authoritative)",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:16:45.634Z",
+  "index": 2
+}

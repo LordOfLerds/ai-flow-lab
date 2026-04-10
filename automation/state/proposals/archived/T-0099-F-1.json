@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0099-F-1",
+  "parent_task_id": "T-0099",
+  "title": "Add edge case handling for concurrent pipeline operations",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "The current implementation handles the happy path but doesn't guard against concurrent modifications or race conditions when multiple tasks run simultaneously. This is a natural follow-up that extends the robustness of the implementation.",
+  "smallest_safe_scope": "Add mutex/locking for shared state files and handle concurrent read-write conflicts gracefully.",
+  "depends_on": "T-0099 (completed)",
+  "priority": "normal",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T08:12:05.828Z",
+  "index": 1
+}

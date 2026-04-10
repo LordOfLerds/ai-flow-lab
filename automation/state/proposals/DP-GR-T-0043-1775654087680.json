@@ -1,0 +1,40 @@
+{
+  "decision_proposal_id": "DP-GR-T-0043-1775654087680",
+  "topic": "Executor output review: T-0043",
+  "type": "guardrail_review",
+  "task_id": "T-0043",
+  "severity": "red",
+  "issues": [
+    {
+      "file": "index.html",
+      "reason": "Line count dropped from 1654 to 589 (36%)",
+      "severity": "red"
+    },
+    {
+      "file": "index.html",
+      "reason": "53/55 functions missing: syncScoreDisplay, xpForLevel, checkSkillUnlocks, validateSkinIndex, getSafeSelectedSkin, initHUD, updateHUD, updatePowerupIndicators...",
+      "severity": "red"
+    }
+  ],
+  "options": [
+    {
+      "id": "accept",
+      "label": "Accept Changes",
+      "action": "continue_to_merge"
+    },
+    {
+      "id": "restore",
+      "label": "Restore Snapshot",
+      "action": "restore_and_fail"
+    },
+    {
+      "id": "test",
+      "label": "Run Cowork Test",
+      "action": "run_cowork_test"
+    }
+  ],
+  "status": "resolved",
+  "created_at": "2026-04-08T13:14:47.680Z",
+  "resolution": "restore",
+  "resolved_at": "2026-04-08T13:17:35.054Z"
+}

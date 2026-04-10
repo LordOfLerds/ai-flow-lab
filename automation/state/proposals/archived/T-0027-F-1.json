@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0027-F-1",
+  "parent_task_id": "T-0027",
+  "title": "Implement player physics, movement, and collision detection",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "The rendering system is in place but the player cannot move. This is the critical next step — add keyboard input handling for left/right movement, gravity, jumping (with coyote time and jump buffering from CONFIG), ground detection via tile collision, wall collision, and ice physics. Wire the existing `keys` input state and `createPlayer()` physics properties into an `updatePlayer()` function called from `gameLoop()`.",
+  "smallest_safe_scope": "Player horizontal movement, gravity, ground/wall tile collision, single jump. No double jump, dash, or special abilities yet.",
+  "depends_on": "T-0027",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T23:16:03.472Z",
+  "index": 1
+}

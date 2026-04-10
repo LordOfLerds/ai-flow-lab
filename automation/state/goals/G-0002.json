@@ -1,0 +1,9 @@
+{
+  "goal_id": "G-0002",
+  "title": "Add real gameplay to Pixel Runner: physics, rendering, collision, camera",
+  "description": "The game currently has a Start button and basic structure (canvas, HUD, level generation, player creation, skins, skills) but the demo version only shows \"Game Started!\" text. This goal adds real gameplay: tile rendering with camera scrolling, player physics (gravity, jumping, dashing), collision detection with tiles and enemies, coin/gem/powerup collection, enemy AI (walkers and flyers), death/respawn, level completion (exit tile), and game-over screen. All code goes in index.html (self-contained, no module imports). Keep the existing HUD, overlay, skins, and skill systems intact.",
+  "priority": "P1",
+  "state": "NEW",
+  "created_at": "2026-04-07T22:57:05.528Z",
+  "updated_at": "2026-04-07T22:57:05.528Z"
+}

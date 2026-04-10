@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0031-F-3",
+  "parent_task_id": "T-0031",
+  "title": "Add executor file-safety guardrail to pipeline",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "rationale": "The Codex executor destroyed index.html three times during T-0027, T-0029, and T-0030 (though T-0031 executed successfully). The pipeline needs a pre-execution backup and post-execution line-count validation to prevent future destruction.",
+  "smallest_safe_scope": "Before executor runs, copy target files to `.backup/` directory. After executor completes, compare line counts — if any file shrinks by more than 30%, restore from backup and fail the step with a descriptive error.",
+  "depends_on": "none",
+  "priority": "critical",
+  "should_spawn_now": true,
+  "created_at": "2026-04-08T00:07:50.896Z",
+  "index": 3
+}

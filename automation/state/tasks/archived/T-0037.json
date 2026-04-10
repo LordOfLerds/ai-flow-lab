@@ -1,0 +1,22 @@
+{
+  "task_id": "T-0037",
+  "title": "Restore login/progression system (localStorage save, XP, unlocks)",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "NEW",
+  "runtime_status": "QUEUED",
+  "branch_name": "bug/T-0037-restore-login-progression-system-localstorage-save-xp-unlocks",
+  "worktree_path": "../wt/T-0037",
+  "spec_path": "",
+  "review_path": "",
+  "brief_path": "",
+  "result_path": "ai/results/T-0037_executor_report.md",
+  "followup_path": "ai/followups/T-0037_followups.md",
+  "owner_lock": "task:T-0037",
+  "created_at": "2026-04-08T06:58:13.814Z",
+  "updated_at": "2026-04-08T06:58:13.814Z",
+  "description": "T-0027 executor deleted the login and progression system. Restore: localStorage-based player profile save/load, XP accumulation from gameplay, level-up thresholds, skin/skill unlock progression, and the profile display in the main menu showing current level and unlocked items."
+}

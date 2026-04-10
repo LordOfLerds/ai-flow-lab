@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0045-F-1",
+  "parent_task_id": "T-0045",
+  "title": "Verify doc cross-references after T-0045 updates",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "rationale": "",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "low",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T13:11:53.017Z",
+  "index": 1
+}

@@ -1,0 +1,28 @@
+{
+  "task_id": "T-0006",
+  "title": "Build XP, leveling, skills, and skins system",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0006-build-xp-leveling-skills-and-skins-system",
+  "worktree_path": "../wt/T-0006",
+  "spec_path": "ai/specs/T-0006_spec.md",
+  "review_path": "ai/reviews/T-0006_gemini_review.md",
+  "brief_path": "ai/briefs/T-0006_implementation.md",
+  "result_path": "ai/results/T-0006_executor_report.md",
+  "followup_path": "ai/followups/T-0006_followups.md",
+  "owner_lock": "task:T-0006",
+  "created_at": "2026-04-07T04:39:48.514Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "description": "Implement an XP bar and leveling system (XP thresholds: 100, 250, 500, 1000, 2000). Each level-up grants a skill point. Unlockable skills: Double Jump (level 2), Dash (level 3, quick horizontal burst on shift key), Shield Start (level 5, start each run with a shield). Build a skins system with 5 unlockable player skins (default, ninja, robot, wizard, golden) unlocked at levels 1/2/3/4/5. Add a main menu / character select screen. Persist XP, level, unlocked skills, and skins using localStorage. Dependencies: Task 2, Task 5",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "pr_draft_path": "ai/pr/T-0006_pr_draft.md",
+  "written_files": [
+    "index.html"
+  ]
+}

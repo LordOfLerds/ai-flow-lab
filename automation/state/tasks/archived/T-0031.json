@@ -1,0 +1,35 @@
+{
+  "task_id": "T-0031",
+  "title": "Add moving platform collision and ride mechanics",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "T-0030",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0031-add-moving-platform-collision-and-ride-mechanics",
+  "worktree_path": "../wt/T-0031",
+  "spec_path": "ai/specs/T-0031_spec.md",
+  "review_path": "ai/reviews/T-0031_gemini_review.md",
+  "brief_path": "ai/briefs/T-0031_implementation.md",
+  "result_path": "ai/results/T-0031_executor_report.md",
+  "followup_path": "ai/followups/T-0031_followups.md",
+  "owner_lock": "task:T-0031",
+  "created_at": "2026-04-07T23:57:52.771Z",
+  "updated_at": "2026-04-08T00:07:51.756Z",
+  "followup_source_proposal_id": "T-0030-F-1",
+  "planner_notes": {
+    "rationale": "Moving platforms are rendered with sinusoidal animation but the player passes through them. Position updates happen only in the render layer. This task moves platform position calculation into the game loop and adds one-way collision so the player can land on and ride moving platforms.",
+    "smallest_safe_scope": "Moving platform position update in game loop, player landing on top (one-way collision like static PLATFORM tiles), player rides horizontally/vertically with platform movement. No crushing mechanics, no breakable moving platforms.",
+    "depends_on": "T-0030",
+    "priority": "high"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "index.html"
+  ],
+  "pr_draft_path": "ai/pr/T-0031_pr_draft.md"
+}

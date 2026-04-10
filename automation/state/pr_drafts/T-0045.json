@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0045",
+  "parent_goal_id": "G-0003",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "docs/T-0045-update-game-architecture-and-domain-docs-for-all-new-features",
+  "base_branch": "main",
+  "title": "[T-0045] Update game architecture and domain docs for all new features",
+  "summary": "Update game architecture and domain docs for all new features",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0045 (Update game architecture and domain docs) was executed. The executor updated docs/ARCHITECTURE.md, docs/DOMAIN_MODEL.md, and docs/INVARIANTS.md to reflect the new game features (login, levels, shop, battle pass, visual effects). The documentation now covers the full feature set planned under…",
+  "status": "draft",
+  "created_at": "2026-04-08T13:11:53.451Z"
+}

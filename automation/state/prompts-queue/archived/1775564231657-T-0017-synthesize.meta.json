@@ -1,0 +1,11 @@
+{
+  "id": "1775564231657-T-0017-synthesize",
+  "taskId": "T-0017",
+  "step": "synthesize",
+  "provider": "openai",
+  "model": "gpt-5.4",
+  "status": "pending",
+  "createdAt": "2026-04-07T12:17:11.657Z",
+  "promptFile": "1775564231657-T-0017-synthesize.prompt.md",
+  "responseFile": "1775564231657-T-0017-synthesize.response.md"
+}

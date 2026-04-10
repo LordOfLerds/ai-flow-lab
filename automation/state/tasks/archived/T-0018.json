@@ -1,0 +1,31 @@
+{
+  "task_id": "T-0018",
+  "title": "Start UI nicht mehr vorhanden wenn auf game oder game.html",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "bug/T-0018-start-ui-nicht-mehr-vorhanden-wenn-auf-game-oder-game-html",
+  "worktree_path": "../wt/T-0018",
+  "spec_path": "ai/specs/T-0018_spec.md",
+  "review_path": "ai/reviews/T-0018_gemini_review.md",
+  "brief_path": "ai/briefs/T-0018_implementation.md",
+  "result_path": "ai/results/T-0018_executor_report.md",
+  "followup_path": "ai/followups/T-0018_followups.md",
+  "owner_lock": "task:T-0018",
+  "created_at": "2026-04-07T20:05:27.113Z",
+  "updated_at": "2026-04-07T20:18:10.436Z",
+  "description": "Bug analysieren warum Start UI nicht mehr sichtbar",
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "game.html",
+    "automation/ui/game.html",
+    "ai/current-state/drift-register.md"
+  ],
+  "pr_draft_path": "ai/pr/T-0018_pr_draft.md"
+}

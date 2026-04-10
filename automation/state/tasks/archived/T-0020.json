@@ -1,0 +1,35 @@
+{
+  "task_id": "T-0020",
+  "title": "Add true headless-browser smoke coverage for Start UI visibility after runtime scripts execute",
+  "repo": "ai-flow-lab",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "parent_task_id": "T-0019",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "test/T-0020-add-true-headless-browser-smoke-coverage-for-start-ui-visibility-after-runtime-scripts-execute",
+  "worktree_path": "../wt/T-0020",
+  "spec_path": "ai/specs/T-0020_spec.md",
+  "review_path": "ai/reviews/T-0020_gemini_review.md",
+  "brief_path": "ai/briefs/T-0020_implementation.md",
+  "result_path": "ai/results/T-0020_executor_report.md",
+  "followup_path": "ai/followups/T-0020_followups.md",
+  "owner_lock": "task:T-0020",
+  "created_at": "2026-04-07T20:25:50.701Z",
+  "updated_at": "2026-04-07T20:41:23.105Z",
+  "followup_source_proposal_id": "T-0019-F-1",
+  "planner_notes": {
+    "rationale": "The executor explicitly reported that current coverage cannot catch regressions caused by runtime JavaScript hiding the Start UI. A small follow-up can raise fidelity by loading the actual pages through a local HTTP server and asserting computed visibility in a real browser context.",
+    "smallest_safe_scope": "Add one minimal browser automation smoke spec covering `index.html` and `game.html` only, reusing any existing repo test/server conventions if present and avoiding broader e2e expansion.",
+    "depends_on": "T-0019",
+    "priority": "medium"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "starter-test/tests/headless-start-ui.test.ts"
+  ],
+  "pr_draft_path": "ai/pr/T-0020_pr_draft.md"
+}

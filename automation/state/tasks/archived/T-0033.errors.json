@@ -1,0 +1,8 @@
+[
+  {
+    "step": "architect",
+    "message": "[routing] Step=\"architect\" Lane=\"feature-lane\" → Provider=\"openai\" (mode=app)\n\n[APP MODE] Prompt queued: 1775607344260-T-0033-architect\n  Prompt: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775607344260-T-0033-architect.prompt.md\n  Waiting for response at: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775607344260-T-0033-architect.response.md\n\n---\nCommand failed: node scripts/architect-task-api.mjs T-0033 [KILLED signal=SIGTERM — likely timeout]",
+    "timestamp": "2026-04-08T00:30:55.143Z",
+    "depth": 1
+  }
+]

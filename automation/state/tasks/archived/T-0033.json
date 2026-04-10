@@ -1,0 +1,36 @@
+{
+  "task_id": "T-0033",
+  "title": "Build on-canvas HUD with score, coins, level, and health display",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "T-0028",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "FAILED",
+  "branch_name": "feature/T-0033-build-on-canvas-hud-with-score-coins-level-and-health-display",
+  "worktree_path": "../wt/T-0033",
+  "spec_path": "",
+  "review_path": "",
+  "brief_path": "",
+  "result_path": "ai/results/T-0033_executor_report.md",
+  "followup_path": "ai/followups/T-0033_followups.md",
+  "owner_lock": "task:T-0033",
+  "created_at": "2026-04-08T00:15:44.063Z",
+  "updated_at": "2026-04-08T00:30:55.142Z",
+  "followup_source_proposal_id": "T-0028-F-2",
+  "planner_notes": {
+    "rationale": "All gameplay metrics (score, coins, gems, level number, shield HP, powerup timers) are tracked in game state but invisible to the player. This task adds a persistent HUD overlay drawn on top of the game canvas showing these values in real-time. Without a HUD, players can't see their progress or know when powerups are active.",
+    "smallest_safe_scope": "On-canvas HUD with: score counter (top-left), coin counter with icon, gem counter, level number, shield indicator, active powerup timers. No minimap or enemy health bars.",
+    "depends_on": "T-0028",
+    "priority": "normal"
+  },
+  "current_step": null,
+  "last_error": {
+    "step": "architect",
+    "message": "[routing] Step=\"architect\" Lane=\"feature-lane\" → Provider=\"openai\" (mode=app)\n\n[APP MODE] Prompt queued: 1775607344260-T-0033-architect\n  Prompt: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775607344260-T-0033-architect.prompt.md\n  Waiting for response at: /Users/l.erdkoenig/Dev/ai-flow-lab/automation/state/prompts-queue/1775607344260-T-0033-architect.response.md\n\n---\nCommand failed: node scripts/architect-task-api.mjs T-0033 [KILLED signal=SIGTERM — likely timeout]",
+    "timestamp": "2026-04-08T00:30:44.188Z",
+    "diagnosis": "## Root Cause\nThe architect step for T-0033 was killed by SIGTERM due to a timeout while waiting for a manual ChatGPT response in APP mode.\n\n## Details\nIn APP mode, `architect-task-api.mjs` queues a prompt file and polls for a corresponding `.response.md` file. The process was terminated (SIGTERM) before the user submitted a response via the ChatGPT desktop app, exceeding the configured wait timeout. The state shows `PR_DRAFTED` before failure, suggesting this may be a re-run or the pipeline state is mismatched for the current step.\n\n## Suggested Fix\n1. Re-trigger the architect step for T-0033 — the prompt file already exists at `automation/state/prompts-queue/1775607344260-T-0033-architect.prompt.md`, so copy it into ChatGPT, paste the response back into the dashboard, and submit before the timeout expires.\n2. If the pipeline state `PR_DRAFTED` is stale/incorrect, reset T-0033's state to the appropriate pre-architect state before re-running.\n3. Consider increasing the APP mode polling timeout in the pipeline config if responses consistently take longer than the current limit."
+  },
+  "failed_step": "architect"
+}

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0044-F-1",
+  "parent_task_id": "T-0044",
+  "title": "Verify and complete T-0044 battle pass code in index.html",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "rationale": "",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "high",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T13:17:55.476Z",
+  "index": 1
+}

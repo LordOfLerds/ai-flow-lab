@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0046-F-2",
+  "parent_task_id": "T-0046",
+  "title": "**lane_type:** feature-lane",
+  "lane_type": "** feature-lane",
+  "executor": "** codex",
+  "rationale": "** The level complete screen is functional but plain. Adding confetti/particle burst would improve juice.",
+  "smallest_safe_scope": "** Add `spawnParticles(x, y, color, count)` function and render particles in gameLoop. Trigger on level complete.",
+  "depends_on": "",
+  "priority": "** LOW",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T23:55:38.116Z",
+  "index": 2
+}

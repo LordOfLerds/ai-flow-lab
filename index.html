@@ -1,0 +1,4965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Runner - Jump & Run</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0f0f23; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: monospace; overflow: hidden; }
+#game-container { position: relative; }
+canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; border: 2px solid #333; box-shadow: 0 0 30px rgba(100,100,255,0.15); }
+#hud { position: absolute; top: 0; left: 0; right: 0; height: 40px; display: flex; align-items: center; padding: 0 12px; gap: 18px; font-size: 13px; color: #ccc; pointer-events: none; z-index: 2; background: linear-gradient(to bottom, rgba(15,15,35,0.85), transparent); }
+.hud-item { display: flex; align-items: center; gap: 4px; }
+.hud-item .icon { font-size: 15px; }
+#xp-bar-bg { width: 120px; height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
+#xp-bar-fill { height: 100%; background: linear-gradient(90deg, #4eff4e, #00cc66); width: 0%; transition: width 0.3s; border-radius: 4px; }
+#overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; background: rgba(15,15,35,0.92); color: #eee; }
+#overlay.hidden { display: none; }
+#overlay h1 { font-size: 36px; margin-bottom: 8px; color: #6cf; text-shadow: 0 0 20px rgba(100,200,255,0.5); }
+#overlay h2 { font-size: 20px; margin-bottom: 16px; color: #aaa; }
+#overlay .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+#overlay .stats { font-size: 13px; color: #aaa; margin: 8px 0; }
+#overlay .btn { display: inline-block; margin: 6px; padding: 10px 28px; font-size: 15px; font-family: monospace; cursor: pointer; border: 2px solid #6cf; background: transparent; color: #6cf; border-radius: 6px; transition: all 0.2s; }
+#overlay .btn:hover { background: #6cf; color: #0f0f23; }
+#overlay .btn.disabled { opacity: 0.5; cursor: not-allowed; border-color: #666; color: #666; }
+#overlay .btn.disabled:hover { background: transparent; color: #666; }
+#overlay .skin-grid { display: flex; gap: 12px; margin: 12px 0; flex-wrap: wrap; justify-content: center; }
+.skin-card { width: 64px; height: 80px; border: 2px solid #444; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.03); }
+.skin-card:hover, .skin-card.selected { border-color: #6cf; background: rgba(100,200,255,0.08); }
+.skin-card.locked { opacity: 0.35; cursor: not-allowed; }
+.skin-card canvas { image-rendering: pixelated; }
+.skin-card .name { font-size: 9px; color: #aaa; margin-top: 4px; }
+.skin-card .req { font-size: 8px; color: #f84; }
+#skill-display { display: flex; gap: 8px; margin: 10px 0; }
+.skill-badge { padding: 4px 10px; font-size: 11px; border-radius: 4px; background: rgba(100,200,255,0.1); color: #6cf; border: 1px solid #6cf3; }
+.skill-badge.locked { color: #555; border-color: #333; background: rgba(255,255,255,0.02); }
+.skill-badge.active { color: #4f4; border-color: #4f4; background: rgba(0,255,100,0.1); }
+.skill-grid { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; justify-content: center; }
+.skill-card { width: 120px; height: 80px; border: 2px solid #444; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; background: rgba(255,255,255,0.03); }
+.skill-card.unlocked { border-color: #4f4; background: rgba(0,255,100,0.08); }
+.skill-card.locked { opacity: 0.35; }
+.skill-card .icon { font-size: 20px; margin-bottom: 4px; }
+.skill-card .name { font-size: 10px; color: #aaa; margin-bottom: 2px; font-weight: bold; }
+.skill-card .desc { font-size: 8px; color: #777; text-align: center; }
+.skill-card .req { font-size: 8px; color: #f84; margin-top: 4px; }
+#hud-skills { display: flex; gap: 4px; }
+.hud-skill { padding: 2px 6px; font-size: 10px; border-radius: 3px; background: rgba(0,255,100,0.15); color: #4f4; border: 1px solid #4f43; }
+.level-grid { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; justify-content: center; max-width: 600px; margin-left: auto; margin-right: auto; max-height: 400px; overflow-y: auto; }
+.theme-header { width: 100%; text-align: center; font-size: 14px; color: #fc4; margin: 16px 0 8px 0; font-weight: bold; }
+.level-card { width: 90px; height: 100px; border: 2px solid #444; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.03); margin: 4px; }
+.level-card:hover, .level-card.selected { border-color: #6cf; background: rgba(100,200,255,0.08); }
+.level-card.locked { opacity: 0.35; cursor: not-allowed; }
+.level-number { font-size: 16px; color: #6cf; font-weight: bold; }
+.level-name { font-size: 9px; color: #aaa; margin: 2px 0; text-align: center; }
+.level-stars { font-size: 12px; color: #fc4; margin: 2px 0; }
+.level-score { font-size: 8px; color: #4f4; }
+.level-locked { font-size: 16px; color: #666; }
+.unlock-req { font-size: 7px; color: #f84; text-align: center; }
+.hud-skill.cooldown { opacity: 0.5; }
+
+/* Game Over Screen Styles */
+.gameover-container { text-align: center; max-width: 400px; }
+.new-best-badge { font-size: 16px; color: #fc4; margin: 8px 0; animation: pulse 1.5s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity: 0.7; } to { opacity: 1; transform: scale(1.05); } }
+.score-breakdown { background: rgba(255,255,255,0.05); border: 1px solid #444; border-radius: 8px; padding: 16px; margin: 16px 0; }
+.score-title { font-size: 16px; color: #6cf; margin-bottom: 12px; }
+.score-item { display: flex; justify-content: space-between; margin: 6px 0; font-size: 13px; }
+.score-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #444; font-size: 16px; color: #6cf; font-weight: bold; }
+.xp-section { margin: 16px 0; }
+.xp-title { font-size: 14px; color: #4f4; margin-bottom: 8px; }
+.xp-bar-container { display: flex; align-items: center; gap: 8px; }
+.xp-bar-bg { flex: 1; height: 12px; background: #222; border-radius: 6px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, #4eff4e, #00cc66); width: 0%; transition: width 1.5s ease-out; border-radius: 6px; }
+.xp-label { font-size: 12px; color: #aaa; min-width: 60px; }
+.star-rating { margin: 16px 0; }
+.stars { font-size: 32px; margin-bottom: 4px; }
+.star-label { font-size: 12px; color: #aaa; }
+.action-buttons { display: flex; gap: 12px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
+.gameover-btn { margin: 4px; min-width: 100px; }
+
+/* Menu Transition Animations */
+#overlay { transition: opacity 0.15s ease-in-out; }
+#overlay.fading { opacity: 0; }
+canvas { transition: transform 0.2s ease-out; }
+canvas.play-zoom { transform: scale(1.05); }
+
+/* Login Form Styles */
+.login-form { background: rgba(255,255,255,0.05); border: 1px solid #444; border-radius: 8px; padding: 24px; margin: 16px 0; min-width: 300px; }
+.login-form input { width: 100%; padding: 10px; margin: 8px 0; background: #222; border: 2px solid #444; border-radius: 4px; color: #eee; font-family: monospace; font-size: 14px; }
+.login-form input:focus { outline: none; border-color: #6cf; }
+.login-form input::placeholder { color: #666; }
+.login-form .error { color: #f44; font-size: 12px; margin: 4px 0; }
+.login-form label { display: block; color: #aaa; font-size: 12px; margin: 4px 0; }
+.guest-link { color: #888; font-size: 12px; margin-top: 16px; cursor: pointer; text-decoration: underline; }
+.guest-link:hover { color: #6cf; }
+
+/* Logged-in Indicator */
+#logged-in-indicator { position: absolute; top: 8px; right: 8px; z-index: 5; background: rgba(15,15,35,0.9); border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font-size: 11px; color: #6cf; pointer-events: auto; }
+#logged-in-indicator .email { margin-right: 8px; }
+#logged-in-indicator .logout-btn { color: #f88; cursor: pointer; text-decoration: underline; font-size: 10px; }
+#logged-in-indicator .logout-btn:hover { color: #ff4; }
+
+/* Battle Pass Styles */
+.battle-pass-progress {
+  background: #222;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.battle-pass-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fc4, #f84);
+  transition: width 0.5s ease-out;
+  border-radius: 6px;
+}
+.challenge-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 6px 0;
+  transition: border-color 0.2s;
+}
+.challenge-card:hover {
+  border-color: #6cf;
+}
+.challenge-progress {
+  background: #333;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.challenge-progress-fill {
+  height: 100%;
+  background: #fc4;
+  transition: width 0.3s;
+  border-radius: 3px;
+}
+.challenge-complete .challenge-progress-fill {
+  background: #4f4;
+}
+.tier-card {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  transition: all 0.2s;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.tier-card.unlocked {
+  border-color: #6cf;
+  background: rgba(100,200,255,0.1);
+}
+.tier-card.current {
+  border-color: #fc4;
+  background: rgba(255,200,100,0.15);
+  box-shadow: 0 0 20px rgba(255,200,100,0.3);
+}
+.tier-number {
+  font-size: 16px;
+  font-weight: bold;
+  color: #6cf;
+  margin-bottom: 6px;
+}
+.tier-xp {
+  font-size: 9px;
+  color: #888;
+  margin-bottom: 8px;
+}
+.tier-reward {
+  font-size: 10px;
+  color: #fc4;
+  margin: 2px 0;
+}
+.tier-reward.claimed {
+  color: #4f4;
+}
+.tier-reward.premium {
+  color: #f84;
+}
+
+/* Error Toast Styles */
+.error-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #f44;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(255,68,68,0.3);
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+}
+.error-toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Leaderboard Styles */
+.leaderboard-container {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 24px;
+  margin: 16px 0;
+  max-width: 500px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #6cf;
+  border-bottom: 1px solid #444;
+  padding-bottom: 8px;
+}
+.leaderboard-refresh {
+  color: #888;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+}
+.leaderboard-refresh:hover {
+  color: #6cf;
+}
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: 40px 1fr 60px 80px;
+  gap: 12px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #333;
+  font-size: 12px;
+  color: #aaa;
+}
+.leaderboard-entry:last-child {
+  border-bottom: none;
+}
+.leaderboard-entry.current-user {
+  background: rgba(100,200,255,0.1);
+  border-radius: 4px;
+  color: #6cf;
+}
+.leaderboard-rank {
+  color: #fc4;
+  font-weight: bold;
+  text-align: center;
+}
+.leaderboard-player {
+  color: #eee;
+}
+.leaderboard-level {
+  text-align: center;
+}
+.leaderboard-score {
+  text-align: right;
+  color: #4f4;
+  font-weight: bold;
+}
+.leaderboard-empty {
+  text-align: center;
+  color: #666;
+  padding: 40px 0;
+  font-style: italic;
+}
+
+/* Responsive HUD for small screens */
+@media (max-width: 600px) {
+  #hud {
+    font-size: 11px;
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  .hud-item .icon {
+    font-size: 12px;
+  }
+
+  .hud-item {
+    gap: 3px;
+  }
+
+  /* Scale powerup and skill indicators */
+  #hud-powerups span {
+    font-size: 8px !important;
+  }
+
+  .hud-skill {
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+  }
+}
+
+/* Additional scaling for very narrow screens */
+@media (max-width: 400px) {
+  #hud {
+    font-size: 9px;
+    gap: 8px;
+    padding: 0 6px;
+    height: 35px;
+  }
+
+  .hud-item .icon {
+    font-size: 10px;
+  }
+
+  .hud-item {
+    gap: 2px;
+  }
+
+  /* Further scale powerup and skill indicators */
+  #hud-powerups span {
+    font-size: 7px !important;
+  }
+
+  .hud-skill {
+    font-size: 7px !important;
+    padding: 1px 3px !important;
+  }
+}
+</style>
+</head>
+<body>
+<div id="game-container">
+<canvas id="canvas" width="800" height="400"></canvas>
+<div id="hud">
+  <div class="hud-item"><span class="icon">⭐</span><span id="hud-score">0</span></div>
+  <div class="hud-item"><span class="icon">🪙</span><span id="hud-coins">0</span></div>
+  <div class="hud-item"><span class="icon">💎</span><span id="hud-gems">0</span></div>
+  <div class="hud-item"><span class="icon">📊</span><span id="hud-level">Lv 1</span></div>
+  <div class="hud-item" id="hud-shield" style="display:none"><span class="icon">🛡️</span></div>
+  <div class="hud-item" id="hud-powerups"></div>
+  <div class="hud-item" id="hud-skills"></div>
+</div>
+<div id="overlay">
+  <h1>🎮 PIXEL RUNNER</h1>
+  <h2>Jump & Run</h2>
+  <div class="subtitle">Arrow Keys / WASD to move • Space to jump • Shift to dash</div>
+  <div id="menu-content"></div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════
+// SUPABASE CONFIGURATION
+// ═══════════════════════════════════════════════
+
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+const SUPABASE_CONFIGURED = !SUPABASE_URL.includes('YOUR_PROJECT');
+
+// Initialize Supabase client
+const supabaseClient = (window.supabase && SUPABASE_CONFIGURED) ?
+  window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+let currentUser = null; // Supabase user object
+let saveDebounceTimeout = null; // Prevent save spam
+
+// ═══════════════════════════════════════════════
+// ERROR TOAST SYSTEM
+// ═══════════════════════════════════════════════
+
+function showErrorToast(message) {
+  const existingToast = document.querySelector('.error-toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  const toast = document.createElement('div');
+  toast.className = 'error-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Show toast
+  setTimeout(() => toast.classList.add('show'), 100);
+
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ═══════════════════════════════════════════════
+// SUPABASE SAVE/LOAD FUNCTIONS
+// ═══════════════════════════════════════════════
+
+async function saveProgress() {
+  // Debounce saves to prevent rate limits
+  if (saveDebounceTimeout) {
+    clearTimeout(saveDebounceTimeout);
+  }
+
+  saveDebounceTimeout = setTimeout(async () => {
+    try {
+      if (!supabaseClient || !currentUser) {
+        // Fallback to localStorage
+        if (authState && authState.isLoggedIn && authState.email) {
+          savePlayerProgress(authState.email);
+        }
+        return;
+      }
+
+      const data = {
+        user_id: currentUser.id,
+        player_level: gs.playerLevel,
+        current_level: gs.currentLevel,
+        total_score: gs.totalScore,
+        coins: gs.coins,
+        gems: gs.gems,
+        owned_skins: gs.purchases.owned_skins || ['default'],
+        owned_trails: gs.purchases.owned_trails || ['none'],
+        active_skin: gs.purchases.active_skin || 'default',
+        active_trail: gs.purchases.active_trail || 'none',
+        active_boosters: gs.purchases.active_boosters || [],
+        skills_unlocked: SKILLS.filter(s => s.unlocked).map(s => s.id),
+        levels_completed: gs.levelsCompleted || []
+      };
+
+      const { error } = await supabaseClient
+        .from('user_progress')
+        .upsert(data, { onConflict: 'user_id' });
+
+      if (error) {
+        console.error('Supabase save error:', error);
+        showErrorToast('Failed to save progress to cloud');
+        // Fallback to localStorage
+        if (authState && authState.isLoggedIn && authState.email) {
+          savePlayerProgress(authState.email);
+        }
+      }
+    } catch (error) {
+      console.error('Save progress error:', error);
+      showErrorToast('Failed to save progress');
+      // Fallback to localStorage
+      if (authState && authState.isLoggedIn && authState.email) {
+        savePlayerProgress(authState.email);
+      }
+    }
+  }, 5000); // Debounce for 5 seconds
+}
+
+async function loadProgress() {
+  try {
+    if (!supabaseClient || !currentUser) {
+      // Fallback to localStorage
+      if (authState && authState.isLoggedIn && authState.email) {
+        loadPlayerProgress(authState.email);
+      }
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Supabase load error:', error);
+      showErrorToast('Failed to load progress from cloud');
+      // Fallback to localStorage
+      if (authState && authState.isLoggedIn && authState.email) {
+        loadPlayerProgress(authState.email);
+      }
+      return;
+    }
+
+    if (data) {
+      // Merge cloud data into game state
+      gs.playerLevel = data.player_level || 1;
+      gs.currentLevel = data.current_level || 1;
+      gs.totalScore = data.total_score || 0;
+      gs.coins = data.coins || 0;
+      gs.gems = data.gems || 0;
+      gs.purchases.owned_skins = data.owned_skins || ['default'];
+      gs.purchases.owned_trails = data.owned_trails || ['none'];
+      gs.purchases.active_skin = data.active_skin || 'default';
+      gs.purchases.active_trail = data.active_trail || 'none';
+      gs.purchases.active_boosters = data.active_boosters || [];
+      gs.levelsCompleted = data.levels_completed || [];
+
+      // Update skills based on unlocked list
+      const unlockedSkillIds = data.skills_unlocked || [];
+      SKILLS.forEach(skill => {
+        skill.unlocked = unlockedSkillIds.includes(skill.id);
+      });
+
+      // Update UI
+      syncScoreDisplay();
+      checkSkillUnlocks();
+    } else {
+      // No cloud data, use defaults or localStorage fallback
+      if (authState && authState.isLoggedIn && authState.email) {
+        loadPlayerProgress(authState.email);
+      }
+    }
+  } catch (error) {
+    console.error('Load progress error:', error);
+    showErrorToast('Failed to load progress');
+    // Fallback to localStorage
+    if (authState && authState.isLoggedIn && authState.email) {
+      loadPlayerProgress(authState.email);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// INLINED ScoreTracker (from score-tracker.js)
+// ═══════════════════════════════════════════════
+class ScoreTracker {
+  constructor(unitSize = 8) {
+    const normalized = Math.floor(unitSize);
+    this.unitSize = normalized > 0 ? normalized : 1;
+    this.highWater = 0;
+  }
+  reset(initialPosition = 0) {
+    this.highWater = Math.max(0, Number.isFinite(initialPosition) ? initialPosition : 0);
+  }
+  award(currentPosition) {
+    const position = Math.max(0, Number.isFinite(currentPosition) ? currentPosition : 0);
+    if (position <= this.highWater) return 0;
+    const previousUnits = Math.floor(this.highWater / this.unitSize);
+    const nextUnits = Math.floor(position / this.unitSize);
+    this.highWater = position;
+    const delta = nextUnits - previousUnits;
+    return delta > 0 ? delta : 0;
+  }
+  getHighWater() { return this.highWater; }
+}
+
+function syncScoreDisplay(element, score) {
+  if (!element) return;
+  element.textContent = String(score);
+}
+
+// ═══════════════════════════════════════════════
+// CONFIG & CONSTANTS
+// ═══════════════════════════════════════════════
+const CONFIG = {
+  CANVAS_WIDTH: 800, CANVAS_HEIGHT: 400, TILE_SIZE: 16,
+  GRAVITY: 0.6, MAX_FALL_SPEED: 12, FPS: 60,
+  PLAYER_SPEED: 3.2, JUMP_VELOCITY: -10.5, DASH_SPEED: 12, DASH_FRAMES: 8,
+  COYOTE_FRAMES: 5, JUMP_BUFFER_FRAMES: 4,
+  LEVEL_WIDTH_TILES: 200, LEVEL_HEIGHT_TILES: 25,
+  CAMERA_LERP: 0.08,
+  DEBUG_HUD: false // Toggle to true to render on-canvas HUD fallback
+};
+
+const PLAYER_START_X = 80;
+const PLAYER_START_Y = (CONFIG.LEVEL_HEIGHT_TILES - 4) * CONFIG.TILE_SIZE;
+const PROGRESS_UNIT = CONFIG.TILE_SIZE / 2;
+
+// ═══════════════════════════════════════════════
+// SKINS
+// ═══════════════════════════════════════════════
+const SKINS = [
+  { id: 'default', name: 'Runner', color: '#4CAF50', unlockType: 'free', cost: 0, levelReq: 0 },
+  { id: 'blue', name: 'Ocean', color: '#2196F3', unlockType: 'level', cost: 0, levelReq: 3 },
+  { id: 'red', name: 'Blaze', color: '#f44336', unlockType: 'level', cost: 0, levelReq: 5 },
+  { id: 'purple', name: 'Mystic', color: '#9C27B0', unlockType: 'coins', cost: 300, levelReq: 0 },
+  { id: 'orange', name: 'Sunset', color: '#FF9800', unlockType: 'coins', cost: 500, levelReq: 10 },
+  { id: 'cyan', name: 'Frost', color: '#00BCD4', unlockType: 'coins', cost: 800, levelReq: 15 },
+  { id: 'gold', name: 'Champion', color: '#FFD700', unlockType: 'coins', cost: 1500, levelReq: 25 },
+  { id: 'pink', name: 'Bubblegum', color: '#E91E63', unlockType: 'coins', cost: 1000, levelReq: 20 },
+  { id: 'dark', name: 'Shadow', color: '#212121', unlockType: 'coins', cost: 2000, levelReq: 30 },
+  { id: 'rainbow', name: 'Prismatic', color: 'rainbow', unlockType: 'gems', cost: 50, levelReq: 40 },
+  { id: 'diamond', name: 'Diamond', color: '#B9F2FF', unlockType: 'gems', cost: 100, levelReq: 50 },
+  { id: 'neon', name: 'Neon', color: '#39FF14', unlockType: 'coins', cost: 3000, levelReq: 60 }
+];
+
+// ═══════════════════════════════════════════════
+// SHOP ITEMS
+// ═══════════════════════════════════════════════
+const BOOSTERS = [
+  { id: 'xp_2x', name: '2x XP', icon: '⭐', desc: 'Double XP for 3 levels', cost: 100, currency: 'coins', duration: 3 },
+  { id: 'coin_2x', name: '2x Coins', icon: '💰', desc: 'Double coins for 3 levels', cost: 150, currency: 'coins', duration: 3 },
+  { id: 'extra_life', name: 'Extra Life', icon: '❤️', desc: '+1 life for next level', cost: 200, currency: 'coins', uses: 1 },
+  { id: 'magnet_boost', name: 'Super Magnet', icon: '🧲', desc: 'Extended magnet range for 5 levels', cost: 250, currency: 'coins', duration: 5 }
+];
+
+const TRAILS = [
+  { id: 'none', name: 'No Trail', cost: 0, unlockType: 'free' },
+  { id: 'fire', name: 'Fire Trail', color: '#ff4400', cost: 500, currency: 'coins', unlockType: 'coins' },
+  { id: 'ice', name: 'Ice Trail', color: '#00ccff', cost: 500, currency: 'coins', unlockType: 'coins' },
+  { id: 'star', name: 'Star Trail', color: '#ffdd00', cost: 800, currency: 'coins', unlockType: 'coins' },
+  { id: 'shadow', name: 'Shadow Trail', color: '#333333', cost: 50, currency: 'gems', unlockType: 'gems' }
+];
+
+// ═══════════════════════════════════════════════
+// SKILLS
+// ═══════════════════════════════════════════════
+const SKILLS = [
+  { id: 'double_jump', name: 'Double Jump', desc: 'Jump again mid-air', level: 2, levelReq: 2, icon: '⬆️' },
+  { id: 'dash', name: 'Dash', desc: 'Shift to dash forward', level: 3, levelReq: 3, icon: '💨' },
+  { id: 'shield', name: 'Shield', desc: 'Auto-block one hit', level: 5, levelReq: 5, icon: '🛡️' },
+  { id: 'magnet', name: 'Coin Magnet', desc: 'Auto-collect nearby coins', level: 7, levelReq: 7, icon: '🧲' },
+  { id: 'wall_jump', name: 'Wall Jump', desc: 'Jump off walls', level: 10, levelReq: 10, icon: '🧗' },
+  { id: 'glide', name: 'Glide', desc: 'Hold jump to glide', level: 15, levelReq: 15, icon: '🪂' },
+  { id: 'stomp', name: 'Ground Pound', desc: 'Press down mid-air to stomp', level: 20, levelReq: 20, icon: '⬇️' },
+  { id: 'time_slow', name: 'Time Slow', desc: 'Press T for 3s slow motion', level: 30, levelReq: 30, icon: '⏱️' }
+];
+
+// ═══════════════════════════════════════════════
+// LEVELS CONFIGURATION
+// ═══════════════════════════════════════════════
+// Generate 100 levels across 10 biomes
+const BIOMES = [
+  { theme: 'Meadow', icon: '🌱', color: '#4a4' },
+  { theme: 'Forest', icon: '🌲', color: '#2a6' },
+  { theme: 'Desert', icon: '🏜️', color: '#da4' },
+  { theme: 'Cave', icon: '🦇', color: '#666' },
+  { theme: 'Ice', icon: '❄️', color: '#8cf' },
+  { theme: 'Lava', icon: '🌋', color: '#f42' },
+  { theme: 'Ocean', icon: '🌊', color: '#48f' },
+  { theme: 'Jungle', icon: '🌴', color: '#4d2' },
+  { theme: 'Ruins', icon: '🏛️', color: '#a86' },
+  { theme: 'Space', icon: '🚀', color: '#a4f' }
+];
+
+const LEVELS = [];
+for (let i = 0; i < 100; i++) {
+  const biome = BIOMES[Math.floor(i / 10)];
+  const levelInBiome = (i % 10) + 1;
+  LEVELS.push({
+    id: i + 1,
+    theme: biome.theme,
+    name: `${biome.theme} ${levelInBiome}`,
+    icon: biome.icon,
+    baseScore: 1500 + i * 100,
+    difficulty: Math.floor(i / 10) + 1
+  });
+}
+
+function xpForLevel(lvl) { return lvl * 100; }
+
+function checkLevelUp() {
+  let leveled = false;
+  while (gs.xp >= xpForLevel(gs.playerLevel)) {
+    gs.xp -= xpForLevel(gs.playerLevel);
+    gs.playerLevel++;
+    leveled = true;
+    // Unlock skills for new level
+    SKILLS.forEach(skill => {
+      if (!gs.unlockedSkills.includes(skill.id) && gs.playerLevel >= skill.levelReq) {
+        gs.unlockedSkills.push(skill.id);
+      }
+    });
+  }
+  if (leveled) saveGameState();
+  return leveled;
+}
+
+// ═══════════════════════════════════════════════
+// SKILL MANAGEMENT
+// ═══════════════════════════════════════════════
+function checkSkillUnlocks() {
+  let newSkillsUnlocked = false;
+  for (const skill of SKILLS) {
+    if (!gs.unlockedSkills.includes(skill.id) && gs.playerLevel >= skill.level) {
+      gs.unlockedSkills.push(skill.id);
+      newSkillsUnlocked = true;
+      console.log('Skill unlocked:', skill.name);
+    }
+  }
+  return newSkillsUnlocked;
+}
+
+// ═══════════════════════════════════════════════
+// TILE TYPES
+// ═══════════════════════════════════════════════
+const TILE = { EMPTY: 0, GRASS: 1, STONE: 2, SPIKE: 3, ICE: 4, BREAKABLE: 5, COIN: 6, GEM: 7, POWERUP_SPEED: 8, POWERUP_SHIELD: 9, POWERUP_MAGNET: 10, PLATFORM: 11, EXIT: 20 };
+const TILE_COLORS = {
+  [TILE.GRASS]: ['#4a3','#3a2'], [TILE.STONE]: ['#888','#777'], [TILE.SPIKE]: ['#f44','#c22'],
+  [TILE.ICE]: ['#aef','#8cf'], [TILE.BREAKABLE]: ['#a86','#864'], [TILE.PLATFORM]: ['#7a5','#685'],
+  [TILE.EXIT]: ['#ff0','#cc0']
+};
+
+// ═══════════════════════════════════════════════
+// SKIN VALIDATION
+// ═══════════════════════════════════════════════
+function validateSkinIndex(index) {
+  if (!Number.isInteger(index) || index < 0 || index >= SKINS.length) {
+    console.warn('Invalid skin index:', index, 'falling back to default skin (0)');
+    return 0;
+  }
+  return index;
+}
+
+function getSafeSelectedSkin() {
+  return SKINS[validateSkinIndex(gs.selectedSkin)];
+}
+
+// ═══════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlay');
+const menuContent = document.getElementById('menu-content');
+const hudContainer = document.getElementById('hud');
+
+let gs = {
+  phase: 'MENU',
+  isPaused: false,
+  player: null, camera: { x: 0, y: 0 },
+  level: null, levelNum: 1,
+  score: 0, coins: 0, gems: 0, xp: 0, playerLevel: 1,
+  entities: [], particles: [], floatingTexts: [],
+  powerUps: { speed: 0, shield: 0, magnet: 0 },
+  unlockedSkills: [], selectedSkin: 0,
+  shakeFrames: 0, shakeIntensity: 0,
+  timeScale: 1.0, timeSlowTimer: 0, timeSlowCooldown: 0,
+  totalCoins: 0, totalGems: 0, totalScore: 0, bestScore: 0,
+  deathCount: 0, levelTime: 0,
+  progressBase: 0,
+  selectedLevelId: 1, // Currently selected level for play
+  levelProgress: {}, // Level completion tracking
+  // Shop-related state
+  shopTab: 'skins', // Current shop tab: 'skins', 'boosters', 'trails'
+  ownedSkins: [], // Purchased skins (in addition to level-unlocked ones)
+  inventory: {
+    boosters: [], // Array of {id, quantity} objects
+    cosmetics: [] // Array of {id, quantity, active} objects
+  },
+  // Purchase tracking system
+  purchases: {
+    owned_skins: ['default'],
+    owned_trails: ['none'],
+    active_skin: 'default',
+    active_trail: 'none',
+    active_boosters: [] // Array of {id, remaining} objects
+  },
+  // Trail particles system
+  trailParticles: [],
+  // Battle Pass system
+  battlePass: {
+    season: 1,
+    seasonStartDate: "2026-04-01",
+    totalXP: 0,
+    lastDailyReset: Date.now(),
+    premiumUnlocked: false,
+    tiers: [],
+    dailyChallenges: []
+  },
+  // Transition system for smooth menu changes
+  transition: {
+    active: false,
+    alpha: 0,
+    direction: 'in',
+    callback: null,
+    speed: 0.05
+  },
+  // Menu navigation stack for ESC key
+  menuStack: [],
+  // Death cause tracking
+  lastDeathCause: 'unknown',
+  // Confetti particles for level complete celebration
+  confetti: [],
+  // Current level width for progress calculation
+  currentLevelWidth: 0
+};
+
+// ═══════════════════════════════════════════════
+// LEVEL PROGRESS SYSTEM
+// ═══════════════════════════════════════════════
+function initializeLevelProgress() {
+  // Create default progress state for all levels
+  const defaultProgress = {};
+  for (const level of LEVELS) {
+    defaultProgress[level.id] = {
+      unlocked: level.id === 1, // Only level 1 starts unlocked
+      completed: false,
+      bestScore: 0,
+      stars: 0
+    };
+  }
+  return defaultProgress;
+}
+
+function saveLevelProgress() {
+  try {
+    localStorage.setItem('pixelRunner_levelProgress', JSON.stringify(gs.levelProgress));
+  } catch (e) {
+    console.warn('Could not save level progress:', e);
+  }
+}
+
+function loadLevelProgress() {
+  try {
+    const saved = localStorage.getItem('pixelRunner_levelProgress');
+    if (saved) {
+      const progress = JSON.parse(saved);
+      // Merge with defaults to ensure all levels are present
+      const defaults = initializeLevelProgress();
+      gs.levelProgress = { ...defaults, ...progress };
+    } else {
+      gs.levelProgress = initializeLevelProgress();
+    }
+  } catch (e) {
+    console.warn('Could not load level progress, using defaults:', e);
+    gs.levelProgress = initializeLevelProgress();
+  }
+}
+
+function calculateStarRating(score, baseScore) {
+  if (score >= baseScore) return 3;
+  if (score >= baseScore * 0.75) return 2;
+  if (score >= baseScore * 0.5) return 1;
+  return 0;
+}
+
+function completeLevel(levelId, score) {
+  const progress = gs.levelProgress[levelId];
+  if (!progress) return;
+
+  const level = LEVELS.find(l => l.id === levelId);
+  if (!level) return;
+
+  progress.completed = true;
+  progress.bestScore = Math.max(progress.bestScore, score);
+  progress.stars = Math.max(progress.stars, calculateStarRating(score, level.baseScore));
+
+  // Unlock next level if exists
+  const nextLevel = LEVELS.find(l => l.id === levelId + 1);
+  if (nextLevel && gs.levelProgress[nextLevel.id]) {
+    gs.levelProgress[nextLevel.id].unlocked = true;
+  }
+
+  saveLevelProgress();
+}
+
+function isLevelUnlocked(levelId) {
+  return gs.levelProgress[levelId]?.unlocked || false;
+}
+
+function getLevelStars(levelId) {
+  return gs.levelProgress[levelId]?.stars || 0;
+}
+
+function getLevelBestScore(levelId) {
+  return gs.levelProgress[levelId]?.bestScore || 0;
+}
+
+// ═══════════════════════════════════════════════
+// BATTLE PASS SYSTEM
+// ═══════════════════════════════════════════════
+function initializeBattlePass() {
+  const tiers = [];
+  for (let i = 1; i <= 20; i++) {
+    const xpThreshold = i * 500;
+    tiers.push({
+      tier: i,
+      xpThreshold: xpThreshold,
+      freeReward: {
+        type: i % 5 === 0 ? "gems" : "coins",
+        amount: i % 5 === 0 ? (i === 20 ? 500 : i * 10) : (i === 20 ? 5000 : i * 50)
+      },
+      premiumReward: {
+        type: i % 3 === 0 ? "skin" : "cosmetic",
+        id: i % 3 === 0 ? `bp_skin_${i}` : `bp_trail_${i}`,
+        name: i % 3 === 0 ? `Battle Skin ${i}` : `Battle Trail ${i}`
+      },
+      claimed: false,
+      premiumClaimed: false
+    });
+  }
+
+  return {
+    season: 1,
+    seasonStartDate: "2026-04-01",
+    totalXP: 0,
+    lastDailyReset: Date.now(),
+    premiumUnlocked: true, // Mock as purchased for now
+    tiers: tiers,
+    dailyChallenges: generateDailyChallenges()
+  };
+}
+
+function generateDailyChallenges() {
+  const challenges = [
+    {id: "score_challenge", text: "Score 5000 pts", target: 5000, progress: 0, reward: 200, claimed: false, type: "score"},
+    {id: "level_challenge", text: "Complete 2 levels", target: 2, progress: 0, reward: 150, claimed: false, type: "levels"},
+    {id: "coin_challenge", text: "Collect 50 coins", target: 50, progress: 0, reward: 100, claimed: false, type: "coins"}
+  ];
+  return challenges;
+}
+
+function earnBattlePassXP(amount, source = "gameplay") {
+  const oldXP = gs.battlePass.totalXP;
+  gs.battlePass.totalXP += amount;
+
+  // Check for tier progression
+  const oldTier = getCurrentBattlePassTier();
+  checkBattlePassTierUnlock();
+  const newTier = getCurrentBattlePassTier();
+
+  // Show floating text
+  addFloatingText(`+${amount} Season XP`, gs.player.x, gs.player.y - 20, '#4ef', 1.5);
+
+  if (newTier > oldTier) {
+    addFloatingText(`TIER ${newTier} UNLOCKED!`, gs.player.x, gs.player.y - 40, '#fc4', 2);
+  }
+
+  return amount;
+}
+
+function getCurrentBattlePassTier() {
+  let tier = 0;
+  for (const tierData of gs.battlePass.tiers) {
+    if (gs.battlePass.totalXP >= tierData.xpThreshold) {
+      tier = tierData.tier;
+    } else {
+      break;
+    }
+  }
+  return tier;
+}
+
+function checkBattlePassTierUnlock() {
+  // Just ensure tiers are properly unlocked based on XP
+  const currentTier = getCurrentBattlePassTier();
+  // Auto-claim free rewards for unlocked tiers
+  for (let i = 0; i < currentTier; i++) {
+    const tierData = gs.battlePass.tiers[i];
+    if (!tierData.claimed) {
+      claimBattlePassReward(tierData.tier, false);
+    }
+  }
+}
+
+function claimBattlePassReward(tier, isPremium = false) {
+  const tierData = gs.battlePass.tiers[tier - 1];
+  if (!tierData) return false;
+
+  if (isPremium && !gs.battlePass.premiumUnlocked) return false;
+  if (isPremium && tierData.premiumClaimed) return false;
+  if (!isPremium && tierData.claimed) return false;
+  if (gs.battlePass.totalXP < tierData.xpThreshold) return false;
+
+  const reward = isPremium ? tierData.premiumReward : tierData.freeReward;
+
+  // Apply reward
+  if (reward.type === "coins") {
+    gs.totalCoins += reward.amount;
+    gs.coins += reward.amount;
+  } else if (reward.type === "gems") {
+    gs.totalGems += reward.amount;
+    gs.gems += reward.amount;
+  } else if (reward.type === "skin") {
+    // Add skin to unlocked list
+    if (!gs.ownedSkins.includes(reward.id)) {
+      gs.ownedSkins.push(reward.id);
+    }
+  } else if (reward.type === "cosmetic") {
+    // Add cosmetic to inventory
+    const existing = gs.inventory.cosmetics.find(c => c.id === reward.id);
+    if (!existing) {
+      gs.inventory.cosmetics.push({id: reward.id, quantity: 1, active: false});
+    }
+  }
+
+  // Mark as claimed
+  if (isPremium) {
+    tierData.premiumClaimed = true;
+  } else {
+    tierData.claimed = true;
+  }
+
+  return true;
+}
+
+function updateDailyChallenges() {
+  const now = Date.now();
+  const lastReset = gs.battlePass.lastDailyReset;
+  const oneDayMs = 24 * 60 * 60 * 1000;
+
+  if (now - lastReset > oneDayMs) {
+    // Reset daily challenges
+    gs.battlePass.dailyChallenges = generateDailyChallenges();
+    gs.battlePass.lastDailyReset = now;
+  }
+}
+
+function updateChallengeProgress(type, amount) {
+  for (const challenge of gs.battlePass.dailyChallenges) {
+    if (challenge.type === type && !challenge.claimed) {
+      challenge.progress = Math.min(challenge.progress + amount, challenge.target);
+      if (challenge.progress >= challenge.target && !challenge.claimed) {
+        // Auto-claim challenge
+        challenge.claimed = true;
+        earnBattlePassXP(challenge.reward, "challenge");
+        addFloatingText(`CHALLENGE COMPLETE! +${challenge.reward} XP`, gs.player?.x || 400, gs.player?.y || 200, '#fc4', 2);
+      }
+    }
+  }
+}
+
+function addFloatingText(text, x, y, color = '#fff', scale = 1) {
+  gs.floatingTexts.push({
+    text: text,
+    x: x,
+    y: y,
+    startY: y,
+    color: color,
+    scale: scale,
+    life: 60,
+    maxLife: 60
+  });
+}
+
+function saveBattlePassData() {
+  try {
+    localStorage.setItem('pixelRunner_battlePass', JSON.stringify(gs.battlePass));
+  } catch (e) {
+    console.warn('Could not save battle pass data:', e);
+  }
+}
+
+function loadBattlePassData() {
+  try {
+    const saved = localStorage.getItem('pixelRunner_battlePass');
+    if (saved) {
+      const battlePassData = JSON.parse(saved);
+      gs.battlePass = { ...initializeBattlePass(), ...battlePassData };
+    } else {
+      gs.battlePass = initializeBattlePass();
+    }
+  } catch (e) {
+    console.warn('Could not load battle pass data, using defaults:', e);
+    gs.battlePass = initializeBattlePass();
+  }
+  updateDailyChallenges();
+}
+
+// ═══════════════════════════════════════════════
+// AUTH STATE AND LOGIN FUNCTIONS
+// ═══════════════════════════════════════════════
+let authState = null;
+
+function getAuthFunctions() {
+  // Wait for module to load
+  if (window.AuthFunctions) {
+    return window.AuthFunctions;
+  }
+  return null;
+}
+
+function showLoginScreen() {
+  const auth = getAuthFunctions();
+  if (!auth) {
+    // Fallback if auth functions not loaded yet
+    setTimeout(showLoginScreen, 100);
+    return;
+  }
+
+  if (!authState) {
+    authState = auth.createInitialAuthState();
+  }
+
+  const hasSupabase = !!(supabase && SUPABASE_CONFIGURED);
+  const showForms = hasSupabase || !window.supabase;
+
+  menuContent.innerHTML = `
+    <h1>${hasSupabase ? 'User Authentication' : 'Demo Mode'}</h1>
+    <div class="subtitle">${hasSupabase ? 'Create account or sign in' : 'Supabase not configured - using mock auth'}</div>
+
+    ${showForms ? `
+    <div class="login-form">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" placeholder="Enter your email" value="${authState.email || ''}">
+      <div id="email-error" class="error"></div>
+
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" placeholder="${hasSupabase ? 'Enter your password' : 'Any password (demo)'}">
+      <div id="password-error" class="error"></div>
+
+      <div id="auth-message" class="error">${authState.message}</div>
+
+      ${hasSupabase ? `
+        <div class="btn" onclick="handleSupabaseLogin(false)">Sign In</div>
+        <div class="btn" onclick="handleSupabaseLogin(true)" style="background: rgba(100,200,255,0.1);">Create Account</div>
+      ` : `
+        <div class="btn" onclick="handleLogin()">Sign In (Demo)</div>
+      `}
+
+      <div class="guest-link" onclick="playAsGuest()">Play as Guest</div>
+    </div>
+    ` : `
+    <div style="text-align: center; color: #888; padding: 40px 0;">
+      <p>🌐 Supabase CDN unavailable</p>
+      <p style="font-size: 12px; margin: 8px 0;">Running in offline mode</p>
+      <div class="btn" onclick="playAsGuest()" style="margin-top: 16px;">Play as Guest</div>
+    </div>
+    `}
+  `;
+}
+
+function handleLogin() {
+  const auth = getAuthFunctions();
+  if (!auth) return;
+
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const emailError = document.getElementById('email-error');
+  const passwordError = document.getElementById('password-error');
+  const authMessage = document.getElementById('auth-message');
+
+  // Clear previous errors
+  emailError.textContent = '';
+  passwordError.textContent = '';
+  authMessage.textContent = '';
+
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  const validation = auth.validateLoginInput(email, password);
+
+  // Display field-specific errors
+  if (validation.errors.email) {
+    emailError.textContent = validation.errors.email;
+  }
+  if (validation.errors.password) {
+    passwordError.textContent = validation.errors.password;
+  }
+
+  // If there are validation errors, stop here
+  if (Object.keys(validation.errors).length > 0) {
+    return;
+  }
+
+  // Mock authentication: any valid email + non-empty password succeeds
+  authState.email = validation.normalizedEmail;
+  auth.applyLoginSuccess(authState);
+
+  // Load saved progress
+  loadPlayerProgress(authState.email);
+
+  // Update logged-in indicator
+  updateLoggedInIndicator();
+
+  // Transition to main menu
+  showMainMenu();
+}
+
+async function handleSupabaseLogin(isSignup = false) {
+  if (!supabaseClient) {
+    showErrorToast('Supabase not available');
+    return;
+  }
+
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const emailError = document.getElementById('email-error');
+  const passwordError = document.getElementById('password-error');
+  const authMessage = document.getElementById('auth-message');
+
+  // Clear previous errors
+  emailError.textContent = '';
+  passwordError.textContent = '';
+  authMessage.textContent = '';
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  // Basic validation
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    return;
+  }
+  if (!password) {
+    passwordError.textContent = 'Password is required';
+    return;
+  }
+  if (password.length < 6) {
+    passwordError.textContent = 'Password must be at least 6 characters';
+    return;
+  }
+
+  try {
+    authMessage.textContent = isSignup ? 'Creating account...' : 'Signing in...';
+    authMessage.style.color = '#6cf';
+
+    let result;
+    if (isSignup) {
+      result = await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+      });
+    } else {
+      result = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+    }
+
+    if (result.error) {
+      authMessage.textContent = result.error.message;
+      authMessage.style.color = '#f44';
+      return;
+    }
+
+    if (isSignup && !result.data.user.email_confirmed_at) {
+      authMessage.textContent = 'Please check your email to confirm your account';
+      authMessage.style.color = '#fc4';
+      return;
+    }
+
+    // Success!
+    currentUser = result.data.user;
+    authState = authState || {};
+    authState.isLoggedIn = true;
+    authState.email = email;
+
+    // Load progress from Supabase
+    await loadProgress();
+
+    // Update UI
+    updateLoggedInIndicator();
+
+    // Transition to main menu
+    showMainMenu();
+
+  } catch (error) {
+    console.error('Supabase auth error:', error);
+    authMessage.textContent = 'Authentication failed. Please try again.';
+    authMessage.style.color = '#f44';
+  }
+}
+
+function playAsGuest() {
+  // Reset to default values for guest mode
+  resetGameStateToDefaults();
+  showMainMenu();
+}
+
+async function handleLogout() {
+  const auth = getAuthFunctions();
+  if (!auth || !authState) return;
+
+  try {
+    // Save current progress before logout
+    if (authState.isLoggedIn) {
+      if (supabaseClient && currentUser) {
+        await saveProgress(); // Use Supabase save
+      } else {
+        savePlayerProgress(authState.email); // Fallback to localStorage
+      }
+    }
+
+    // Logout from Supabase if available
+    if (supabaseClient && currentUser) {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+    }
+
+    // Reset auth state
+    auth.applyLogout(authState);
+    authState.email = '';
+
+    // Hide logged-in indicator
+    updateLoggedInIndicator();
+
+    // Show login screen
+    showLoginScreen();
+
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Still proceed with logout even if there's an error
+    if (authState) {
+      const auth = getAuthFunctions();
+      auth.applyLogout(authState);
+      authState.email = '';
+    }
+    currentUser = null;
+    updateLoggedInIndicator();
+    showLoginScreen();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// LEADERBOARD FUNCTIONS
+// ═══════════════════════════════════════════════
+
+async function fetchLeaderboard() {
+  if (!supabaseClient || !SUPABASE_CONFIGURED) {
+    return null;
+  }
+
+  try {
+    // Note: In a real setup, you would join with auth.users or create a view
+    // For now, we'll just get the progress data without emails
+    const { data, error } = await supabaseClient
+      .from('user_progress')
+      .select(`
+        user_id,
+        total_score,
+        player_level,
+        levels_completed
+      `)
+      .order('total_score', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      console.error('Leaderboard fetch error:', error);
+      return null;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Leaderboard error:', error);
+    return null;
+  }
+}
+
+function showLeaderboard() {
+  menuContent.innerHTML = `
+    <h1>🏆 Leaderboard</h1>
+    <div class="subtitle">Top 100 players by score</div>
+
+    <div class="leaderboard-container">
+      <div class="leaderboard-header">
+        <span>Global Rankings</span>
+        <span class="leaderboard-refresh" onclick="refreshLeaderboard()">Refresh ↻</span>
+      </div>
+
+      <div id="leaderboard-content">
+        <div style="text-align: center; color: #6cf; padding: 20px;">
+          Loading...
+        </div>
+      </div>
+    </div>
+
+    <div class="btn" onclick="showMainMenu()">← Back to Menu</div>
+  `;
+
+  // Load leaderboard data
+  loadLeaderboardData();
+}
+
+async function loadLeaderboardData() {
+  const contentDiv = document.getElementById('leaderboard-content');
+
+  if (!supabaseClient || !SUPABASE_CONFIGURED) {
+    contentDiv.innerHTML = `
+      <div class="leaderboard-empty">
+        <p>🌐 Leaderboard unavailable</p>
+        <p>Supabase not configured</p>
+      </div>
+    `;
+    return;
+  }
+
+  const leaderboardData = await fetchLeaderboard();
+
+  if (!leaderboardData) {
+    contentDiv.innerHTML = `
+      <div class="leaderboard-empty">
+        <p>❌ Failed to load leaderboard</p>
+        <p>Try again later</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (leaderboardData.length === 0) {
+    contentDiv.innerHTML = `
+      <div class="leaderboard-empty">
+        <p>🎮 No scores yet!</p>
+        <p>Be the first to set a score</p>
+      </div>
+    `;
+    return;
+  }
+
+  let currentUserRank = -1;
+  if (currentUser) {
+    // Find current user's rank
+    for (let i = 0; i < leaderboardData.length; i++) {
+      if (leaderboardData[i].user_id === currentUser.id) {
+        currentUserRank = i + 1;
+        break;
+      }
+    }
+  }
+
+  const entriesHtml = leaderboardData.map((entry, index) => {
+    const rank = index + 1;
+    const isCurrentUser = currentUser && entry.user_id === currentUser.id;
+    const playerName = isCurrentUser ? 'You' : `Player #${rank}`;
+
+    return `
+      <div class="leaderboard-entry ${isCurrentUser ? 'current-user' : ''}">
+        <div class="leaderboard-rank">#${rank}</div>
+        <div class="leaderboard-player">${playerName}</div>
+        <div class="leaderboard-level">Lv ${entry.player_level || 1}</div>
+        <div class="leaderboard-score">${(entry.total_score || 0).toLocaleString()}</div>
+      </div>
+    `;
+  }).join('');
+
+  contentDiv.innerHTML = entriesHtml;
+}
+
+async function refreshLeaderboard() {
+  const refreshBtn = document.querySelector('.leaderboard-refresh');
+  if (refreshBtn) {
+    refreshBtn.textContent = 'Loading...';
+  }
+
+  await loadLeaderboardData();
+
+  if (refreshBtn) {
+    refreshBtn.textContent = 'Refresh ↻';
+  }
+}
+
+function updateLoggedInIndicator() {
+  const auth = getAuthFunctions();
+  if (!auth || !authState) return;
+
+  let indicator = document.getElementById('logged-in-indicator');
+
+  if (auth.shouldShowIndicator(authState)) {
+    if (!indicator) {
+      // Create indicator element
+      indicator = document.createElement('div');
+      indicator.id = 'logged-in-indicator';
+      document.getElementById('game-container').appendChild(indicator);
+    }
+
+    const truncatedEmail = authState.email.length > 15 ?
+      authState.email.substring(0, 12) + '...' :
+      authState.email;
+
+    indicator.innerHTML = `
+      <span class="email">${truncatedEmail}</span>
+      <span class="logout-btn" onclick="handleLogout()">Logout</span>
+    `;
+  } else if (indicator) {
+    indicator.remove();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SAVE/LOAD SYSTEM
+// ═══════════════════════════════════════════════
+function getSaveKey(email) {
+  try {
+    return `pixelrunner_save_${btoa(email.toLowerCase().trim())}`;
+  } catch (e) {
+    console.warn('Error creating save key:', e);
+    return null;
+  }
+}
+
+function createDefaultSaveData() {
+  return {
+    saveVersion: 1,
+    playerLevel: 1,
+    xp: 0,
+    totalCoins: 0,
+    totalGems: 0,
+    totalScore: 0,
+    bestScore: 0,
+    selectedSkin: 0,
+    unlockedSkills: [],
+    completedLevels: [],
+    battlePassTier: 0
+  };
+}
+
+function saveGameState() {
+  // Save current game state to localStorage
+  try {
+    const email = (typeof authState !== 'undefined' && authState && authState.email) ? authState.email : 'guest';
+    savePlayerProgress(email);
+    saveLevelProgress();
+    saveShopData();
+  } catch (e) {
+    console.warn('Could not save game state:', e);
+  }
+}
+
+function savePlayerProgress(email) {
+  if (!email) return;
+
+  const saveKey = getSaveKey(email);
+  if (!saveKey) return;
+
+  const saveData = {
+    saveVersion: 1,
+    playerLevel: gs.playerLevel,
+    xp: gs.xp,
+    totalCoins: gs.totalCoins,
+    totalGems: gs.totalGems,
+    totalScore: gs.totalScore,
+    bestScore: gs.bestScore,
+    selectedSkin: gs.selectedSkin,
+    unlockedSkills: [...gs.unlockedSkills],
+    completedLevels: [],  // Will be used in future tasks
+    battlePass: gs.battlePass
+  };
+
+  try {
+    localStorage.setItem(saveKey, JSON.stringify(saveData));
+    saveBattlePassData(); // Also save separately for persistence
+  } catch (e) {
+    console.warn('Could not save player progress:', e);
+    // Continue playing as guest mode silently
+  }
+}
+
+function loadPlayerProgress(email) {
+  if (!email) return;
+
+  const saveKey = getSaveKey(email);
+  if (!saveKey) return;
+
+  try {
+    const savedData = localStorage.getItem(saveKey);
+    if (!savedData) {
+      // New player - use defaults
+      const defaults = createDefaultSaveData();
+      applyLoadedData(defaults);
+      return;
+    }
+
+    let saveData;
+    try {
+      saveData = JSON.parse(savedData);
+    } catch (e) {
+      console.warn('Corrupted save data, using defaults:', e);
+      const defaults = createDefaultSaveData();
+      applyLoadedData(defaults);
+      return;
+    }
+
+    // Apply save data with fallbacks for missing fields
+    const defaults = createDefaultSaveData();
+    const merged = Object.assign(defaults, saveData);
+    applyLoadedData(merged);
+
+  } catch (e) {
+    console.warn('Could not load player progress:', e);
+    // Use defaults if localStorage unavailable
+    const defaults = createDefaultSaveData();
+    applyLoadedData(defaults);
+  }
+}
+
+function applyLoadedData(saveData) {
+  gs.playerLevel = saveData.playerLevel || 1;
+  gs.xp = saveData.xp || 0;
+  gs.totalCoins = saveData.totalCoins || 0;
+  gs.totalGems = saveData.totalGems || 0;
+  gs.totalScore = saveData.totalScore || 0;
+  gs.bestScore = saveData.bestScore || 0;
+  gs.selectedSkin = validateSkinIndex(saveData.selectedSkin) ? saveData.selectedSkin : 0;
+  gs.unlockedSkills = Array.isArray(saveData.unlockedSkills) ? saveData.unlockedSkills : [];
+
+  // Load battle pass data
+  if (saveData.battlePass) {
+    gs.battlePass = { ...initializeBattlePass(), ...saveData.battlePass };
+  } else {
+    loadBattlePassData();
+  }
+
+  // Check skill unlocks based on loaded player level
+  checkSkillUnlocks();
+}
+
+function resetGameStateToDefaults() {
+  const defaults = createDefaultSaveData();
+  applyLoadedData(defaults);
+  gs.battlePass = initializeBattlePass(); // Reset battle pass to defaults
+}
+
+const keys = {};
+let lastJumpPress = -100;
+let lastDashPress = -100;
+let lastTimeSlowPress = -100;
+let frameCount = 0;
+
+const scoreTracker = new ScoreTracker(PROGRESS_UNIT);
+
+// Cached HUD DOM references (populated by initHUD)
+let hudEls = {};
+let hudPrev = {};
+
+function initHUD() {
+  hudEls = {
+    container: hudContainer,
+    score: document.getElementById('hud-score'),
+    coins: document.getElementById('hud-coins'),
+    gems: document.getElementById('hud-gems'),
+    level: document.getElementById('hud-level'),
+    shield: document.getElementById('hud-shield'),
+    powerups: document.getElementById('hud-powerups'),
+    skills: document.getElementById('hud-skills')
+  };
+
+  hudPrev = {
+    score: -1,
+    coins: -1,
+    gems: -1,
+    level: -1,
+    shield: -1,
+    speedPU: -1,
+    magnetPU: -1,
+    skillsDisplay: '',
+    visible: -1
+  };
+
+  if (hudEls.score) hudEls.score.textContent = '0';
+  if (hudEls.coins) hudEls.coins.textContent = '0';
+  if (hudEls.gems) hudEls.gems.textContent = '0';
+  if (hudEls.level) hudEls.level.textContent = 'Lv 1';
+  if (hudEls.shield) hudEls.shield.style.display = 'none';
+  if (hudEls.powerups) hudEls.powerups.innerHTML = '';
+  if (hudEls.skills) hudEls.skills.innerHTML = '';
+}
+
+function updateHUD() {
+  if (!gs.player) return;
+
+  if (hudEls.score) {
+    const nextScore = Math.floor(gs.score);
+    if (nextScore !== hudPrev.score) {
+      hudEls.score.textContent = nextScore;
+      hudPrev.score = nextScore;
+    }
+  }
+
+  if (hudEls.coins && gs.coins !== hudPrev.coins) {
+    hudEls.coins.textContent = gs.coins;
+    hudPrev.coins = gs.coins;
+  }
+
+  if (hudEls.gems && gs.gems !== hudPrev.gems) {
+    hudEls.gems.textContent = gs.gems;
+    hudPrev.gems = gs.gems;
+  }
+
+  if (hudEls.level && gs.levelNum !== hudPrev.level) {
+    hudEls.level.textContent = 'Lv ' + gs.levelNum;
+    hudPrev.level = gs.levelNum;
+  }
+
+  if (hudEls.shield) {
+    const shieldActive = gs.player && gs.player.shieldHP > 0 ? 1 : 0;
+    if (shieldActive !== hudPrev.shield) {
+      hudEls.shield.style.display = shieldActive ? 'flex' : 'none';
+      hudPrev.shield = shieldActive;
+    }
+  }
+
+  updatePowerupIndicators();
+  updateSkillIndicators();
+}
+
+function updatePowerupIndicators() {
+  if (!hudEls.powerups || !gs.powerUps) return;
+  const speedSec = gs.powerUps.speed > 0 ? Math.ceil(gs.powerUps.speed / 60) : 0;
+  const magnetSec = gs.powerUps.magnet > 0 ? Math.ceil(gs.powerUps.magnet / 60) : 0;
+
+  if (speedSec === hudPrev.speedPU && magnetSec === hudPrev.magnetPU) return;
+
+  hudPrev.speedPU = speedSec;
+  hudPrev.magnetPU = magnetSec;
+
+  let html = '';
+  if (speedSec > 0) html += '<span style="color:#ff0;font-size:10px">⚡' + speedSec + 's</span> ';
+  if (magnetSec > 0) html += '<span style="color:#f0f;font-size:10px">🧲' + magnetSec + 's</span> ';
+  hudEls.powerups.innerHTML = html.trim();
+}
+
+function updateSkillIndicators() {
+  if (!hudEls.skills) return;
+  
+  let html = '';
+  const hasDash = gs.unlockedSkills.includes('dash');
+  
+  if (hasDash && gs.player) {
+    const canDash = gs.player.canDash;
+    const isInDash = gs.player.dashTimer > 0;
+    
+    if (isInDash) {
+      html += '<span class="hud-skill">💨</span>';
+    } else if (canDash) {
+      html += '<span class="hud-skill">💨</span>';
+    } else {
+      html += '<span class="hud-skill cooldown">💨</span>';
+    }
+  }
+
+  if (html !== hudPrev.skillsDisplay) {
+    hudEls.skills.innerHTML = html;
+    hudPrev.skillsDisplay = html;
+  }
+}
+
+function renderCanvasHUD() {
+  if (!CONFIG.DEBUG_HUD) return;
+
+  ctx.save();
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillText('Score: ' + Math.floor(gs.score), 8, 14);
+  ctx.fillText('Coins: ' + gs.coins, 8, 26);
+  ctx.fillText('Gems: ' + gs.gems, 8, 38);
+
+  ctx.textAlign = 'right';
+  ctx.fillText('Level ' + gs.levelNum, CONFIG.CANVAS_WIDTH - 8, 14);
+
+  if (gs.player && gs.player.shieldHP > 0) {
+    ctx.fillStyle = '#4ef';
+    ctx.fillText('Shield: ' + gs.player.shieldHP, CONFIG.CANVAS_WIDTH - 8, 26);
+  }
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') lastJumpPress = frameCount;
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') lastDashPress = frameCount;
+  if (e.code === 'KeyT') lastTimeSlowPress = frameCount;
+  if (e.code === 'KeyR' && gs.phase === 'DEAD') startGame();
+  if (e.code === 'Escape') handleEscapeKey();
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ═══════════════════════════════════════════════
+// PIXEL SPRITE RENDERER
+// ═══════════════════════════════════════════════
+function drawSprite(spriteData, x, y, scale = 1, flipX = false) {
+  const s = scale;
+  for (let row = 0; row < spriteData.length; row++) {
+    for (let col = 0; col < spriteData[row].length; col++) {
+      const c = spriteData[row][col];
+      if (!c) continue;
+      ctx.fillStyle = c;
+      const px = flipX ? x + (spriteData[row].length - 1 - col) * s : x + col * s;
+      ctx.fillRect(Math.floor(px), Math.floor(y + row * s), s, s);
+    }
+  }
+}
+
+function makePlayerSprite(colors, frame = 0) {
+  const [body, dark, highlight, belt, outline] = colors;
+  const base = [
+    [0,0,0,0,outline,outline,outline,outline,0,0,0,0],
+    [0,0,0,outline,highlight,highlight,highlight,highlight,outline,0,0,0],
+    [0,0,outline,highlight,'#fff','#000',highlight,'#000','#fff',outline,0,0],
+    [0,0,outline,highlight,highlight,highlight,highlight,highlight,highlight,outline,0,0],
+    [0,0,0,outline,outline,body,body,outline,outline,0,0,0],
+    [0,0,outline,body,body,body,body,body,body,outline,0,0],
+    [0,outline,body,body,body,belt,belt,body,body,body,outline,0],
+    [0,outline,body,body,body,belt,belt,body,body,body,outline,0],
+    [0,outline,dark,body,body,body,body,body,body,dark,outline,0],
+    [0,0,outline,dark,body,body,body,body,dark,outline,0,0],
+    [0,0,outline,dark,dark,dark,dark,dark,dark,outline,0,0],
+    [0,0,outline,dark,dark,0,0,dark,dark,outline,0,0],
+    [0,0,outline,dark,dark,0,0,dark,dark,outline,0,0],
+    [0,outline,outline,dark,dark,0,0,dark,dark,outline,outline,0],
+    [0,outline,body,outline,0,0,0,0,outline,body,outline,0],
+    [outline,body,body,outline,0,0,0,0,outline,body,body,outline],
+  ];
+  if (frame % 2 === 1 && frame > 0) {
+    base[14] = [0,0,outline,body,outline,0,0,outline,body,outline,0,0];
+    base[15] = [0,outline,body,body,outline,0,0,outline,body,body,outline,0];
+  }
+  return base;
+}
+
+// ═══════════════════════════════════════════════
+// SKIN SELECTION UI
+// ═══════════════════════════════════════════════
+function getSkinColors(skin) {
+  // Generate a 5-color palette [body, dark, highlight, belt, outline] from a single color
+  if (skin.colors) return skin.colors; // If already defined as array
+  const c = skin.color || '#888';
+  if (c === 'rainbow') return ['#ff4444', '#cc2222', '#ff8888', '#ffcc00', '#880000'];
+  // Derive darker/lighter variants from base color
+  return [c, '#222', '#fff', '#444', '#111'];
+}
+
+function createSkinPreview(skin, size = 32) {
+  const previewCanvas = document.createElement('canvas');
+  previewCanvas.width = size;
+  previewCanvas.height = size;
+  const previewCtx = previewCanvas.getContext('2d');
+
+  // Create a small player sprite using the skin colors
+  const sprite = makePlayerSprite(getSkinColors(skin), 0);
+  const spriteScale = Math.floor(size / 16); // Scale to fit canvas
+  
+  // Center the sprite
+  const offsetX = Math.floor((size - sprite[0].length * spriteScale) / 2);
+  const offsetY = Math.floor((size - sprite.length * spriteScale) / 2);
+  
+  for (let row = 0; row < sprite.length; row++) {
+    for (let col = 0; col < sprite[row].length; col++) {
+      const color = sprite[row][col];
+      if (color && color !== 0) {
+        previewCtx.fillStyle = color;
+        previewCtx.fillRect(
+          offsetX + col * spriteScale, 
+          offsetY + row * spriteScale, 
+          spriteScale, 
+          spriteScale
+        );
+      }
+    }
+  }
+  
+  return previewCanvas;
+}
+
+function showMainMenu() {
+  const selectedSkin = getSafeSelectedSkin();
+  const unlockedSkillCount = gs.unlockedSkills.length;
+
+  const currentTier = getCurrentBattlePassTier();
+  const nextTierXP = currentTier < 20 ? gs.battlePass.tiers[currentTier]?.xpThreshold || 10000 : 10000;
+  const progressToNext = currentTier < 20 ? nextTierXP - gs.battlePass.totalXP : 0;
+
+  menuContent.innerHTML = `
+    <div class="btn" onclick="showLevelSelect()">Select Level</div>
+    <div class="btn" onclick="showSkinSelect()">Select Skin</div>
+    <div class="btn" onclick="showShop()">Shop (⭐${gs.totalCoins} 💎${gs.totalGems})</div>
+    <div class="btn" onclick="showSkillsMenu()">Skills (${unlockedSkillCount})</div>
+    <div class="btn" onclick="showBattlePass()">Battle Pass (Tier ${currentTier}/20)</div>
+    <div class="btn" onclick="showLeaderboard()">🏆 Leaderboard</div>
+    <div style="margin-top: 16px; font-size: 12px; color: #888;">
+      Current: ${selectedSkin.name}${selectedSkin.bonusDesc ? ' (' + selectedSkin.bonusDesc + ')' : ''}<br>
+      Player Level: ${gs.playerLevel} | Skills: ${unlockedSkillCount}/${SKILLS.length}<br>
+      Season XP: ${gs.battlePass.totalXP} ${progressToNext > 0 ? `(${progressToNext} to next tier)` : '(MAX)'}
+    </div>
+  `;
+}
+
+function showSkinSelect() {
+  fadeToMenu(() => {
+    gs.phase = 'SKIN_SELECT';
+  
+  let html = '<div style="margin-bottom: 16px; font-size: 18px; color: #6cf;">Select Your Skin</div>';
+  html += '<div class="skin-grid">';
+  
+  SKINS.forEach((skin, index) => {
+    const isSelected = index === validateSkinIndex(gs.selectedSkin);
+    const isLocked = gs.playerLevel < skin.level;
+    const cardClass = isSelected ? 'skin-card selected' : (isLocked ? 'skin-card locked' : 'skin-card');
+    const onclick = isLocked ? '' : `onclick="selectSkin(${index})"`;
+    
+    html += `<div class="${cardClass}" ${onclick}>`;
+    
+    // Add skin preview canvas
+    const previewId = `skin-preview-${index}`;
+    html += `<canvas id="${previewId}" width="32" height="32"></canvas>`;
+    html += `<div class="name">${skin.name}</div>`;
+    
+    if (isLocked) {
+      html += `<div class="req">Lv ${skin.level}</div>`;
+    } else if (skin.bonusDesc) {
+      html += `<div class="req" style="color: #4f4; font-size: 7px;">${skin.bonusDesc}</div>`;
+    }
+    
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  html += '<div class="btn" onclick="returnToMenu()">Back to Menu</div>';
+  html += '<div style="margin-top: 8px; font-size: 10px; color: #666;">Press ESC to return</div>';
+  
+  menuContent.innerHTML = html;
+  
+  // Render skin previews after DOM update
+    setTimeout(() => {
+      SKINS.forEach((skin, index) => {
+        const canvas = document.getElementById(`skin-preview-${index}`);
+        if (canvas) {
+          const preview = createSkinPreview(skin, 32);
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, 32, 32);
+          ctx.drawImage(preview, 0, 0);
+        }
+      });
+    }, 0);
+  });
+}
+
+function selectSkin(index) {
+  const validIndex = validateSkinIndex(index);
+  const skin = SKINS[validIndex];
+  
+  if (gs.playerLevel < skin.level) {
+    console.log('Skin locked: requires level', skin.level, 'current level:', gs.playerLevel);
+    return;
+  }
+  
+  gs.selectedSkin = validIndex;
+  console.log('Selected skin:', skin.name, skin.bonusDesc ? '(' + skin.bonusDesc + ')' : '');
+  
+  // Refresh the skin selection UI to show new selection
+  showSkinSelect();
+}
+
+function showSkillsMenu() {
+  fadeToMenu(() => {
+    gs.phase = 'SKILL_SELECT';
+  
+  let html = '<div style="margin-bottom: 16px; font-size: 18px; color: #6cf;">Your Skills</div>';
+  html += '<div class="skill-grid">';
+  
+  SKILLS.forEach(skill => {
+    const isUnlocked = gs.unlockedSkills.includes(skill.id);
+    const isLocked = gs.playerLevel < skill.level;
+    const cardClass = isUnlocked ? 'skill-card unlocked' : 'skill-card locked';
+    
+    html += `<div class="${cardClass}">`;
+    html += `<div class="icon">${skill.icon}</div>`;
+    html += `<div class="name">${skill.name}</div>`;
+    html += `<div class="desc">${skill.desc}</div>`;
+    
+    if (isLocked) {
+      html += `<div class="req">Requires Level ${skill.level}</div>`;
+    } else if (isUnlocked) {
+      html += `<div style="color: #4f4; font-size: 8px; margin-top: 4px;">✓ Unlocked</div>`;
+    }
+    
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  
+  // Show active skills summary
+  const activeSkills = gs.unlockedSkills.map(id => {
+    const skill = SKILLS.find(s => s.id === id);
+    return skill ? `${skill.icon} ${skill.name}` : id;
+  });
+  
+  if (activeSkills.length > 0) {
+    html += '<div style="margin: 16px 0; font-size: 12px; color: #aaa;">Active Skills:</div>';
+    html += '<div id="skill-display">';
+    activeSkills.forEach(skillText => {
+      html += `<span class="skill-badge active">${skillText}</span>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div style="margin: 16px 0; font-size: 12px; color: #888;">No skills unlocked yet. Reach Level 2 to unlock your first skill!</div>';
+  }
+  
+    html += '<div class="btn" onclick="returnToMenu()">Back to Menu</div>';
+    html += '<div style="margin-top: 8px; font-size: 10px; color: #666;">Press ESC to return</div>';
+
+    menuContent.innerHTML = html;
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SHOP FUNCTIONS
+// ═══════════════════════════════════════════════
+
+function showShop() {
+  fadeToMenu(() => {
+    gs.phase = 'SHOP';
+
+    let html = '<div style="margin-bottom: 20px; font-size: 18px; color: #6cf;">💰 COIN SHOP</div>';
+    html += `<div style="margin-bottom: 16px; font-size: 14px; color: #aaa;">Balance: ⭐${gs.totalCoins} coins • 💎${gs.totalGems} gems</div>`;
+
+    // Tab buttons
+    html += '<div style="display: flex; gap: 8px; margin-bottom: 16px; justify-content: center;">';
+    html += `<div class="btn ${gs.shopTab === 'skins' ? 'selected' : ''}" onclick="switchShopTab('skins')" style="padding: 6px 16px; font-size: 12px; ${gs.shopTab === 'skins' ? 'background: #6cf; color: #0f0f23;' : ''}">Skins</div>`;
+    html += `<div class="btn ${gs.shopTab === 'boosters' ? 'selected' : ''}" onclick="switchShopTab('boosters')" style="padding: 6px 16px; font-size: 12px; ${gs.shopTab === 'boosters' ? 'background: #6cf; color: #0f0f23;' : ''}">Boosters</div>`;
+    html += `<div class="btn ${gs.shopTab === 'trails' ? 'selected' : ''}" onclick="switchShopTab('trails')" style="padding: 6px 16px; font-size: 12px; ${gs.shopTab === 'trails' ? 'background: #6cf; color: #0f0f23;' : ''}">Trails</div>`;
+    html += '</div>';
+
+    // Shop content based on active tab
+    html += '<div id="shop-content">';
+    html += getShopTabContent(gs.shopTab);
+    html += '</div>';
+
+    html += '<div class="btn" onclick="returnToMenu()">Back to Menu</div>';
+    html += '<div style="margin-top: 8px; font-size: 10px; color: #666;">Press ESC to return</div>';
+
+    menuContent.innerHTML = html;
+  });
+}
+
+function switchShopTab(tab) {
+  gs.shopTab = tab;
+  const shopContent = document.getElementById('shop-content');
+  if (shopContent) {
+    shopContent.innerHTML = getShopTabContent(tab);
+  }
+
+  // Update tab button styles
+  document.querySelectorAll('#overlay .btn').forEach(btn => {
+    if (btn.onclick && btn.onclick.toString().includes('switchShopTab')) {
+      if (btn.onclick.toString().includes(`'${tab}'`)) {
+        btn.style.background = '#6cf';
+        btn.style.color = '#0f0f23';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = '#6cf';
+      }
+    }
+  });
+}
+
+function getShopTabContent(tab) {
+  switch (tab) {
+    case 'skins':
+      return generateSkinShopContent();
+    case 'boosters':
+      return generateBoosterShopContent();
+    case 'trails':
+      return generateCosmeticShopContent();
+    default:
+      return '<div>Invalid tab</div>';
+  }
+}
+
+function generateSkinShopContent() {
+  let html = '<div style="margin-bottom: 12px; font-size: 14px; color: #fc4;">Character Skins</div>';
+  html += '<div class="skin-grid" style="max-width: 600px; margin: 0 auto;">';
+
+  SKINS.forEach((skin, index) => {
+    const isSelected = index === gs.selectedSkin;
+    const isOwned = gs.ownedSkins.includes(skin.id);
+    const skinCurrency = skin.unlockType || 'free'; // 'free', 'level', 'coins', 'gems'
+    const skinCost = skin.cost || 0;
+    const skinLevelReq = skin.levelReq || 0;
+    const canAfford = (skinCurrency === 'gems') ? gs.totalGems >= skinCost : gs.totalCoins >= skinCost;
+    const meetsLevel = gs.playerLevel >= skinLevelReq;
+    const isLevelLocked = !meetsLevel && !canAfford;
+
+    let cardClass = 'skin-card';
+    if (isSelected) cardClass += ' selected';
+    if (isLevelLocked && !isOwned) cardClass += ' locked';
+
+    html += `<div class="${cardClass}" style="width: 80px; height: 100px;">`;
+
+    // Skin preview (simplified colored rectangle for now)
+    const skinColor = skin.color || '#888';
+    const borderColor = skin.color === 'rainbow' ? '#fff' : skinColor;
+    const bgColor = skin.color === 'rainbow' ? 'linear-gradient(45deg, red, orange, yellow, green, blue, violet)' : skinColor;
+    html += `<div style="width: 32px; height: 32px; background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 4px; margin-bottom: 4px;"></div>`;
+
+    html += `<div class="name">${skin.name}</div>`;
+
+    if (isSelected) {
+      html += '<div style="color: #4f4; font-size: 8px;">✓ Equipped</div>';
+    } else if (isOwned) {
+      html += `<div class="btn" onclick="equipSkin(${index})" style="padding: 2px 8px; font-size: 10px; margin-top: 4px;">Equip</div>`;
+    } else if (skinCurrency === 'free' || skinCurrency === 'level') {
+      if (meetsLevel) {
+        html += `<div class="btn" onclick="purchaseItem('skin', '${skin.id}', 0, ${index})" style="padding: 2px 8px; font-size: 10px; margin-top: 4px;">Unlock</div>`;
+      } else {
+        html += `<div class="req">Lv ${skinLevelReq}</div>`;
+      }
+    } else if (!isOwned && (canAfford || meetsLevel)) {
+      const currencyIcon = skinCurrency === 'gems' ? '💎' : '⭐';
+      html += `<div class="btn ${!canAfford ? 'disabled' : ''}" onclick="${canAfford ? `purchaseItem('skin', '${skin.id}', ${skinCost}, ${index})` : 'void(0)'}" style="padding: 2px 8px; font-size: 10px; margin-top: 4px; ${!canAfford ? 'opacity: 0.5; cursor: not-allowed;' : ''}">${currencyIcon}${skinCost}</div>`;
+    } else {
+      html += `<div class="req">Lv ${skinLevelReq}</div>`;
+    }
+
+    if (skin.bonusDesc) {
+      html += `<div style="color: #fc4; font-size: 7px; margin-top: 2px;">${skin.bonusDesc}</div>`;
+    }
+
+    html += '</div>';
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function generateBoosterShopContent() {
+  let html = '<div style="margin-bottom: 12px; font-size: 14px; color: #fc4;">Power-up Boosters</div>';
+  html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; max-width: 600px; margin: 0 auto;">';
+
+  BOOSTERS.forEach(booster => {
+    const owned = gs.inventory.boosters.find(b => b.id === booster.id);
+    const quantity = owned ? owned.quantity : 0;
+    const canAfford = booster.currency === 'coins' ? gs.totalCoins >= booster.cost : gs.totalGems >= booster.cost;
+    const currencyIcon = booster.currency === 'coins' ? '⭐' : '💎';
+
+    html += '<div style="border: 1px solid #444; border-radius: 8px; padding: 12px; background: rgba(255,255,255,0.03);">';
+    html += `<div style="font-size: 20px; margin-bottom: 4px;">${booster.icon}</div>`;
+    html += `<div style="font-size: 12px; color: #6cf; margin-bottom: 2px;">${booster.name}</div>`;
+    html += `<div style="font-size: 10px; color: #aaa; margin-bottom: 8px;">${booster.desc}</div>`;
+
+    if (quantity > 0) {
+      html += `<div style="font-size: 10px; color: #4f4; margin-bottom: 4px;">Owned: ${quantity}</div>`;
+    }
+
+    html += `<div class="btn ${!canAfford ? 'disabled' : ''}" onclick="${canAfford ? `purchaseItem('booster', '${booster.id}', ${booster.cost}, null, '${booster.currency}')` : 'void(0)'}" style="padding: 4px 12px; font-size: 11px; width: 100%; ${!canAfford ? 'opacity: 0.5; cursor: not-allowed;' : ''}">${currencyIcon}${booster.cost}</div>`;
+    html += '</div>';
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function generateCosmeticShopContent() {
+  let html = '<div style="margin-bottom: 12px; font-size: 14px; color: #fc4;">Cosmetic Trails</div>';
+  html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; max-width: 600px; margin: 0 auto;">';
+
+  TRAILS.forEach(trail => {
+    const owned = gs.purchases.owned_trails.includes(trail.id);
+    const isActive = gs.purchases.active_trail === trail.id;
+    const isFree = trail.unlockType === 'free' || trail.cost === 0;
+    const trailCurrency = trail.currency || 'coins';
+    const canAfford = isFree || (trailCurrency === 'coins' ? gs.totalCoins >= trail.cost : gs.totalGems >= trail.cost);
+    const currencyIcon = trailCurrency === 'coins' ? '⭐' : '💎';
+
+    const colorPreview = trail.color || '#888';
+    html += '<div style="border: 1px solid #444; border-radius: 8px; padding: 12px; background: rgba(255,255,255,0.03);">';
+    html += `<div style="width: 40px; height: 8px; background: ${colorPreview}; border-radius: 4px; margin-bottom: 6px;"></div>`;
+    html += `<div style="font-size: 11px; color: #6cf; margin-bottom: 2px;">${trail.name}</div>`;
+
+    if (isFree) {
+      html += '<div style="font-size: 9px; color: #4f4; margin-bottom: 4px;">FREE</div>';
+    }
+
+    if (isActive) {
+      html += '<div style="font-size: 10px; color: #4f4; margin-bottom: 4px;">✓ Active</div>';
+      html += `<div class="btn" onclick="selectTrail('none')" style="padding: 3px 8px; font-size: 10px; width: 100%;">Deactivate</div>`;
+    } else if (owned || isFree) {
+      html += `<div class="btn" onclick="selectTrail('${trail.id}')" style="padding: 3px 8px; font-size: 10px; width: 100%;">Activate</div>`;
+    } else {
+      html += `<div class="btn ${!canAfford ? 'disabled' : ''}" onclick="${canAfford ? `purchaseItem('cosmetic', '${trail.id}', ${trail.cost}, null, '${trailCurrency}')` : 'void(0)'}" style="padding: 3px 8px; font-size: 10px; width: 100%; ${!canAfford ? 'opacity: 0.5; cursor: not-allowed;' : ''}">${currencyIcon}${trail.cost}</div>`;
+    }
+
+    html += '</div>';
+  });
+
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════
+// SHOP PURCHASE & EQUIP FUNCTIONS
+// ═══════════════════════════════════════════════
+
+function purchaseItem(category, itemId, price, skinIndex = null, currency = 'coins') {
+  // Check if player has enough currency
+  if (currency === 'coins' && gs.totalCoins < price) {
+    alert('❌ Not enough coins!');
+    return;
+  }
+  if (currency === 'gems' && gs.totalGems < price) {
+    alert('❌ Not enough gems!');
+    return;
+  }
+
+  // Get item details for confirmation
+  let itemName = '';
+  if (category === 'skin') {
+    itemName = SKINS.find(s => s.id === itemId)?.name || 'Unknown Skin';
+  } else if (category === 'booster') {
+    itemName = BOOSTERS.find(b => b.id === itemId)?.name || 'Unknown Booster';
+  } else if (category === 'cosmetic') {
+    itemName = TRAILS.find(c => c.id === itemId)?.name || 'Unknown Cosmetic';
+  }
+
+  const currencyIcon = currency === 'coins' ? '⭐' : '💎';
+  const confirmMessage = `Purchase ${itemName} for ${currencyIcon}${price}?`;
+
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+
+  // Deduct currency
+  if (currency === 'coins') {
+    gs.totalCoins -= price;
+    // Also update current level coins if they have any
+    if (gs.coins > 0) {
+      gs.coins = Math.max(0, gs.coins - price);
+    }
+  } else {
+    gs.totalGems -= price;
+    // Also update current level gems if they have any
+    if (gs.gems > 0) {
+      gs.gems = Math.max(0, gs.gems - price);
+    }
+  }
+
+  // Add item to inventory
+  switch (category) {
+    case 'skin':
+      if (!gs.ownedSkins.includes(itemId)) {
+        gs.ownedSkins.push(itemId);
+      }
+      break;
+    case 'booster':
+      const existingBooster = gs.inventory.boosters.find(b => b.id === itemId);
+      if (existingBooster) {
+        existingBooster.quantity += 1;
+      } else {
+        gs.inventory.boosters.push({ id: itemId, quantity: 1 });
+      }
+      break;
+    case 'cosmetic':
+      if (!gs.purchases.owned_trails.includes(itemId)) {
+        gs.purchases.owned_trails.push(itemId);
+      }
+      // Also add to legacy inventory.cosmetics for backward compatibility
+      if (gs.inventory && gs.inventory.cosmetics) {
+        const existingCosmetic = gs.inventory.cosmetics.find(c => c.id === itemId);
+        if (!existingCosmetic) {
+          gs.inventory.cosmetics.push({ id: itemId, quantity: 1, active: false });
+        }
+      }
+      break;
+  }
+
+  // Save to localStorage
+  saveShopData();
+
+  // Also save to Supabase if logged in
+  if (authState && authState.isLoggedIn) {
+    if (supabaseClient && currentUser) {
+      saveProgress(); // Use Supabase save (async, fire-and-forget)
+    }
+  }
+
+  // Show success message
+  alert(`✅ Successfully purchased ${itemName}!`);
+
+  // Refresh shop display
+  showShop();
+}
+
+function equipSkin(skinIndex) {
+  if (skinIndex >= 0 && skinIndex < SKINS.length) {
+    gs.selectedSkin = skinIndex;
+    saveGameState();
+    showShop(); // Refresh shop to show new equipped state
+  }
+}
+
+function selectTrail(trailId) {
+  gs.purchases.active_trail = trailId;
+  saveGameState();
+  showShop(); // Refresh shop
+}
+
+function activateCosmetic(cosmeticId) {
+  // Deactivate all other cosmetics first (only one active at a time)
+  gs.inventory.cosmetics.forEach(cosmetic => {
+    cosmetic.active = false;
+  });
+
+  // Activate the selected cosmetic
+  const cosmetic = gs.inventory.cosmetics.find(c => c.id === cosmeticId);
+  if (cosmetic) {
+    cosmetic.active = true;
+    saveShopData();
+
+    // Also save to Supabase if logged in
+    if (authState && authState.isLoggedIn && supabaseClient && currentUser) {
+      saveProgress();
+    }
+
+    showShop(); // Refresh shop display
+  }
+}
+
+function deactivateCosmetic(cosmeticId) {
+  const cosmetic = gs.inventory.cosmetics.find(c => c.id === cosmeticId);
+  if (cosmetic) {
+    cosmetic.active = false;
+    saveShopData();
+
+    // Also save to Supabase if logged in
+    if (authState && authState.isLoggedIn && supabaseClient && currentUser) {
+      saveProgress();
+    }
+
+    showShop(); // Refresh shop display
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SHOP DATA PERSISTENCE
+// ═══════════════════════════════════════════════
+
+function saveShopData() {
+  const shopData = {
+    ownedSkins: gs.ownedSkins,
+    inventory: gs.inventory,
+    totalCoins: gs.totalCoins,
+    totalGems: gs.totalGems,
+    selectedSkin: gs.selectedSkin
+  };
+
+  try {
+    localStorage.setItem('pixelRunner_shop_state', JSON.stringify(shopData));
+  } catch (e) {
+    console.warn('Could not save shop data:', e);
+  }
+}
+
+function loadShopData() {
+  try {
+    const shopData = localStorage.getItem('pixelRunner_shop_state');
+    if (shopData) {
+      const parsed = JSON.parse(shopData);
+      gs.ownedSkins = parsed.ownedSkins || [];
+      gs.inventory = parsed.inventory || { boosters: [], cosmetics: [] };
+
+      // Only load currency if it's higher than current (to prevent loss)
+      if (parsed.totalCoins > gs.totalCoins) gs.totalCoins = parsed.totalCoins;
+      if (parsed.totalGems > gs.totalGems) gs.totalGems = parsed.totalGems;
+
+      if (parsed.selectedSkin !== undefined) gs.selectedSkin = parsed.selectedSkin;
+    }
+  } catch (e) {
+    console.warn('Could not load shop data:', e);
+  }
+}
+
+function savePurchases() {
+  try {
+    localStorage.setItem('pixelrunner_purchases', JSON.stringify(gs.purchases));
+  } catch (e) {
+    console.warn('Could not save purchases:', e);
+  }
+}
+
+function loadPurchases() {
+  try {
+    const saved = localStorage.getItem('pixelrunner_purchases');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      gs.purchases = {
+        owned_skins: parsed.owned_skins || ['default'],
+        owned_trails: parsed.owned_trails || ['none'],
+        active_skin: parsed.active_skin || 'default',
+        active_trail: parsed.active_trail || 'none',
+        active_boosters: parsed.active_boosters || []
+      };
+      // Also update selectedSkin for backwards compatibility
+      const activeSkinIndex = SKINS.findIndex(s => s.id === gs.purchases.active_skin);
+      if (activeSkinIndex >= 0) {
+        gs.selectedSkin = activeSkinIndex;
+      }
+    }
+  } catch (e) {
+    console.warn('Could not load purchases:', e);
+    // Use defaults if loading fails
+    gs.purchases = {
+      owned_skins: ['default'],
+      owned_trails: ['none'],
+      active_skin: 'default',
+      active_trail: 'none',
+      active_boosters: []
+    };
+  }
+}
+
+function showLevelSelect() {
+  fadeToMenu(() => {
+    gs.phase = 'LEVEL_SELECT';
+
+    let html = '<div style="margin-bottom: 16px; font-size: 18px; color: #6cf;">Select Level</div>';
+    html += '<div class="level-grid">';
+
+    // Group levels by theme - dynamic extraction from LEVELS array
+    const themes = [...new Set(LEVELS.map(l => l.theme))];
+
+    for (let themeIndex = 0; themeIndex < themes.length; themeIndex++) {
+      const theme = themes[themeIndex];
+      const themeLevels = LEVELS.filter(l => l.theme === theme);
+      if (themeLevels.length === 0) continue;
+
+      // Check if biome is unlocked (need 6/10 levels completed in previous biome)
+      let biomeUnlocked = themeIndex === 0; // First biome always unlocked
+      if (themeIndex > 0) {
+        const prevBiomeTheme = themes[themeIndex - 1];
+        const prevBiomeLevels = LEVELS.filter(l => l.theme === prevBiomeTheme);
+        const completedInPrevBiome = prevBiomeLevels.filter(l => {
+          const progress = gs.levelProgress[l.id];
+          return progress && progress.unlocked && progress.stars > 0;
+        }).length;
+        biomeUnlocked = completedInPrevBiome >= 6;
+      }
+
+      // Add biome unlock status to header
+      const lockIndicator = biomeUnlocked ? '' : ' 🔒';
+      html += `<div class="theme-header">${themeLevels[0].icon} ${theme}${lockIndicator}</div>`;
+
+      for (const level of themeLevels) {
+        const progress = gs.levelProgress[level.id];
+        const isUnlocked = biomeUnlocked && progress && progress.unlocked;
+        const isSelected = level.id === gs.selectedLevelId;
+        const stars = progress ? progress.stars : 0;
+        const bestScore = progress ? progress.bestScore : 0;
+
+        const cardClass = isSelected ? 'level-card selected' :
+                         (isUnlocked ? 'level-card' : 'level-card locked');
+        const onclick = isUnlocked ? `onclick="selectLevel(${level.id})"` : '';
+
+        html += `<div class="${cardClass}" ${onclick}>`;
+        html += `<div class="level-number">${level.id}</div>`;
+        html += `<div class="level-name">${level.name}</div>`;
+
+        if (isUnlocked) {
+          // Show stars
+          html += '<div class="level-stars">';
+          for (let i = 0; i < 3; i++) {
+            html += i < stars ? '★' : '☆';
+          }
+          html += '</div>';
+
+          // Show best score if any
+          if (bestScore > 0) {
+            html += `<div class="level-score">Best: ${bestScore}</div>`;
+          }
+        } else {
+          // Show unlock requirement
+          if (!biomeUnlocked) {
+            html += `<div class="level-locked">🔒</div>`;
+            html += `<div class="unlock-req">Complete 6 levels in ${themes[themeIndex - 1]}</div>`;
+          } else {
+            const prevLevel = level.id - 1;
+            html += `<div class="level-locked">🔒</div>`;
+            html += `<div class="unlock-req">Complete Level ${prevLevel}</div>`;
+          }
+        }
+
+        html += '</div>';
+      }
+    }
+
+    html += '</div>';
+    html += '<div style="margin: 16px 0;">';
+    html += '<div class="btn" onclick="startSelectedLevel()">Start Level</div>';
+    html += '<div class="btn" onclick="returnToMenu()">Back to Menu</div>';
+    html += '</div>';
+    html += '<div style="margin-top: 8px; font-size: 10px; color: #666;">Press ESC to return</div>';
+
+    menuContent.innerHTML = html;
+  });
+}
+
+function selectLevel(levelId) {
+  gs.selectedLevelId = levelId;
+  showLevelSelect(); // Refresh to show selection
+}
+
+function startSelectedLevel() {
+  const level = LEVELS.find(l => l.id === gs.selectedLevelId);
+  if (level && isLevelUnlocked(gs.selectedLevelId)) {
+    gs.levelNum = gs.selectedLevelId;
+    startGame();
+  }
+}
+
+function returnToMenu() {
+  fadeToMenu(() => {
+    gs.phase = 'MENU';
+    showMainMenu();
+  });
+}
+
+function returnToLevelSelect() {
+  fadeToMenu(() => {
+    gs.phase = 'LEVEL_SELECT';
+    showLevelSelect();
+  });
+}
+
+function showBattlePass() {
+  fadeToMenu(() => {
+    gs.phase = 'BATTLE_PASS';
+    updateDailyChallenges(); // Check for daily resets
+
+    const currentTier = getCurrentBattlePassTier();
+    const totalXP = gs.battlePass.totalXP;
+    const seasonEndDate = new Date('2026-05-01');
+    const daysLeft = Math.max(0, Math.ceil((seasonEndDate - new Date()) / (1000 * 60 * 60 * 24)));
+
+    let html = `
+      <div style="margin-bottom: 20px;">
+        <div style="font-size: 24px; color: #6cf; margin-bottom: 8px;">🏆 BATTLE PASS - SEASON ${gs.battlePass.season}</div>
+        <div style="font-size: 14px; color: #aaa; margin-bottom: 12px;">
+          Season ends in ${daysLeft} days | Tier ${currentTier}/20 | ${totalXP} XP
+        </div>
+        <div style="background: #222; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+          <div style="height: 100%; background: linear-gradient(90deg, #4eff4e, #00cc66); width: ${Math.min(100, (currentTier / 20) * 100)}%; transition: width 0.3s;"></div>
+        </div>
+      </div>
+    `;
+
+    // Daily Challenges Section
+    html += `
+      <div style="margin-bottom: 20px;">
+        <div style="font-size: 16px; color: #fc4; margin-bottom: 12px;">📋 Daily Challenges</div>
+        <div style="display: grid; gap: 8px;">
+    `;
+
+    for (const challenge of gs.battlePass.dailyChallenges) {
+      const progress = Math.min(challenge.progress, challenge.target);
+      const progressPercent = (progress / challenge.target) * 100;
+      const isCompleted = challenge.claimed;
+
+      html += `
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid #444; border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 12px; color: #eee; margin-bottom: 4px;">${challenge.text}</div>
+            <div style="font-size: 10px; color: #888;">Progress: ${progress}/${challenge.target}</div>
+            <div style="background: #333; height: 4px; width: 120px; border-radius: 2px; overflow: hidden; margin-top: 4px;">
+              <div style="height: 100%; background: ${isCompleted ? '#4f4' : '#fc4'}; width: ${progressPercent}%; transition: width 0.3s;"></div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: #4ef; margin-bottom: 4px;">+${challenge.reward} XP</div>
+            ${isCompleted ?
+              '<div style="font-size: 10px; color: #4f4;">✓ CLAIMED</div>' :
+              (progress >= challenge.target ?
+                `<div class="btn" style="padding: 4px 8px; font-size: 10px; margin: 0;" onclick="claimChallenge('${challenge.id}')">CLAIM</div>` :
+                '<div style="font-size: 10px; color: #666;">In Progress</div>'
+              )
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    // Battle Pass Tiers Section
+    html += `
+      <div style="margin-bottom: 20px;">
+        <div style="font-size: 16px; color: #6cf; margin-bottom: 12px;">🎯 Battle Pass Tiers</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto;">
+    `;
+
+    for (let i = 0; i < Math.min(10, gs.battlePass.tiers.length); i++) {
+      const tier = gs.battlePass.tiers[i];
+      const isUnlocked = totalXP >= tier.xpThreshold;
+      const isCurrent = i + 1 === currentTier;
+
+      html += `
+        <div style="background: ${isCurrent ? 'rgba(100,200,255,0.15)' : 'rgba(255,255,255,0.05)'}; border: 2px solid ${isUnlocked ? '#6cf' : '#444'}; border-radius: 8px; padding: 8px; text-align: center;">
+          <div style="font-size: 14px; font-weight: bold; color: ${isUnlocked ? '#6cf' : '#666'}; margin-bottom: 4px;">TIER ${tier.tier}</div>
+          <div style="font-size: 9px; color: #888; margin-bottom: 6px;">${tier.xpThreshold} XP</div>
+          <div style="margin-bottom: 6px;">
+            <div style="font-size: 8px; color: #aaa;">FREE</div>
+            <div style="font-size: 10px; color: ${tier.claimed ? '#4f4' : '#fc4'};">
+              ${tier.freeReward.type === 'coins' ? '🪙' : '💎'} ${tier.freeReward.amount}
+              ${tier.claimed ? ' ✓' : ''}
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 8px; color: #aaa;">PREMIUM</div>
+            <div style="font-size: 10px; color: ${tier.premiumClaimed ? '#4f4' : '#fc4'};">
+              ${tier.premiumReward.type === 'skin' ? '👤' : '✨'} ${tier.premiumReward.name}
+              ${tier.premiumClaimed ? ' ✓' : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    html += '<div class="btn" onclick="returnToMenu()">Back to Menu</div>';
+    html += '<div style="margin-top: 8px; font-size: 10px; color: #666;">Press ESC to return</div>';
+
+    menuContent.innerHTML = html;
+  });
+}
+
+function claimChallenge(challengeId) {
+  const challenge = gs.battlePass.dailyChallenges.find(c => c.id === challengeId);
+  if (challenge && challenge.progress >= challenge.target && !challenge.claimed) {
+    challenge.claimed = true;
+    earnBattlePassXP(challenge.reward, "challenge");
+    showBattlePass(); // Refresh the display
+  }
+}
+
+// ═══════════════════════════════════════════════
+// LEVEL GENERATION
+// ═══════════════════════════════════════════════
+function getLevelWidth(levelNum) {
+  // Level 1: 200 tiles, Level 100: 600 tiles (linear increase)
+  return 200 + Math.floor((levelNum - 1) * 4.04);
+}
+
+function generateLevel(levelNum) {
+  const W = getLevelWidth(levelNum);
+  const H = CONFIG.LEVEL_HEIGHT_TILES;
+  const tiles = Array.from({ length: H }, () => new Array(W).fill(TILE.EMPTY));
+  const enemies = [];
+  const movingPlatforms = [];
+
+  const groundY = H - 2;
+  for (let x = 0; x < W; x++) {
+    tiles[groundY][x] = TILE.GRASS;
+    tiles[groundY + 1][x] = TILE.STONE;
+  }
+
+  // Progressive difficulty scaling for 100 levels
+  const gapChance = 0.02 + levelNum * 0.0008;
+  const spikeChance = 0.01 + levelNum * 0.0005;
+  const enemyChance = 0.008 + levelNum * 0.0003;
+  const coinChance = 0.04;
+  const gemChance = 0.005 + levelNum * 0.002;
+  const powerUpChance = 0.003;
+
+  let lastGap = 0;
+  for (let x = 8; x < W - 8; x++) {
+    if (Math.random() < gapChance && x - lastGap > 8) {
+      const gapW = 3 + Math.floor(Math.random() * (1 + Math.floor(levelNum / 20)));
+      for (let gx = x; gx < Math.min(x + gapW, W - 5); gx++) {
+        tiles[groundY][gx] = TILE.EMPTY;
+        tiles[groundY + 1][gx] = TILE.EMPTY;
+      }
+      if (Math.random() < 0.7) {
+        const py = groundY - 3 - Math.floor(Math.random() * 3);
+        for (let px = x; px < Math.min(x + gapW, W - 5); px++) {
+          tiles[py][px] = TILE.PLATFORM;
+        }
+      }
+      lastGap = x;
+      x += gapW;
+      continue;
+    }
+
+    if (Math.random() < spikeChance && tiles[groundY][x] === TILE.GRASS) {
+      tiles[groundY - 1][x] = TILE.SPIKE;
+    }
+
+    if (Math.random() < 0.03) {
+      const py = groundY - 4 - Math.floor(Math.random() * 6);
+      const pw = 3 + Math.floor(Math.random() * 5);
+      for (let px = x; px < Math.min(x + pw, W); px++) {
+        if (py >= 2 && py < H) tiles[py][px] = Math.random() < 0.15 ? TILE.BREAKABLE : TILE.GRASS;
+      }
+      for (let px = x; px < Math.min(x + pw, W); px++) {
+        if (Math.random() < 0.4 && py - 1 >= 0) tiles[py - 1][px] = TILE.COIN;
+      }
+      if (Math.random() < gemChance * 5 && py - 1 >= 0) tiles[py - 1][x + Math.floor(pw / 2)] = TILE.GEM;
+    }
+
+    if (Math.random() < coinChance && tiles[groundY][x] === TILE.GRASS) {
+      tiles[groundY - 1][x] = TILE.COIN;
+    }
+
+    if (Math.random() < gemChance && tiles[groundY][x] === TILE.GRASS) {
+      const gy = groundY - 3 - Math.floor(Math.random() * 4);
+      if (gy >= 0) tiles[gy][x] = TILE.GEM;
+    }
+
+    if (Math.random() < powerUpChance) {
+      const py = groundY - 2 - Math.floor(Math.random() * 4);
+      if (py >= 0) {
+        const types = [TILE.POWERUP_SPEED, TILE.POWERUP_SHIELD, TILE.POWERUP_MAGNET];
+        tiles[py][x] = types[Math.floor(Math.random() * types.length)];
+      }
+    }
+
+    if (Math.random() < enemyChance && tiles[groundY][x] === TILE.GRASS) {
+      enemies.push({
+        x: x * CONFIG.TILE_SIZE, y: (groundY - 1) * CONFIG.TILE_SIZE,
+        type: Math.random() < 0.3 + levelNum * 0.005 ? 'flyer' : 'walker',
+        vx: (Math.random() < 0.5 ? 1 : -1) * (1 + (levelNum - 1) * 0.015),
+        startX: x * CONFIG.TILE_SIZE,
+        patrolRange: (60 + Math.random() * 80),
+        frame: 0, alive: true
+      });
+      if (enemies[enemies.length - 1].type === 'flyer') {
+        enemies[enemies.length - 1].y -= (3 + Math.random() * 4) * CONFIG.TILE_SIZE;
+        enemies[enemies.length - 1].baseY = enemies[enemies.length - 1].y;
+        enemies[enemies.length - 1].flyPhase = Math.random() * Math.PI * 2;
+      }
+    }
+
+    if (Math.random() < 0.01) {
+      movingPlatforms.push({
+        x: x * CONFIG.TILE_SIZE, y: (groundY - 5 - Math.floor(Math.random() * 4)) * CONFIG.TILE_SIZE,
+        w: (3 + Math.floor(Math.random() * 3)) * CONFIG.TILE_SIZE, h: CONFIG.TILE_SIZE,
+        dir: Math.random() < 0.5 ? 'h' : 'v',
+        speed: 0.5 + Math.random() * 0.8, phase: Math.random() * Math.PI * 2,
+        amplitude: 40 + Math.random() * 60
+      });
+    }
+  }
+
+  tiles[groundY - 1][W - 5] = TILE.EXIT;
+  tiles[groundY - 2][W - 5] = TILE.EXIT;
+
+  if (levelNum > 3) {
+    for (let x = 20; x < W - 10; x++) {
+      if (Math.random() < 0.01 * levelNum) {
+        for (let ix = x; ix < Math.min(x + 5 + Math.floor(Math.random() * 8), W); ix++) {
+          if (tiles[groundY][ix] === TILE.GRASS) tiles[groundY][ix] = TILE.ICE;
+        }
+      }
+    }
+  }
+
+  return { tiles, enemies, movingPlatforms, width: W, height: H };
+}
+
+// ═══════════════════════════════════════════════
+// PLAYER CREATION
+// ═══════════════════════════════════════════════
+function createPlayer() {
+  const skin = getSafeSelectedSkin(); // Use validated skin selection
+  return {
+    x: PLAYER_START_X, y: PLAYER_START_Y,
+    vx: 0, vy: 0, w: 12, h: 16,
+    onGround: false, coyoteTimer: 0, jumpBufferTimer: 0,
+    facing: 1, frame: 0, frameTimer: 0,
+    alive: true, invincible: 0,
+    dashTimer: 0, dashDir: 0, canDash: true,
+    jumpsLeft: 1, maxJumps: 1,
+    shieldHP: 0, shieldMax: 0,
+    wallJumpCooldown: 0, stompState: 0,
+    skin: skin
+  };
+}
+
+function initializeMovingPlatforms(level) {
+  if (!level || !level.movingPlatforms) return;
+  for (const mp of level.movingPlatforms) {
+    mp.currentX = mp.x;
+    mp.currentY = mp.y;
+    mp.prevX = mp.x;
+    mp.prevY = mp.y;
+    mp.deltaX = 0;
+    mp.deltaY = 0;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TILE UTILITIES
+// ═══════════════════════════════════════════════
+function getTileAt(px, py) {
+  const col = Math.floor(px / CONFIG.TILE_SIZE);
+  const row = Math.floor(py / CONFIG.TILE_SIZE);
+  if (row < 0 || row >= gs.level.height || col < 0 || col >= gs.level.width) return TILE.EMPTY;
+  return gs.level.tiles[row][col];
+}
+
+function isSolid(tileType) {
+  return tileType === TILE.GRASS || tileType === TILE.STONE || tileType === TILE.ICE || tileType === TILE.BREAKABLE;
+}
+
+function isOnIce(player) {
+  const belowTile = getTileAt(player.x + player.w / 2, player.y + player.h + 1);
+  return belowTile === TILE.ICE;
+}
+
+// ═══════════════════════════════════════════════
+// COLLISION RESOLUTION
+// ═══════════════════════════════════════════════
+function resolveXCollision(p) {
+  const TS = CONFIG.TILE_SIZE;
+  const checkYs = [p.y + 1, p.y + p.h / 2, p.y + p.h - 1];
+
+  if (p.vx > 0) {
+    const rightEdge = p.x + p.w;
+    for (const cy of checkYs) {
+      const tile = getTileAt(rightEdge, cy);
+      if (isSolid(tile)) {
+        const col = Math.floor(rightEdge / TS);
+        p.x = col * TS - p.w;
+        p.vx = 0;
+        break;
+      }
+    }
+  } else if (p.vx < 0) {
+    for (const cy of checkYs) {
+      const tile = getTileAt(p.x, cy);
+      if (isSolid(tile)) {
+        const col = Math.floor(p.x / TS);
+        p.x = (col + 1) * TS;
+        p.vx = 0;
+        break;
+      }
+    }
+  }
+}
+
+function resolveYCollision(p, oldBottom) {
+  const TS = CONFIG.TILE_SIZE;
+  const checkXs = [p.x + 1, p.x + p.w / 2, p.x + p.w - 1];
+
+  p.onGround = false;
+
+  if (p.vy > 0) {
+    const bottomEdge = p.y + p.h;
+    for (const cx of checkXs) {
+      const tile = getTileAt(cx, bottomEdge);
+      const row = Math.floor(bottomEdge / TS);
+      const platformTop = row * TS;
+
+      if (isSolid(tile)) {
+        p.y = platformTop - p.h;
+        p.vy = 0;
+        p.onGround = true;
+
+        // Handle stomp landing effect
+        if (p.stompState === 1) {
+          p.stompState = 0; // Reset stomp state
+          startScreenShake(8, 30); // Strong screen shake for stomp
+
+          // Damage nearby enemies within 2 tiles (64px)
+          for (const entity of gs.entities) {
+            if (entity.type === 'enemy' && entity.alive) {
+              const dx = (entity.x + entity.w/2) - (p.x + p.w/2);
+              const dy = (entity.y + entity.h/2) - (p.y + p.h/2);
+              const distance = Math.sqrt(dx * dx + dy * dy);
+
+              if (distance < 64) {
+                entity.alive = false;
+                entity.deathTimer = 10;
+                gs.score += 50; // Bonus points for stomp kill
+
+                // Create stomp kill particles
+                for (let i = 0; i < 8; i++) {
+                  gs.particles.push({
+                    x: entity.x + entity.w/2,
+                    y: entity.y + entity.h/2,
+                    vx: Math.random() * 6 - 3,
+                    vy: Math.random() * 4 - 2,
+                    color: '#f84',
+                    size: 2 + Math.random() * 2,
+                    life: 25,
+                    maxLife: 25
+                  });
+                }
+              }
+            }
+          }
+
+          // Create ground impact particles
+          for (let i = 0; i < 12; i++) {
+            gs.particles.push({
+              x: p.x + p.w/2 + Math.random() * 16 - 8,
+              y: p.y + p.h,
+              vx: Math.random() * 8 - 4,
+              vy: -Math.random() * 6 - 2,
+              color: '#a84',
+              size: 2 + Math.random() * 2,
+              life: 30,
+              maxLife: 30
+            });
+          }
+        }
+
+        break;
+      }
+      if (tile === TILE.PLATFORM && oldBottom <= platformTop + 2) {
+        p.y = platformTop - p.h;
+        p.vy = 0;
+        p.onGround = true;
+
+        // Reset stomp state when landing on any surface
+        if (p.stompState === 1) {
+          p.stompState = 0;
+        }
+
+        break;
+      }
+    }
+  } else if (p.vy < 0) {
+    for (const cx of checkXs) {
+      const tile = getTileAt(cx, p.y);
+      if (isSolid(tile)) {
+        const row = Math.floor(p.y / TS);
+        p.y = (row + 1) * TS;
+        p.vy = 0;
+        if (tile === TILE.BREAKABLE) {
+          gs.level.tiles[row][Math.floor(cx / TS)] = TILE.EMPTY;
+        }
+        break;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TILE INTERACTIONS
+// ═══════════════════════════════════════════════
+function checkTilePickups(p) {
+  const TS = CONFIG.TILE_SIZE;
+  const startCol = Math.floor(p.x / TS);
+  const endCol = Math.floor((p.x + p.w - 1) / TS);
+  const startRow = Math.floor(p.y / TS);
+  const endRow = Math.floor((p.y + p.h - 1) / TS);
+
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col <= endCol; col++) {
+      if (row < 0 || row >= gs.level.height || col < 0 || col >= gs.level.width) continue;
+      const tile = gs.level.tiles[row][col];
+
+      if (tile === TILE.COIN) {
+        gs.coins++; gs.score += 10;
+        gs.level.tiles[row][col] = TILE.EMPTY;
+        // Add coin collection particle burst
+        spawnCollectionParticles(col * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE/2, row * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE/2, '#ff0', 6);
+        // Battle pass XP and challenge progress
+        earnBattlePassXP(5, "coin_collection");
+        updateChallengeProgress("coins", 1);
+      } else if (tile === TILE.GEM) {
+        gs.gems++; gs.score += 50;
+        gs.level.tiles[row][col] = TILE.EMPTY;
+        // Add gem collection particle burst
+        spawnCollectionParticles(col * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE/2, row * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE/2, '#4ef', 10);
+        // Battle pass XP and challenge progress
+        earnBattlePassXP(25, "gem_collection");
+      } else if (tile === TILE.POWERUP_SPEED) {
+        gs.powerUps.speed = 600;
+        gs.level.tiles[row][col] = TILE.EMPTY;
+      } else if (tile === TILE.POWERUP_SHIELD) {
+        gs.player.shieldHP = gs.player.shieldMax || 1;
+        gs.level.tiles[row][col] = TILE.EMPTY;
+      } else if (tile === TILE.POWERUP_MAGNET) {
+        gs.powerUps.magnet = 600;
+        gs.level.tiles[row][col] = TILE.EMPTY;
+      }
+    }
+  }
+}
+
+function checkSpikeCollision(p) {
+  const TS = CONFIG.TILE_SIZE;
+  const checkPoints = [
+    [p.x + 2, p.y + p.h - 2],
+    [p.x + p.w - 2, p.y + p.h - 2],
+    [p.x + p.w / 2, p.y + p.h - 1]
+  ];
+  for (const [cx, cy] of checkPoints) {
+    if (getTileAt(cx, cy) === TILE.SPIKE) {
+      if (p.invincible > 0) return;
+      if (p.shieldHP > 0) { p.shieldHP--; p.invincible = 60; return; }
+      gs.lastDeathCause = 'spike';
+      killPlayer();
+      return;
+    }
+  }
+}
+
+function checkExitCollision(p) {
+  const TS = CONFIG.TILE_SIZE;
+  const cx = p.x + p.w / 2;
+  const cy = p.y + p.h / 2;
+  if (getTileAt(cx, cy) === TILE.EXIT) {
+    const totalScore = Math.floor(gs.score) + gs.coins * 10 + gs.gems * 50;
+    completeLevel(gs.levelNum, totalScore);
+    showLevelCompleteScreen(gs.levelNum, totalScore);
+  }
+}
+
+function showLevelCompleteScreen(levelId, score) {
+  gs.phase = 'LEVEL_COMPLETE';
+  const level = LEVELS.find(l => l.id === levelId);
+  const stars = calculateStarRating(score, level.baseScore);
+  const xpEarned = Math.floor(score / 10) + gs.coins * 2 + gs.gems * 5;
+
+  // Calculate level time
+  const completionTime = Math.floor(gs.levelTime);
+  const minutes = Math.floor(completionTime / 60);
+  const seconds = completionTime % 60;
+  const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+  // Calculate distance
+  const levelWidthPx = gs.level ? gs.level.width * CONFIG.TILE_SIZE : 1000;
+  const distancePx = Math.floor(gs.player.x);
+
+  // Start confetti celebration!
+  createConfetti();
+
+  // Award XP
+  gs.xp += xpEarned;
+  checkLevelUp();
+  earnBattlePassXP(xpEarned, "level_completion");
+  updateChallengeProgress("levels", 1);
+  updateChallengeProgress("score", score);
+  updateChallengeProgress("coins", gs.coins);
+
+  const starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+  const isLastLevel = levelId === LEVELS.length;
+
+  overlay.classList.remove('hidden');
+  menuContent.innerHTML = `
+    <div style="text-align: center; position: relative;">
+      <h1 style="color: #4f4; font-size: 36px; margin-bottom: 8px; text-shadow: 0 0 20px rgba(68,255,68,0.5);">⭐ LEVEL COMPLETE ⭐</h1>
+      <div style="font-size: 18px; color: #6cf; margin: 8px 0;">${level.name}</div>
+
+      <div style="margin: 16px 0;">
+        <div style="font-size: 32px; margin: 8px 0;">${starStr}</div>
+        <div style="font-size: 14px; color: #aaa;">${stars}/3 Stars</div>
+      </div>
+
+      <div style="display: flex; gap: 20px; justify-content: center; margin: 20px 0; flex-wrap: wrap;">
+        <div style="background: rgba(68,255,68,0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(68,255,68,0.3);">
+          <div style="font-size: 12px; color: #4f4; margin-bottom: 4px;">COINS</div>
+          <div style="font-size: 18px; color: #fc4;">${gs.coins} collected</div>
+        </div>
+        <div style="background: rgba(100,200,255,0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(100,200,255,0.3);">
+          <div style="font-size: 12px; color: #6cf; margin-bottom: 4px;">XP</div>
+          <div style="font-size: 18px; color: #4f4;">+${xpEarned} earned</div>
+        </div>
+        <div style="background: rgba(255,196,68,0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,196,68,0.3);">
+          <div style="font-size: 12px; color: #fc4; margin-bottom: 4px;">TIME</div>
+          <div style="font-size: 18px; color: #fff;">${timeStr}</div>
+        </div>
+        <div style="background: rgba(255,68,255,0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,68,255,0.3);">
+          <div style="font-size: 12px; color: #f4f; margin-bottom: 4px;">DISTANCE</div>
+          <div style="font-size: 18px; color: #fff;">${distancePx}px</div>
+        </div>
+      </div>
+
+      <div style="margin: 20px 0;">
+        ${isLastLevel ?
+          '<div class="btn" onclick="transitionTo(() => { gs.phase = \'MENU\'; showMainMenu(); })">All Levels Complete! 🎉</div>' :
+          `<div class="btn" onclick="transitionTo(() => { gs.levelNum = ${levelId + 1}; startGame(); })">Next Level ▶</div>`
+        }
+        <div class="btn" onclick="transitionTo(() => { gs.phase = 'MENU'; showMainMenu(); })">Menu</div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// PLAYER UPDATE
+// ═══════════════════════════════════════════════
+function updatePlayer() {
+  const p = gs.player;
+  if (!p || !p.alive) return;
+
+  const oldY = p.y;
+  const oldBottom = oldY + p.h;
+
+  if (p.invincible > 0) p.invincible--;
+  if (gs.powerUps.speed > 0) gs.powerUps.speed--;
+  if (gs.powerUps.shield > 0) gs.powerUps.shield--;
+  if (gs.powerUps.magnet > 0) gs.powerUps.magnet--;
+  if (p.wallJumpCooldown > 0) p.wallJumpCooldown--;
+
+  // Handle time slow mechanics
+  if (gs.timeSlowTimer > 0) {
+    gs.timeSlowTimer--;
+    gs.timeScale = 0.3;
+  } else {
+    gs.timeScale = 1.0;
+  }
+  if (gs.timeSlowCooldown > 0) gs.timeSlowCooldown--;
+
+  // Time slow activation
+  const hasTimeSlow = gs.unlockedSkills.includes('time_slow');
+  const timeSlowBuffered = (frameCount - lastTimeSlowPress) < 4;
+  if (hasTimeSlow && timeSlowBuffered && gs.timeSlowCooldown <= 0 && gs.timeSlowTimer <= 0) {
+    gs.timeSlowTimer = 180; // 6 seconds at 30fps
+    gs.timeSlowCooldown = 300; // 10 seconds cooldown
+    lastTimeSlowPress = -100;
+  }
+
+  // Ground Pound (Stomp) activation
+  const hasStomp = gs.unlockedSkills.includes('stomp');
+  const downPressed = keys['ArrowDown'] || keys['KeyS'];
+  if (hasStomp && downPressed && !p.onGround && p.vy > 0 && p.stompState === 0) {
+    // Check if player is at least 64px above ground
+    const playerBottom = p.y + p.h;
+    let nearestGroundY = gs.level.height * CONFIG.TILE_SIZE;
+
+    for (let row = Math.floor(playerBottom / CONFIG.TILE_SIZE); row < gs.level.height; row++) {
+      for (let col = Math.floor(p.x / CONFIG.TILE_SIZE); col <= Math.floor((p.x + p.w) / CONFIG.TILE_SIZE); col++) {
+        if (col >= 0 && col < gs.level.width && row >= 0) {
+          const tile = gs.level.tiles[row][col];
+          if (isSolid(tile)) {
+            nearestGroundY = Math.min(nearestGroundY, row * CONFIG.TILE_SIZE);
+            break;
+          }
+        }
+      }
+      if (nearestGroundY < gs.level.height * CONFIG.TILE_SIZE) break;
+    }
+
+    if (playerBottom < nearestGroundY - 64) {
+      p.stompState = 1; // Activate stomp
+      p.vy = 15; // Fast downward velocity
+    }
+  }
+
+  // Handle dash mechanics
+  if (p.dashTimer > 0) {
+    p.dashTimer--;
+    // During dash, maintain dash velocity
+    p.vx = p.dashDir * CONFIG.DASH_SPEED;
+    // Apply skin dash bonus if available
+    if (p.skin && p.skin.bonus === 'dash') {
+      p.vx *= 1.3;
+    }
+  } else {
+    // Normal movement when not dashing
+    const onIce = isOnIce(p);
+    const wantLeft = keys['ArrowLeft'] || keys['KeyA'];
+    const wantRight = keys['ArrowRight'] || keys['KeyD'];
+
+    // Apply skin speed bonus
+    let baseSpeed = CONFIG.PLAYER_SPEED;
+    if (p.skin && p.skin.bonus === 'speed') baseSpeed *= 1.1;
+    if (gs.powerUps.speed > 0) baseSpeed *= 1.3;
+
+    if (onIce) {
+      if (wantLeft) { p.vx -= 0.15; p.facing = -1; }
+      else if (wantRight) { p.vx += 0.15; p.facing = 1; }
+      else { p.vx *= 0.96; }
+      p.vx = Math.max(-baseSpeed, Math.min(p.vx, baseSpeed));
+      if (Math.abs(p.vx) < 0.1 && !wantLeft && !wantRight) p.vx = 0;
+    } else {
+      if (wantLeft) { p.vx = -baseSpeed; p.facing = -1; }
+      else if (wantRight) { p.vx = baseSpeed; p.facing = 1; }
+      else { p.vx = 0; }
+    }
+  }
+
+  // Handle dash activation
+  const hasDash = gs.unlockedSkills.includes('dash');
+  const dashBuffered = (frameCount - lastDashPress) < 4; // 4 frame buffer for dash input
+  if (hasDash && dashBuffered && p.canDash && p.dashTimer <= 0) {
+    p.dashTimer = CONFIG.DASH_FRAMES;
+    p.dashDir = p.facing;
+    p.canDash = false;
+    p.invincible = Math.max(p.invincible, 10); // Brief invincibility during dash
+    lastDashPress = -100; // Clear dash buffer
+    
+    // Create dash effect particles
+    for (let i = 0; i < 5; i++) {
+      gs.particles.push({
+        x: p.x + p.w/2 + Math.random() * 8 - 4,
+        y: p.y + p.h/2 + Math.random() * 8 - 4,
+        vx: -p.dashDir * (2 + Math.random() * 3),
+        vy: Math.random() * 2 - 1,
+        color: '#ff8',
+        size: 2 + Math.random() * 2,
+        life: 15,
+        maxLife: 15
+      });
+    }
+  }
+
+  p.vy += CONFIG.GRAVITY;
+
+  // Handle glide skill mechanics
+  const hasGlide = gs.unlockedSkills.includes('glide');
+  const jumpHeld = keys['Space'] || keys['ArrowUp'] || keys['KeyW'];
+  const isGliding = hasGlide && jumpHeld && p.vy > 1.5 && !p.onGround;
+
+  if (isGliding) {
+    p.vy = 1.5; // Cap fall speed for gliding
+    // Add gliding particles
+    if (frameCount % 4 === 0) {
+      gs.particles.push({
+        x: p.x + p.w/2 + Math.random() * 8 - 4,
+        y: p.y + p.h + Math.random() * 4,
+        vx: Math.random() * 2 - 1,
+        vy: Math.random() * 1 + 1,
+        color: '#8ef',
+        size: 1,
+        life: 30,
+        maxLife: 30
+      });
+    }
+  } else {
+    if (p.vy > CONFIG.MAX_FALL_SPEED) p.vy = CONFIG.MAX_FALL_SPEED;
+  }
+
+  p.x += p.vx;
+  p.x = Math.max(0, Math.min(p.x, gs.level.width * CONFIG.TILE_SIZE - p.w));
+
+  const oldVx = p.vx;
+  resolveXCollision(p);
+
+  // Handle wall jump skill mechanics
+  const hasWallJump = gs.unlockedSkills.includes('wall_jump');
+  const jumpBuffered = (frameCount - lastJumpPress) < CONFIG.JUMP_BUFFER_FRAMES;
+  const hitWall = oldVx !== 0 && p.vx === 0; // Player was moving but now stopped by wall
+
+  if (hasWallJump && jumpBuffered && hitWall && p.vy > 0 && !p.onGround && p.wallJumpCooldown <= 0) {
+    // Wall jump: apply upward velocity and push away from wall
+    p.vy = CONFIG.JUMP_VELOCITY * 0.9; // Slightly weaker than normal jump
+    p.vx = oldVx > 0 ? -CONFIG.PLAYER_SPEED * 1.5 : CONFIG.PLAYER_SPEED * 1.5; // Push away from wall
+    p.wallJumpCooldown = 10; // Prevent infinite climbing on same wall
+    p.facing = p.vx > 0 ? 1 : -1; // Face away from wall
+    lastJumpPress = -100; // Clear jump buffer
+
+    // Create wall jump effect particles
+    for (let i = 0; i < 6; i++) {
+      gs.particles.push({
+        x: p.x + p.w/2 + Math.random() * 6 - 3,
+        y: p.y + p.h/2 + Math.random() * 6 - 3,
+        vx: oldVx > 0 ? -Math.random() * 3 : Math.random() * 3,
+        vy: -Math.random() * 4 - 1,
+        color: '#8ff',
+        size: 2,
+        life: 20,
+        maxLife: 20
+      });
+    }
+  }
+
+  p.y += p.vy;
+
+  // Handle magnet skill mechanics
+  const hasMagnet = gs.unlockedSkills.includes('magnet');
+  if (hasMagnet) {
+    const MAGNET_RANGE = 80;
+    const MAGNET_SPEED = 3;
+    const playerCenterX = p.x + p.w / 2;
+    const playerCenterY = p.y + p.h / 2;
+
+    for (let row = 0; row < gs.level.height; row++) {
+      for (let col = 0; col < gs.level.width; col++) {
+        const tile = gs.level.tiles[row][col];
+        if (tile === TILE.COIN || tile === TILE.GEM) {
+          const tileX = col * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+          const tileY = row * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2;
+          const dx = tileX - playerCenterX;
+          const dy = tileY - playerCenterY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < MAGNET_RANGE && distance > 5) {
+            // Move tile content toward player
+            const moveX = (-dx / distance) * MAGNET_SPEED;
+            const moveY = (-dy / distance) * MAGNET_SPEED;
+
+            // Create attraction particle effect
+            if (frameCount % 3 === 0) {
+              gs.particles.push({
+                x: tileX + Math.random() * 6 - 3,
+                y: tileY + Math.random() * 6 - 3,
+                vx: moveX * 0.3 + Math.random() * 2 - 1,
+                vy: moveY * 0.3 + Math.random() * 2 - 1,
+                color: tile === TILE.COIN ? '#ff0' : '#0f8',
+                size: 1,
+                life: 20,
+                maxLife: 20
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (p.y > gs.level.height * CONFIG.TILE_SIZE + 50) {
+    gs.lastDeathCause = 'fall';
+    killPlayer();
+    return;
+  }
+
+  const wasAbove = oldBottom;
+  resolveYCollision(p, wasAbove);
+  checkMovingPlatformCollision(p);
+
+  if (p.onGround) {
+    p.coyoteTimer = CONFIG.COYOTE_FRAMES;
+    p.jumpsLeft = p.maxJumps;
+    p.canDash = true; // Reset dash ability when landing
+  } else {
+    if (p.coyoteTimer > 0) p.coyoteTimer--;
+  }
+
+  const jumpBufferedNormal = (frameCount - lastJumpPress) < CONFIG.JUMP_BUFFER_FRAMES;
+  if (jumpBufferedNormal && (p.onGround || p.coyoteTimer > 0) && p.jumpsLeft > 0) {
+    // Apply skin jump bonus
+    let jumpVel = CONFIG.JUMP_VELOCITY;
+    if (p.skin && p.skin.bonus === 'jump') jumpVel *= 1.12;
+    p.vy = jumpVel;
+    p.onGround = false;
+    p.coyoteTimer = 0;
+    p.jumpsLeft--;
+    lastJumpPress = -100;
+    
+    // Create jump effect particles for double jump
+    if (p.maxJumps > 1 && p.jumpsLeft === 0) {
+      for (let i = 0; i < 8; i++) {
+        gs.particles.push({
+          x: p.x + p.w/2 + Math.random() * 12 - 6,
+          y: p.y + p.h + Math.random() * 4,
+          vx: Math.random() * 4 - 2,
+          vy: Math.random() * 2 + 1,
+          color: '#4af',
+          size: 1 + Math.random() * 2,
+          life: 20,
+          maxLife: 20
+        });
+      }
+    }
+  }
+
+  if (p.onGround && Math.abs(p.vx) > 0.5) {
+    p.frameTimer++;
+    if (p.frameTimer >= 8) { p.frame = (p.frame + 1) % 4; p.frameTimer = 0; }
+  } else {
+    p.frame = 0; p.frameTimer = 0;
+  }
+
+  checkTilePickups(p);
+  checkSpikeCollision(p);
+  checkExitCollision(p);
+
+  scoreTracker.award(gs.progressBase + p.x + p.w);
+  gs.score = scoreTracker.getHighWater();
+}
+
+function updateMovingPlatforms() {
+  if (!gs.level || !gs.level.movingPlatforms) return;
+  for (const mp of gs.level.movingPlatforms) {
+    mp.prevX = mp.currentX !== undefined ? mp.currentX : mp.x;
+    mp.prevY = mp.currentY !== undefined ? mp.currentY : mp.y;
+
+    if (mp.dir === 'h') {
+      mp.currentX = mp.x + Math.sin(frameCount * mp.speed * 0.02 + mp.phase) * mp.amplitude;
+      mp.currentY = mp.y;
+    } else if (mp.dir === 'v') {
+      mp.currentX = mp.x;
+      mp.currentY = mp.y + Math.sin(frameCount * mp.speed * 0.02 + mp.phase) * mp.amplitude;
+    } else {
+      mp.currentX = mp.prevX;
+      mp.currentY = mp.prevY;
+    }
+
+    mp.deltaX = mp.currentX - mp.prevX;
+    mp.deltaY = mp.currentY - mp.prevY;
+  }
+}
+
+function checkMovingPlatformCollision(player) {
+  if (!player || !gs.level || !gs.level.movingPlatforms) return;
+  const p = player;
+  p._onMovingPlatform = false;
+
+  for (const mp of gs.level.movingPlatforms) {
+    if (mp.currentX === undefined || mp.currentY === undefined) continue;
+
+    const platTop = mp.currentY;
+    const platLeft = mp.currentX;
+    const platRight = platLeft + mp.w;
+
+    if (p.vy < 0) continue;
+    if (p.x + p.w <= platLeft || p.x >= platRight) continue;
+
+    const playerBottom = p.y + p.h;
+    if (playerBottom < platTop || playerBottom > platTop + 10) continue;
+
+    const prevBottom = playerBottom - p.vy;
+    if (prevBottom > platTop + 2) continue;
+
+    p.y = platTop - p.h;
+    p.vy = 0;
+    p.onGround = true;
+    p.coyoteTimer = CONFIG.COYOTE_FRAMES;
+    p.jumpsLeft = p.maxJumps;
+    p.canDash = true;
+
+    if (Math.abs(mp.deltaX) > 0) {
+      const newX = p.x + mp.deltaX;
+      const checkX = mp.deltaX > 0 ? newX + p.w : newX;
+      const midY = p.y + p.h / 2;
+      if (!isSolid(getTileAt(checkX, midY))) {
+        p.x = newX;
+      }
+    }
+
+    p._onMovingPlatform = true;
+    break;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// PARTICLE SYSTEM
+// ═══════════════════════════════════════════════
+function updateParticles() {
+  for (let i = gs.particles.length - 1; i >= 0; i--) {
+    const particle = gs.particles[i];
+
+    // Update position
+    particle.x += particle.vx;
+    particle.y += particle.vy;
+
+    // Apply gravity to particles
+    particle.vy += 0.1;
+
+    // Update life
+    particle.life--;
+
+    // Remove dead particles
+    if (particle.life <= 0) {
+      gs.particles.splice(i, 1);
+    }
+  }
+}
+
+function updateTrailParticles() {
+  const p = gs.player;
+  if (!p || !p.alive) return;
+
+  // Spawn trail particles every 3 frames if active trail is not 'none'
+  const activeTrail = gs.purchases.active_trail;
+  if (activeTrail && activeTrail !== 'none' && frameCount % 3 === 0) {
+    // Find the trail data
+    const trail = TRAILS.find(t => t.id === activeTrail);
+    if (trail) {
+      // Spawn particle at player position
+      gs.trailParticles.push({
+        x: p.x + p.w / 2,
+        y: p.y + p.h / 2,
+        color: trail.color,
+        life: 15
+      });
+    }
+  }
+
+  // Update and remove trail particles
+  for (let i = gs.trailParticles.length - 1; i >= 0; i--) {
+    const particle = gs.trailParticles[i];
+    particle.life--;
+
+    // Remove particle if life is over
+    if (particle.life <= 0) {
+      gs.trailParticles.splice(i, 1);
+    }
+  }
+
+  // Limit to max 30 particles
+  while (gs.trailParticles.length > 30) {
+    gs.trailParticles.shift(); // Remove oldest particle
+  }
+}
+
+function spawnCollectionParticles(x, y, color, count) {
+  // Limit total particles to 50
+  if (gs.particles.length + count > 50) {
+    const removeCount = gs.particles.length + count - 50;
+    gs.particles.splice(0, removeCount);
+  }
+
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+    const speed = 2 + Math.random() * 3;
+    const lifetime = color === '#ff0' ? 25 : 35; // Coins fade faster than gems
+
+    gs.particles.push({
+      x: x,
+      y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 1, // Slight upward bias
+      life: lifetime,
+      maxLife: lifetime,
+      color: color,
+      size: 2 + Math.random() * 2,
+      type: 'collection'
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ENEMY UPDATES
+// ═══════════════════════════════════════════════
+function updateEnemies() {
+  for (const e of gs.entities) {
+    if (!e.alive) {
+      if (e.deathTimer !== undefined && e.deathTimer > 0) {
+        e.deathTimer--;
+      }
+      continue;
+    }
+
+    if (e.type === 'walker') {
+      e.x += e.vx * gs.timeScale;
+
+      if (e.x < e.startX - e.patrolRange) {
+        e.vx = Math.abs(e.vx);
+      } else if (e.x > e.startX + e.patrolRange) {
+        e.vx = -Math.abs(e.vx);
+      }
+
+      const wallCheckX = e.vx > 0 ? e.x + 16 : e.x - 1;
+      if (isSolid(getTileAt(wallCheckX, e.y + 8))) {
+        e.vx = -e.vx;
+      }
+
+      const ledgeCheckX = e.vx > 0 ? e.x + 16 : e.x - 1;
+      const tileBelow = getTileAt(ledgeCheckX, e.y + 17);
+      if (!isSolid(tileBelow) && tileBelow !== TILE.PLATFORM) {
+        e.vx = -e.vx;
+      }
+
+      e.frame = (e.frame + 0.1 * gs.timeScale) % 2;
+
+    } else if (e.type === 'flyer') {
+      e.flyPhase += 0.03 * gs.timeScale;
+      e.y = e.baseY + Math.sin(e.flyPhase) * 20;
+
+      e.x += e.vx * 0.5 * gs.timeScale;
+      if (e.x < e.startX - e.patrolRange) {
+        e.vx = Math.abs(e.vx);
+      } else if (e.x > e.startX + e.patrolRange) {
+        e.vx = -Math.abs(e.vx);
+      }
+
+      e.frame = (e.frame + 0.08 * gs.timeScale) % 2;
+    }
+  }
+
+  if (frameCount % 60 === 0) {
+    gs.entities = gs.entities.filter(e => e.alive || (e.deathTimer !== undefined && e.deathTimer > 0));
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ENEMY COLLISION CHECK
+// ═══════════════════════════════════════════════
+function checkEnemyCollision() {
+  const p = gs.player;
+  if (!p || !p.alive || p.invincible > 0) return;
+
+  for (const e of gs.entities) {
+    if (!e.alive) continue;
+
+    const ew = 16, eh = 16;
+    if (p.x + p.w > e.x && p.x < e.x + ew &&
+        p.y + p.h > e.y && p.y < e.y + eh) {
+
+      const feetOverlap = (p.y + p.h) - e.y;
+      const isDashing = p.dashTimer > 0;
+      
+      if ((p.vy > 0 && feetOverlap < 10) || isDashing) {
+        // Kill enemy via stomp or dash
+        e.alive = false;
+        e.deathTimer = 10;
+        if (!isDashing) {
+          p.vy = CONFIG.JUMP_VELOCITY * 0.6; // Bounce on stomp
+        }
+        gs.score += 25;
+
+        // Battle pass XP for enemy kill
+        earnBattlePassXP(10, "enemy_kill");
+        
+        // Create death particles
+        for (let i = 0; i < 6; i++) {
+          gs.particles.push({
+            x: e.x + 8 + Math.random() * 8 - 4,
+            y: e.y + 8 + Math.random() * 8 - 4,
+            vx: Math.random() * 4 - 2,
+            vy: Math.random() * 3 - 1,
+            color: '#f44',
+            size: 1 + Math.random() * 2,
+            life: 25,
+            maxLife: 25
+          });
+        }
+      } else {
+        // Player takes damage
+        if (p.shieldHP > 0) {
+          p.shieldHP--;
+          p.invincible = 60;
+          startScreenShake(4, 12); // Light shake for shield hit
+        } else {
+          startScreenShake(6, 20); // Stronger shake for death
+          gs.lastDeathCause = 'enemy';
+          killPlayer();
+        }
+      }
+      return;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN SHAKE SYSTEM
+// ═══════════════════════════════════════════════
+function startScreenShake(intensity, frames) {
+  if (gs.phase !== 'PLAYING') return; // Don't shake during menus
+  gs.shakeIntensity = intensity;
+  gs.shakeFrames = frames;
+}
+
+function updateScreenShake() {
+  if (gs.shakeFrames > 0) {
+    gs.shakeFrames--;
+    const decay = gs.shakeFrames / 20; // Decay over 20 frames
+    const currentIntensity = gs.shakeIntensity * decay;
+
+    const shakeX = (Math.random() - 0.5) * currentIntensity * 2;
+    const shakeY = (Math.random() - 0.5) * currentIntensity * 2;
+
+    canvas.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+
+    if (gs.shakeFrames <= 0) {
+      canvas.style.transform = 'translate(0px, 0px)'; // Reset to center
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// MENU TRANSITIONS
+// ═══════════════════════════════════════════════
+function transitionTo(callback) {
+  if (gs.transition.active) return; // Lock to prevent interruptions
+
+  // For menu-to-menu transitions (no canvas game loop running), use CSS fade
+  if (gs.phase !== 'PLAYING' && gs.phase !== 'DEAD') {
+    const overlay = document.getElementById('game-container') || document.getElementById('menu-content');
+    if (overlay) {
+      overlay.style.transition = 'opacity 0.3s ease';
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        if (callback) callback();
+        overlay.style.opacity = '1';
+      }, 300);
+    } else {
+      if (callback) callback();
+    }
+    return;
+  }
+
+  // Canvas-based transition for gameplay
+  gs.transition.active = true;
+  gs.transition.direction = 'out';
+  gs.transition.callback = callback;
+  gs.transition.alpha = 0;
+
+  const fadeOut = () => {
+    gs.transition.alpha += gs.transition.speed;
+
+    if (gs.transition.alpha >= 1) {
+      if (gs.transition.callback) {
+        gs.transition.callback();
+      }
+
+      gs.transition.direction = 'in';
+      const fadeIn = () => {
+        gs.transition.alpha -= gs.transition.speed;
+
+        if (gs.transition.alpha <= 0) {
+          gs.transition.active = false;
+          gs.transition.callback = null;
+          return;
+        }
+
+        requestAnimationFrame(fadeIn);
+      };
+      requestAnimationFrame(fadeIn);
+      return;
+    }
+
+    requestAnimationFrame(fadeOut);
+  };
+
+  requestAnimationFrame(fadeOut);
+}
+
+// Legacy function for compatibility
+function fadeToMenu(callback) {
+  transitionTo(callback);
+}
+
+// ═══════════════════════════════════════════════
+// MENU STACK MANAGEMENT
+// ═══════════════════════════════════════════════
+function pushMenuStack(currentPhase) {
+  if (gs.menuStack.length >= 10) {
+    gs.menuStack.shift(); // Remove oldest entry if stack too large
+  }
+  gs.menuStack.push(currentPhase);
+}
+
+function popMenuStack() {
+  return gs.menuStack.pop() || 'MENU';
+}
+
+function handleEscapeKey() {
+  if (gs.transition.active) return; // Don't process ESC during transitions
+
+  if (gs.phase === 'PLAYING') {
+    if (gs.isPaused) {
+      resumeFromPause();
+    } else {
+      openPauseMenu();
+    }
+    return;
+  } else if (gs.phase === 'DEAD') {
+    // Return to menu from death screen
+    transitionTo(() => {
+      gs.phase = 'MENU';
+      showMainMenu();
+    });
+  } else if (gs.menuStack.length > 0) {
+    // Navigate back using menu stack
+    const previousScreen = popMenuStack();
+    transitionTo(() => {
+      switch (previousScreen) {
+        case 'MENU':
+          gs.phase = 'MENU';
+          showMainMenu();
+          break;
+        case 'LEVEL_SELECT':
+          gs.phase = 'LEVEL_SELECT';
+          showLevelSelect();
+          break;
+        case 'PLAYING':
+          // Resume game
+          gs.phase = 'PLAYING';
+          overlay.classList.add('hidden');
+          gs.isPaused = false;
+          break;
+        default:
+          gs.phase = 'MENU';
+          showMainMenu();
+      }
+    });
+  }
+}
+
+function formatLevelTime(seconds = 0) {
+  const totalSeconds = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+  const secs = (totalSeconds % 60).toString().padStart(2, '0');
+  return `${minutes}:${secs}`;
+}
+
+function openPauseMenu() {
+  if (gs.phase !== 'PLAYING' || gs.isPaused) return;
+  gs.isPaused = true;
+  canvas.style.transform = 'translate(0px, 0px)'; // Ensure canvas recenters while paused
+  overlay.classList.remove('hidden');
+
+  const levelName = LEVELS.find(l => l.id === gs.levelNum)?.name || `Level ${gs.levelNum}`;
+  const summaryText = `${levelName} • Time ${formatLevelTime(gs.levelTime)} • Score ${Math.floor(gs.score)}`;
+
+  menuContent.innerHTML = `
+    <div style="text-align: center; max-width: 360px;">
+      <div style="font-size: 28px; color: #6cf; margin-bottom: 12px;">⏸ Game Paused</div>
+      <div style="font-size: 12px; color: #aaa; margin-bottom: 20px;">${summaryText}</div>
+      <div class="btn" onclick="resumeFromPause()">Resume</div>
+      <div class="btn" onclick="restartLevelFromPause()">Restart Level</div>
+      <div class="btn" onclick="quitToMenuFromPause()">Quit to Menu</div>
+      <div style="font-size: 10px; color: #666; margin-top: 16px;">Press ESC to resume</div>
+    </div>
+  `;
+}
+
+function resumeFromPause() {
+  if (gs.phase !== 'PLAYING' || !gs.isPaused) return;
+  gs.isPaused = false;
+  overlay.classList.add('hidden');
+  menuContent.innerHTML = '';
+}
+
+function restartLevelFromPause() {
+  if (gs.phase !== 'PLAYING') return;
+  if (gs.transition.active) return;
+  gs.isPaused = false;
+  overlay.classList.add('hidden');
+  menuContent.innerHTML = '';
+  transitionTo(() => {
+    startGame();
+  });
+}
+
+function quitToMenuFromPause() {
+  if (gs.phase !== 'PLAYING') return;
+  if (gs.transition.active) return;
+  gs.isPaused = false;
+  menuContent.innerHTML = '';
+  returnToMenu();
+}
+
+// ═══════════════════════════════════════════════
+// BACK BUTTON RENDERING
+// ═══════════════════════════════════════════════
+function renderBackButton(targetScreen) {
+  return `
+    <div style="position: absolute; top: 10px; left: 10px; z-index: 20;">
+      <div class="btn" style="
+        padding: 8px 12px;
+        font-size: 12px;
+        background: rgba(0,0,0,0.7);
+        border: 1px solid #666;
+        min-width: 80px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      " onclick="navigateBack('${targetScreen}')">
+        ← Back
+      </div>
+    </div>
+  `;
+}
+
+function navigateBack(targetScreen) {
+  if (gs.transition.active) return;
+
+  transitionTo(() => {
+    switch (targetScreen) {
+      case 'MENU':
+        gs.phase = 'MENU';
+        showMainMenu();
+        break;
+      case 'LEVEL_SELECT':
+        gs.phase = 'LEVEL_SELECT';
+        showLevelSelect();
+        break;
+      default:
+        gs.phase = 'MENU';
+        showMainMenu();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// CONFETTI PARTICLE SYSTEM
+// ═══════════════════════════════════════════════
+function createConfetti() {
+  gs.confetti = []; // Clear existing confetti
+
+  const colors = ['#ff4444', '#44ff44', '#4444ff', '#ffff44', '#ff44ff', '#44ffff'];
+
+  for (let i = 0; i < 30; i++) {
+    gs.confetti.push({
+      x: CONFIG.CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 200,
+      y: CONFIG.CANVAS_HEIGHT / 2 + (Math.random() - 0.5) * 100,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8 - 2,
+      gravity: 0.2,
+      life: 120,
+      maxLife: 120,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+}
+
+function updateConfetti() {
+  for (let i = gs.confetti.length - 1; i >= 0; i--) {
+    const particle = gs.confetti[i];
+
+    particle.x += particle.vx;
+    particle.y += particle.vy;
+    particle.vy += particle.gravity;
+    particle.life--;
+
+    if (particle.life <= 0) {
+      gs.confetti.splice(i, 1);
+    }
+  }
+}
+
+function playZoomEffect() {
+  canvas.classList.add('play-zoom');
+  setTimeout(() => {
+    canvas.classList.remove('play-zoom');
+  }, 200);
+}
+
+// ═══════════════════════════════════════════════
+// DEATH HANDLER
+// ═══════════════════════════════════════════════
+function killPlayer() {
+  gs.player.alive = false;
+  gs.deathCount++;
+  gs.phase = 'DEAD';
+
+  // Auto-save progress if logged in
+  if (authState && authState.isLoggedIn) {
+    if (supabaseClient && currentUser) {
+      saveProgress(); // Use Supabase save (async, fire-and-forget)
+    } else {
+      savePlayerProgress(authState.email); // Fallback to localStorage
+    }
+  }
+
+  // Calculate final scores and show enhanced game over screen
+  calculateFinalScore();
+  showGameOverScreen();
+}
+
+function calculateFinalScore() {
+  // Calculate distance score (already in gs.score)
+  const distanceScore = Math.floor(gs.score);
+  const coinBonus = gs.coins * 10;
+  const gemBonus = gs.gems * 50;
+  const totalScore = distanceScore + coinBonus + gemBonus;
+
+  // Calculate XP earned this run
+  const xpEarned = Math.floor(totalScore / 10) + (gs.coins * 2) + (gs.gems * 5);
+
+  // Check for new best score
+  const isNewBest = totalScore > gs.bestScore;
+  if (isNewBest) {
+    gs.bestScore = totalScore;
+    // Save to localStorage (will be implemented by auth system later)
+    try {
+      localStorage.setItem('pixelRunnerBestScore', gs.bestScore.toString());
+    } catch (e) {
+      console.warn('Could not save best score:', e);
+    }
+  }
+
+  // Check level completion and update progress
+  const currentLevel = LEVELS.find(l => l.id === gs.levelNum);
+  if (currentLevel) {
+    completeLevel(currentLevel.id, totalScore);
+  }
+
+  // Battle Pass progression
+  const battlePassXP = Math.floor(totalScore / 10); // 1 XP per 10 score points
+  earnBattlePassXP(battlePassXP, "level_completion");
+
+  // Update challenge progress
+  updateChallengeProgress("score", totalScore);
+  updateChallengeProgress("levels", 1);
+  updateChallengeProgress("coins", gs.coins);
+
+  // Store values for game over screen
+  gs.gameOverData = {
+    distanceScore,
+    coinBonus,
+    gemBonus,
+    totalScore,
+    xpEarned,
+    isNewBest,
+    starRating: getStarRating(totalScore)
+  };
+}
+
+function getStarRating(score) {
+  if (score >= 5000) return 3;
+  if (score >= 2000) return 2;
+  if (score >= 500) return 1;
+  return 0;
+}
+
+function showGameOverScreen() {
+  const data = gs.gameOverData;
+  const stars = '★'.repeat(data.starRating) + '☆'.repeat(3 - data.starRating);
+
+  // Calculate distance percentage
+  const levelWidthPx = gs.level ? gs.level.width * CONFIG.TILE_SIZE : 1000;
+  const distancePercent = Math.floor((gs.player.x / levelWidthPx) * 100);
+
+  // Format death cause
+  const deathCauses = {
+    'spike': 'Hit by spike',
+    'enemy': 'Killed by enemy',
+    'fall': 'Fell off level',
+    'lava': 'Burned in lava',
+    'unknown': 'Unknown cause'
+  };
+  const deathText = deathCauses[gs.lastDeathCause] || deathCauses['unknown'];
+
+  overlay.classList.remove('hidden');
+
+  menuContent.innerHTML = `
+    <div class="gameover-container">
+      <h1 style="color: #f44; font-size: 32px; margin-bottom: 8px; text-shadow: 0 0 20px rgba(255,68,68,0.5);">GAME OVER</h1>
+      ${data.isNewBest ? '<div class="new-best-badge">🏆 NEW BEST! 🏆</div>' : ''}
+
+      <div class="score-breakdown">
+        <div class="score-title">Score Breakdown</div>
+        <div class="score-item">
+          <span>Distance:</span>
+          <span>${data.distanceScore}</span>
+        </div>
+        <div class="score-item">
+          <span>Coin Bonus (${gs.coins} × 10):</span>
+          <span>+${data.coinBonus}</span>
+        </div>
+        <div class="score-item">
+          <span>Gem Bonus (${gs.gems} × 50):</span>
+          <span>+${data.gemBonus}</span>
+        </div>
+        <div class="score-total">
+          <span>Total Score:</span>
+          <span>${data.totalScore}</span>
+        </div>
+      </div>
+
+      <div class="xp-section">
+        <div class="xp-title">XP Earned: +${data.xpEarned}</div>
+        <div class="xp-bar-container">
+          <div class="xp-bar-bg">
+            <div class="xp-bar-fill" id="gameover-xp-fill"></div>
+          </div>
+          <div class="xp-label">Level ${gs.playerLevel}</div>
+        </div>
+      </div>
+
+      <div class="star-rating">
+        <div class="stars">${stars}</div>
+        <div class="star-label">${data.starRating} / 3 Stars</div>
+      </div>
+
+      <div style="margin: 16px 0; padding: 12px; background: rgba(255,68,68,0.1); border-radius: 8px; border: 1px solid rgba(255,68,68,0.3);">
+        <div style="font-size: 16px; color: #f44; margin-bottom: 8px; text-align: center;">💀 Death Details</div>
+        <div style="font-size: 14px; color: #aaa; margin: 4px 0;">
+          <span style="color: #f44;">Cause:</span> ${deathText}
+        </div>
+        <div style="font-size: 14px; color: #aaa; margin: 4px 0;">
+          <span style="color: #6cf;">Distance:</span> ${distancePercent}% of level
+        </div>
+        <div style="font-size: 14px; color: #aaa; margin: 4px 0;">
+          <span style="color: #fc4;">Coins:</span> ${gs.coins} collected
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <div class="btn gameover-btn" onclick="startSelectedLevel()">Retry</div>
+        <div class="btn gameover-btn" onclick="returnToLevelSelect()">Level Select</div>
+        <div class="btn gameover-btn" onclick="returnToMenu()">Main Menu</div>
+      </div>
+    </div>
+  `;
+
+  // Apply XP and animate the XP bar
+  applyXPGain(data.xpEarned);
+}
+
+function applyXPGain(xpEarned) {
+  const startXP = gs.xp;
+  const startLevel = gs.playerLevel;
+  let currentXP = startXP;
+  let currentLevel = startLevel;
+
+  // Add the earned XP
+  currentXP += xpEarned;
+
+  // Check for level ups
+  let leveledUp = false;
+  while (currentXP >= xpForLevel(currentLevel)) {
+    currentXP -= xpForLevel(currentLevel);
+    currentLevel++;
+    leveledUp = true;
+  }
+
+  // Update game state
+  gs.xp = currentXP;
+  gs.playerLevel = currentLevel;
+
+  if (leveledUp) {
+    // Check for new skill unlocks
+    checkSkillUnlocks();
+    console.log(`Level up! Now level ${currentLevel}`);
+  }
+
+  // Animate the XP bar
+  animateXPBar();
+}
+
+function animateXPBar() {
+  const xpFill = document.getElementById('gameover-xp-fill');
+  if (!xpFill) return;
+
+  const currentXP = gs.xp;
+  const xpToNext = xpForLevel(gs.playerLevel);
+  const percentage = Math.min((currentXP / xpToNext) * 100, 100);
+
+  // Start from 0 and animate to final percentage
+  xpFill.style.width = '0%';
+  setTimeout(() => {
+    xpFill.style.width = percentage + '%';
+  }, 100);
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - BACKGROUND & PARALLAX SYSTEM
+// ═══════════════════════════════════════════════
+const THEMES = {
+  meadow: {
+    sky: ['#2a1a4e', '#1a2a5e', '#0f3460'],
+    far: { color: '#3d6b3d', speed: 0.2 },
+    mid: { color: '#2a7c4a', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#5a9c5e', '#4a8c4e'],
+      [TILE.STONE]: ['#7b6354', '#6a5244'],
+      [TILE.SPIKE]: ['#3d7c3d', '#2d6c2d']
+    }
+  },
+  forest: {
+    sky: ['#1a1a2e', '#16213e', '#0f3460'],
+    far: { color: '#2d1b69', speed: 0.2 },
+    mid: { color: '#1a472a', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#4a7c4e', '#3a5c3e'],
+      [TILE.STONE]: ['#6b5344', '#5a4334'],
+      [TILE.SPIKE]: ['#2d5c2d', '#1d4c1d']
+    }
+  },
+  desert: {
+    sky: ['#ff6b35', '#f7931e', '#1a1a2e'],
+    far: { color: '#d4691a', speed: 0.2 },
+    mid: { color: '#c4681a', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#deb887', '#c4a373'],
+      [TILE.STONE]: ['#a0522d', '#8b451a'],
+      [TILE.SPIKE]: ['#cd853f', '#b8762f']
+    }
+  },
+  ice: {
+    sky: ['#b3d9ff', '#87ceeb', '#e8f4fd'],
+    far: { color: '#4682b4', speed: 0.2 },
+    mid: { color: '#5f9ea0', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#b3d9ff', '#9cc9ef'],
+      [TILE.STONE]: ['#708090', '#606080'],
+      [TILE.SPIKE]: ['#e8e8e8', '#d8d8d8']
+    }
+  },
+  lava: {
+    sky: ['#8b0000', '#dc143c', '#ff4500'],
+    far: { color: '#4a0a0a', speed: 0.2 },
+    mid: { color: '#6b1a1a', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#c84c0c', '#b8420a'],
+      [TILE.STONE]: ['#6b2c2c', '#5b1c1c'],
+      [TILE.SPIKE]: ['#ffff00', '#ffcc00']
+    }
+  },
+  sky: {
+    sky: ['#87ceeb', '#add8e6', '#f0f8ff'],
+    far: { color: '#dcdcdc', speed: 0.2 },
+    mid: { color: '#e8e8e8', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#87ceeb', '#77bedb'],
+      [TILE.STONE]: ['#e8e8e8', '#d8d8d8'],
+      [TILE.SPIKE]: ['#8b5a8f', '#7b4a7f']
+    }
+  },
+  cave: {
+    sky: ['#1a1a1a', '#2a2a2a', '#0a0a0a'],
+    far: { color: '#3a2a1a', speed: 0.15 },
+    mid: { color: '#4a3a2a', speed: 0.4 },
+    tileColors: {
+      [TILE.GRASS]: ['#5a4a3a', '#4a3a2a'],
+      [TILE.STONE]: ['#6b5b4b', '#5a4a3a'],
+      [TILE.SPIKE]: ['#8a7a6a', '#7a6a5a']
+    }
+  },
+  ocean: {
+    sky: ['#001a33', '#003366', '#004d99'],
+    far: { color: '#002244', speed: 0.2 },
+    mid: { color: '#003355', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#2a6496', '#1a5486'],
+      [TILE.STONE]: ['#4a7496', '#3a6486'],
+      [TILE.SPIKE]: ['#00ccff', '#00bbee']
+    }
+  },
+  jungle: {
+    sky: ['#0a2a0a', '#1a3a1a', '#0a4a1a'],
+    far: { color: '#1a5a1a', speed: 0.2 },
+    mid: { color: '#2a6a2a', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#2d8c2d', '#1d7c1d'],
+      [TILE.STONE]: ['#5a4a3a', '#4a3a2a'],
+      [TILE.SPIKE]: ['#4caf50', '#3c9f40']
+    }
+  },
+  ruins: {
+    sky: ['#2a1a3a', '#3a2a4a', '#1a0a2a'],
+    far: { color: '#4a3a5a', speed: 0.2 },
+    mid: { color: '#5a4a6a', speed: 0.5 },
+    tileColors: {
+      [TILE.GRASS]: ['#8a7a6a', '#7a6a5a'],
+      [TILE.STONE]: ['#9a8a7a', '#8a7a6a'],
+      [TILE.SPIKE]: ['#b8860b', '#a8760b']
+    }
+  },
+  space: {
+    sky: ['#000011', '#0a0a2a', '#000000'],
+    far: { color: '#1a1a3a', speed: 0.1 },
+    mid: { color: '#2a2a4a', speed: 0.3 },
+    tileColors: {
+      [TILE.GRASS]: ['#4a4a6a', '#3a3a5a'],
+      [TILE.STONE]: ['#5a5a7a', '#4a4a6a'],
+      [TILE.SPIKE]: ['#ff00ff', '#ee00ee']
+    }
+  }
+};
+
+function getCurrentLevelTheme() {
+  const currentLevel = LEVELS.find(l => l.id === gs.levelNum);
+  if (currentLevel) {
+    return currentLevel.theme.toLowerCase();
+  }
+  return 'forest'; // Default fallback
+}
+
+function applyThemeColors() {
+  const themeName = getCurrentLevelTheme();
+  const theme = THEMES[themeName];
+  if (theme && theme.tileColors) {
+    // Apply theme-specific tile colors
+    Object.assign(TILE_COLORS, theme.tileColors);
+  }
+}
+
+let _parallaxLayers = null;
+
+function initParallaxLayers() {
+  _parallaxLayers = {
+    far: [],
+    mid: []
+  };
+
+  // Generate far layer shapes (mountains for forest, skyscrapers for city)
+  for (let x = 0; x < CONFIG.CANVAS_WIDTH * 6; x += 40) {
+    _parallaxLayers.far.push({
+      x: x,
+      height: 60 + Math.random() * 80,
+      width: 30 + Math.random() * 50,
+      type: 'mountain'
+    });
+  }
+
+  // Generate mid layer shapes (trees for forest, buildings for city)
+  for (let x = 0; x < CONFIG.CANVAS_WIDTH * 6; x += 25) {
+    _parallaxLayers.mid.push({
+      x: x,
+      height: 30 + Math.random() * 60,
+      width: 15 + Math.random() * 25,
+      type: 'tree'
+    });
+  }
+}
+
+function getCurrentTheme() {
+  return getCurrentLevelTheme();
+}
+
+function renderBackground() {
+  if (!_parallaxLayers) initParallaxLayers();
+
+  const theme = THEMES[getCurrentTheme()];
+
+  // 1. Render sky gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, CONFIG.CANVAS_HEIGHT);
+  grad.addColorStop(0, theme.sky[0]);
+  grad.addColorStop(0.5, theme.sky[1]);
+  grad.addColorStop(1, theme.sky[2]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+
+  // 2. Render far layer (mountains/skyscrapers)
+  ctx.fillStyle = theme.far.color;
+  for (const shape of _parallaxLayers.far) {
+    const x = ((shape.x - gs.camera.x * theme.far.speed) % (CONFIG.CANVAS_WIDTH * 6) + CONFIG.CANVAS_WIDTH * 6) % (CONFIG.CANVAS_WIDTH * 6);
+    if (x > -shape.width && x < CONFIG.CANVAS_WIDTH) {
+      if (getCurrentTheme() === 'forest') {
+        // Draw mountain silhouette
+        ctx.beginPath();
+        ctx.moveTo(x, CONFIG.CANVAS_HEIGHT);
+        ctx.lineTo(x, CONFIG.CANVAS_HEIGHT - shape.height);
+        ctx.lineTo(x + shape.width * 0.3, CONFIG.CANVAS_HEIGHT - shape.height - 20);
+        ctx.lineTo(x + shape.width * 0.7, CONFIG.CANVAS_HEIGHT - shape.height - 10);
+        ctx.lineTo(x + shape.width, CONFIG.CANVAS_HEIGHT - shape.height + 15);
+        ctx.lineTo(x + shape.width, CONFIG.CANVAS_HEIGHT);
+        ctx.fill();
+      } else {
+        // Draw skyscraper silhouette
+        ctx.fillRect(x, CONFIG.CANVAS_HEIGHT - shape.height, shape.width, shape.height);
+        // Add some window details
+        ctx.fillStyle = theme.far.color + '44';
+        for (let wy = CONFIG.CANVAS_HEIGHT - shape.height + 10; wy < CONFIG.CANVAS_HEIGHT - 10; wy += 12) {
+          for (let wx = x + 4; wx < x + shape.width - 4; wx += 8) {
+            ctx.fillRect(wx, wy, 2, 2);
+          }
+        }
+        ctx.fillStyle = theme.far.color;
+      }
+    }
+  }
+
+  // 3. Render mid layer (trees/buildings)
+  ctx.fillStyle = theme.mid.color;
+  for (const shape of _parallaxLayers.mid) {
+    const x = ((shape.x - gs.camera.x * theme.mid.speed) % (CONFIG.CANVAS_WIDTH * 6) + CONFIG.CANVAS_WIDTH * 6) % (CONFIG.CANVAS_WIDTH * 6);
+    if (x > -shape.width && x < CONFIG.CANVAS_WIDTH) {
+      if (getCurrentTheme() === 'forest') {
+        // Draw tree silhouette
+        const trunkWidth = 4;
+        const trunkHeight = shape.height * 0.3;
+        const crownHeight = shape.height * 0.7;
+        // Trunk
+        ctx.fillRect(x + shape.width/2 - trunkWidth/2, CONFIG.CANVAS_HEIGHT - trunkHeight, trunkWidth, trunkHeight);
+        // Crown (triangle)
+        ctx.beginPath();
+        ctx.moveTo(x + shape.width/2, CONFIG.CANVAS_HEIGHT - trunkHeight - crownHeight);
+        ctx.lineTo(x, CONFIG.CANVAS_HEIGHT - trunkHeight);
+        ctx.lineTo(x + shape.width, CONFIG.CANVAS_HEIGHT - trunkHeight);
+        ctx.fill();
+      } else {
+        // Draw building silhouette
+        ctx.fillRect(x, CONFIG.CANVAS_HEIGHT - shape.height, shape.width, shape.height);
+      }
+    }
+  }
+}
+
+function updateCamera() {
+  const targetX = gs.player.x - CONFIG.CANVAS_WIDTH / 2 + gs.player.w / 2;
+  const targetY = Math.max(0, gs.player.y - CONFIG.CANVAS_HEIGHT * 0.65);
+  gs.camera.x += (targetX - gs.camera.x) * CONFIG.CAMERA_LERP;
+  gs.camera.x = Math.max(0, Math.min(gs.camera.x, gs.level.width * CONFIG.TILE_SIZE - CONFIG.CANVAS_WIDTH));
+  gs.camera.y += (targetY - gs.camera.y) * CONFIG.CAMERA_LERP;
+  gs.camera.y = Math.max(0, Math.min(gs.camera.y, Math.max(0, gs.level.height * CONFIG.TILE_SIZE - CONFIG.CANVAS_HEIGHT)));
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - TILES
+// ═══════════════════════════════════════════════
+function renderTiles() {
+  const TS = CONFIG.TILE_SIZE;
+  const startCol = Math.max(0, Math.floor(gs.camera.x / TS) - 1);
+  const endCol = Math.min(gs.level.width, Math.ceil((gs.camera.x + CONFIG.CANVAS_WIDTH) / TS) + 1);
+  const startRow = Math.max(0, Math.floor(gs.camera.y / TS) - 1);
+  const endRow = Math.min(gs.level.height, Math.ceil((gs.camera.y + CONFIG.CANVAS_HEIGHT) / TS) + 1);
+
+  for (let row = startRow; row < endRow; row++) {
+    for (let col = startCol; col < endCol; col++) {
+      const tile = gs.level.tiles[row][col];
+      if (tile === TILE.EMPTY) continue;
+
+      const sx = col * TS - gs.camera.x;
+      const sy = row * TS - gs.camera.y;
+
+      if (tile === TILE.GRASS) {
+        ctx.fillStyle = TILE_COLORS[tile][0];
+        ctx.fillRect(sx, sy, TS, TS);
+        ctx.fillStyle = TILE_COLORS[tile][1];
+        ctx.fillRect(sx, sy + TS - 2, TS, 2);
+        const h = ((col * 7 + row * 13) & 0x7FFFFFFF) % 4;
+        ctx.fillStyle = '#6c5';
+        ctx.fillRect(sx + h * 4, sy + 2, 2, 2);
+      } else if (tile === TILE.STONE) {
+        ctx.fillStyle = TILE_COLORS[tile][0];
+        ctx.fillRect(sx, sy, TS, TS);
+        ctx.strokeStyle = TILE_COLORS[tile][1];
+        ctx.lineWidth = 1;
+        for (let y = sy; y < sy + TS; y += 4) {
+          ctx.beginPath();
+          ctx.moveTo(sx, y);
+          ctx.lineTo(sx + TS, y);
+          ctx.stroke();
+        }
+        for (let x = sx; x < sx + TS; x += 4) {
+          ctx.beginPath();
+          ctx.moveTo(x, sy);
+          ctx.lineTo(x, sy + TS);
+          ctx.stroke();
+        }
+      } else if (tile === TILE.SPIKE) {
+        ctx.fillStyle = TILE_COLORS[tile][0];
+        ctx.beginPath();
+        ctx.moveTo(sx + TS / 2, sy);
+        ctx.lineTo(sx + TS, sy + TS);
+        ctx.lineTo(sx, sy + TS);
+        ctx.closePath();
+        ctx.fill();
+      } else if (tile === TILE.ICE) {
+        ctx.fillStyle = TILE_COLORS[tile][0];
+        ctx.fillRect(sx, sy, TS, TS);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(sx + 2, sy + 2, 3, 2);
+        ctx.fillRect(sx + 10, sy + 8, 4, 2);
+      } else if (tile === TILE.BREAKABLE) {
+        ctx.fillStyle = TILE_COLORS[tile][0];
+        ctx.fillRect(sx, sy, TS, TS);
+        ctx.strokeStyle = TILE_COLORS[tile][1];
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sx + 4, sy + 4);
+        ctx.lineTo(sx + 12, sy + 12);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sx + 12, sy + 4);
+        ctx.lineTo(sx + 4, sy + 12);
+        ctx.stroke();
+      } else if (tile === TILE.PLATFORM) {
+        ctx.fillStyle = TILE_COLORS[tile][0];
+        ctx.fillRect(sx, sy, TS, TS);
+        ctx.fillStyle = '#9c7';
+        ctx.fillRect(sx, sy, TS, 1);
+        ctx.fillStyle = TILE_COLORS[tile][1];
+        ctx.fillRect(sx, sy + TS - 1, TS, 1);
+      } else if (tile === TILE.COIN) {
+        const bobY = sy + Math.sin(frameCount * 0.08 + col) * 2;
+        ctx.fillStyle = '#ff0';
+        ctx.beginPath();
+        ctx.arc(sx + TS / 2, bobY + TS / 2, 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (tile === TILE.GEM) {
+        ctx.fillStyle = '#4ef';
+        ctx.beginPath();
+        ctx.moveTo(sx + TS / 2, sy + 2);
+        ctx.lineTo(sx + TS - 2, sy + TS / 2);
+        ctx.lineTo(sx + TS / 2, sy + TS - 2);
+        ctx.lineTo(sx + 2, sy + TS / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#2cd';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      } else if (tile === TILE.POWERUP_SPEED) {
+        const scale = 1 + Math.sin(frameCount * 0.06) * 0.1;
+        const r = 4 * scale;
+        ctx.fillStyle = '#4f4';
+        ctx.beginPath();
+        ctx.arc(sx + TS / 2, sy + TS / 2, r, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (tile === TILE.POWERUP_SHIELD) {
+        const scale = 1 + Math.sin(frameCount * 0.06) * 0.1;
+        const r = 4 * scale;
+        ctx.fillStyle = '#48f';
+        ctx.beginPath();
+        ctx.arc(sx + TS / 2, sy + TS / 2, r, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (tile === TILE.POWERUP_MAGNET) {
+        const scale = 1 + Math.sin(frameCount * 0.06) * 0.1;
+        const r = 4 * scale;
+        ctx.fillStyle = '#f4f';
+        ctx.beginPath();
+        ctx.arc(sx + TS / 2, sy + TS / 2, r, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (tile === TILE.EXIT) {
+        const pulse = Math.sin(frameCount * 0.04);
+        ctx.fillStyle = pulse > 0 ? '#ff0' : '#fc0';
+        ctx.fillRect(sx + 2, sy + 2, TS - 4, TS - 4);
+        ctx.strokeStyle = pulse > 0 ? '#fc0' : '#ff0';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(sx + 2, sy + 2, TS - 4, TS - 4);
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - MOVING PLATFORMS
+// ═══════════════════════════════════════════════
+function renderMovingPlatforms() {
+  for (const p of gs.level.movingPlatforms) {
+    const vx = p.currentX !== undefined ? p.currentX : p.x;
+    const vy = p.currentY !== undefined ? p.currentY : p.y;
+
+    const px = vx - gs.camera.x;
+    const py = vy - gs.camera.y;
+
+    ctx.fillStyle = TILE_COLORS[TILE.PLATFORM][0];
+    ctx.fillRect(px, py, p.w, p.h);
+    ctx.fillStyle = '#9c7';
+    ctx.fillRect(px, py, p.w, 1);
+    ctx.fillStyle = TILE_COLORS[TILE.PLATFORM][1];
+    ctx.fillRect(px, py + p.h - 1, p.w, 1);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - PARTICLES
+// ═══════════════════════════════════════════════
+function renderParticles() {
+  for (const particle of gs.particles) {
+    const alpha = particle.life / (particle.maxLife || particle.life || 1);
+    const screenX = particle.x - gs.camera.x;
+    const screenY = particle.y - gs.camera.y;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = particle.color;
+
+    if (particle.type === 'collection') {
+      // Draw circular particles for collection effects
+      ctx.beginPath();
+      ctx.arc(screenX, screenY, particle.size || 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Draw rectangular particles (existing behavior)
+      ctx.fillRect(screenX, screenY, particle.size || 2, particle.size || 2);
+    }
+
+    ctx.restore();
+  }
+}
+
+function renderTrailParticles() {
+  for (const particle of gs.trailParticles) {
+    const alpha = particle.life / 15; // Fade over 15 frames
+    const screenX = particle.x - gs.camera.x;
+    const screenY = particle.y - gs.camera.y;
+
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.7; // Max alpha 0.7 for trail effect
+    ctx.fillStyle = particle.color;
+    ctx.beginPath();
+    ctx.arc(screenX, screenY, 3, 0, Math.PI * 2); // Small circle for trail
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - ENTITIES
+// ═══════════════════════════════════════════════
+function renderEntities() {
+  for (const e of gs.entities) {
+    if (!e.alive && (e.deathTimer === undefined || e.deathTimer <= 0)) continue;
+
+    if (!e.alive && e.deathTimer > 0) {
+      if (e.deathTimer % 2 === 0) continue;
+    }
+
+    const ex = e.x - gs.camera.x;
+    const ey = e.y - gs.camera.y;
+
+    if (e.type === 'walker') {
+      ctx.fillStyle = '#f44';
+      ctx.fillRect(ex, ey, 16, 8);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(ex + 3, ey + 2, 2, 2);
+      ctx.fillRect(ex + 11, ey + 2, 2, 2);
+      ctx.fillStyle = '#d22';
+      ctx.fillRect(ex + 2, ey + 8, 3, 4);
+      ctx.fillRect(ex + 11, ey + 8, 3, 4);
+    } else if (e.type === 'flyer') {
+      ctx.fillStyle = '#85f';
+      ctx.fillRect(ex + 3, ey + 2, 10, 8);
+      const wingL = Math.sin(frameCount * 0.15) * 3;
+      const wingR = Math.sin(frameCount * 0.15 + Math.PI) * 3;
+      ctx.fillStyle = '#a6f';
+      ctx.fillRect(ex + 1, ey + 3 + wingL, 2, 4);
+      ctx.fillRect(ex + 13, ey + 3 + wingR, 2, 4);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - PLAYER
+// ═══════════════════════════════════════════════
+function renderPlayer() {
+  const p = gs.player;
+  if (!p) return;
+
+  if (p.invincible > 0 && frameCount % 4 < 2) return;
+
+  // Use the player's skin colors for rendering
+  let skinColors;
+  if (p.skin.colors) {
+    // Old format with colors array
+    skinColors = p.skin.colors;
+  } else if (p.skin.color === 'rainbow') {
+    // Rainbow skin: cycle hue each frame
+    const hue = frameCount % 360;
+    const rainbowColor = `hsl(${hue}, 70%, 50%)`;
+    skinColors = [rainbowColor, rainbowColor, '#fff', '#fc4', '#333'];
+  } else {
+    // New format with single color, create colors array
+    const baseColor = p.skin.color;
+    skinColors = [baseColor, baseColor, '#fff', '#fc4', '#333'];
+  }
+  const sprite = makePlayerSprite(skinColors, p.frame);
+  drawSprite(sprite, p.x - gs.camera.x, p.y - gs.camera.y, 1, p.facing === -1);
+
+  // Render shield effect if active
+  if (p.shieldHP > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.3 + Math.sin(frameCount * 0.2) * 0.1;
+    ctx.fillStyle = '#4ef';
+    ctx.beginPath();
+    ctx.arc(p.x - gs.camera.x + p.w / 2, p.y - gs.camera.y + p.h / 2, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Render dash effect
+  if (p.dashTimer > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = '#ff8';
+    for (let i = 1; i <= 3; i++) {
+      const trailX = p.x - gs.camera.x - p.dashDir * i * 4;
+      ctx.globalAlpha = 0.6 / i;
+      drawSprite(sprite, trailX, p.y - gs.camera.y, 1, p.facing === -1);
+    }
+    ctx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING - MAIN
+// ═══════════════════════════════════════════════
+function render() {
+  ctx.clearRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+
+  if (gs.phase === 'MENU') {
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    ctx.fillStyle = '#6cf';
+    ctx.font = '32px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('PIXEL RUNNER', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2);
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Ready to play!', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 + 40);
+  } else if (gs.phase === 'SKIN_SELECT') {
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    ctx.fillStyle = '#6cf';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SKIN SELECTION', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 60);
+    ctx.font = '14px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Choose your appearance and bonus', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 30);
+  } else if (gs.phase === 'SKILL_SELECT') {
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    ctx.fillStyle = '#6cf';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SKILLS', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 60);
+    ctx.font = '14px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Your unlocked abilities', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 30);
+  } else if (gs.phase === 'LEVEL_SELECT') {
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    ctx.fillStyle = '#6cf';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('LEVEL SELECT', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 60);
+    ctx.font = '14px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Choose your adventure', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 30);
+  } else if (gs.phase === 'SHOP') {
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    ctx.fillStyle = '#6cf';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('COIN SHOP', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 60);
+    ctx.font = '14px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Spend your hard-earned currency', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 30);
+  } else if (gs.phase === 'BATTLE_PASS') {
+    ctx.fillStyle = '#1a1a3a';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    ctx.fillStyle = '#fc4';
+    ctx.font = '28px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('BATTLE PASS', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 60);
+    ctx.font = '14px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Season progression and rewards', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2 - 30);
+  } else if (gs.phase === 'PLAYING') {
+    updateCamera();
+    renderBackground();
+    renderTiles();
+    renderMovingPlatforms();
+    renderTrailParticles();
+    renderEntities();
+    renderPlayer();
+    renderParticles();
+    renderCanvasHUD();
+    updateHUD();
+
+    // Render enhanced level progress bar
+    if (gs.level) {
+      const levelWidthPx = gs.level.width * CONFIG.TILE_SIZE;
+      const progress = Math.min(1, gs.player.x / levelWidthPx);
+      const progressPercent = Math.floor(progress * 100);
+
+      // Background bar
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, canvas.width, 4);
+
+      // Progress gradient bar
+      if (progress > 0) {
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width * progress, 0);
+        gradient.addColorStop(0, '#ff4444');    // Red at start
+        gradient.addColorStop(0.5, '#ffff44');  // Yellow at middle
+        gradient.addColorStop(1, '#44ff44');    // Green at end
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width * progress, 4);
+      }
+
+      // Diamond marker at current position
+      const markerX = canvas.width * progress;
+      ctx.fillStyle = '#fff';
+      ctx.save();
+      ctx.translate(markerX, 2);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-2, -2, 4, 4);
+      ctx.restore();
+
+      // Percentage label
+      ctx.fillStyle = '#fff';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${progressPercent}%`, canvas.width - 5, 15);
+    }
+  } else if (gs.phase === 'DEAD') {
+    updateCamera();
+    renderBackground();
+    renderTiles();
+    renderMovingPlatforms();
+    renderTrailParticles();
+    renderEntities();
+    renderPlayer();
+    renderParticles();
+    // Apply dark overlay to frozen game scene
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    // Game over screen is now handled by HTML overlay, not canvas text
+  }
+
+  // Render transition overlay if active
+  if (gs.transition.active) {
+    ctx.fillStyle = `rgba(0,0,0,${gs.transition.alpha})`;
+    ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+  }
+
+  // Render confetti particles
+  if (gs.confetti.length > 0) {
+    for (const particle of gs.confetti) {
+      ctx.save();
+      ctx.globalAlpha = particle.life / particle.maxLife;
+      ctx.fillStyle = particle.color;
+      ctx.fillRect(particle.x - gs.camera.x, particle.y - gs.camera.y, 3, 3);
+      ctx.restore();
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════
+function gameLoop() {
+  frameCount++;
+  if (gs.phase === 'PLAYING') {
+    if (!gs.isPaused) {
+      gs.levelTime += 1/60; // Track level time (assuming 60 FPS)
+      updateMovingPlatforms();
+      updateEnemies();
+      updatePlayer();
+      updateTrailParticles();
+      updateParticles();
+      updateConfetti();
+      checkEnemyCollision();
+      updateScreenShake();
+    }
+  } else if (gs.phase === 'DEAD') {
+    updateScreenShake();
+  }
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+// ═══════════════════════════════════════════════
+// GAME INITIALIZATION
+// ═══════════════════════════════════════════════
+window.startGame = startGame;
+function startGame() {
+  // Play zoom effect before starting
+  playZoomEffect();
+  gs.isPaused = false;
+
+  // Check for new skill unlocks based on current player level
+  checkSkillUnlocks();
+
+  // Apply theme-specific colors for the current level
+  applyThemeColors();
+
+  gs.level = generateLevel(gs.levelNum);
+  initializeMovingPlatforms(gs.level);
+  gs.player = createPlayer();
+  gs.entities = [...gs.level.enemies];
+  gs.particles = [];
+  gs.floatingTexts = [];
+  gs.powerUps = { speed: 0, shield: 0, magnet: 0 };
+  gs.camera = { x: 0, y: 0 };
+  gs.shakeFrames = 0;
+  gs.levelTime = 0;
+  gs.progressBase = 0;
+
+  // Apply unlocked skills to player
+  const hasDoubleJump = gs.unlockedSkills.includes('double_jump');
+  const hasShield = gs.unlockedSkills.includes('shield');
+  gs.player.maxJumps = hasDoubleJump ? 2 : 1;
+  gs.player.jumpsLeft = gs.player.maxJumps;
+  if (hasShield) {
+    gs.player.shieldHP = 1;
+    gs.player.shieldMax = 1;
+    const selectedSkin = getSafeSelectedSkin(); // Use validated skin selection
+    if (selectedSkin.bonus === 'shield_dur') gs.player.shieldMax = 2;
+  }
+
+  gs.phase = 'PLAYING';
+
+  // Reset score state for new run
+  gs.score = 0;
+  gs.coins = 0;
+  gs.gems = 0;
+
+  overlay.classList.add('hidden');
+  initHUD();
+
+  scoreTracker.reset(gs.progressBase + gs.player.x + gs.player.w);
+}
+
+function init() {
+  gs.phase = 'MENU';
+  gs.isPaused = false;
+  overlay.classList.remove('hidden');
+
+  // Initialize default game state
+  resetGameStateToDefaults();
+
+  // Load level progress from localStorage
+  loadLevelProgress();
+
+  // Load shop data from localStorage
+  loadShopData();
+
+  // Set up Supabase auth state monitoring
+  initializeSupabaseAuth();
+
+  // Show login screen instead of main menu
+  showLoginScreen();
+  gameLoop();
+}
+
+async function initializeSupabaseAuth() {
+  if (!supabaseClient || !SUPABASE_CONFIGURED) {
+    return; // No Supabase configured
+  }
+
+  try {
+    // Check if user is already logged in
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+    if (error) {
+      console.error('Auth check error:', error);
+      return;
+    }
+
+    if (user) {
+      // User is logged in, restore session
+      currentUser = user;
+      authState = authState || {};
+      authState.isLoggedIn = true;
+      authState.email = user.email;
+
+      // Load progress from Supabase
+      await loadProgress();
+
+      // Update UI
+      updateLoggedInIndicator();
+    }
+
+    // Set up auth state change listener
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        currentUser = session.user;
+        authState = authState || {};
+        authState.isLoggedIn = true;
+        authState.email = session.user.email;
+        updateLoggedInIndicator();
+        loadProgress();
+      } else if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        if (authState) {
+          const auth = getAuthFunctions();
+          if (auth) {
+            auth.applyLogout(authState);
+          }
+          authState.email = '';
+        }
+        updateLoggedInIndicator();
+      }
+    });
+
+  } catch (error) {
+    console.error('Supabase initialization error:', error);
+  }
+}
+
+canvas.addEventListener('click', () => {
+  if (gs.phase === 'DEAD') startGame();
+});
+
+init();
+</script>
+<script>
+// Auth-state functions inlined to avoid separate module fetch
+// (sandbox proxy returns 503 for secondary .js module imports)
+(function() {
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const AUTH_MESSAGES = {
+    idle: 'Enter your email and password to continue.',
+    submitting: 'Signing you in...',
+    success: 'Signed in. Enjoy the run!',
+    genericFailure: 'Mock authentication failed. Try again.',
+    requiredEmail: 'Email is required.',
+    invalidEmail: 'Enter a valid email address.',
+    requiredPassword: 'Password is required.',
+  };
+  function createInitialAuthState(overrides) {
+    return Object.assign({ isLoggedIn: false, status: 'idle', message: AUTH_MESSAGES.idle, error: '', email: '' }, overrides || {});
+  }
+  function validateLoginInput(email, password) {
+    var normalizedEmail = email.trim(), errors = {};
+    if (!normalizedEmail) errors.email = AUTH_MESSAGES.requiredEmail;
+    else if (!EMAIL_PATTERN.test(normalizedEmail)) errors.email = AUTH_MESSAGES.invalidEmail;
+    if (!password) errors.password = AUTH_MESSAGES.requiredPassword;
+    return { errors: errors, normalizedEmail: normalizedEmail };
+  }
+  function applyLoginSuccess(state) { state.status='success'; state.isLoggedIn=true; state.error=''; state.message=AUTH_MESSAGES.success; return state; }
+  function applyLoginFailure(state, message) { state.status='failure'; state.isLoggedIn=false; state.error=message||AUTH_MESSAGES.genericFailure; state.message=state.error; return state; }
+  function applyLogout(state) { var r=createInitialAuthState(); state.isLoggedIn=r.isLoggedIn; state.status=r.status; state.message=r.message; state.error=r.error; state.email=''; return state; }
+  function shouldShowIndicator(state) { return !!state.isLoggedIn; }
+  function getIndicatorLabel(state) { return state.email || 'Logged in'; }
+  window.AuthFunctions = { AUTH_MESSAGES:AUTH_MESSAGES, createInitialAuthState:createInitialAuthState, validateLoginInput:validateLoginInput, applyLoginSuccess:applyLoginSuccess, applyLoginFailure:applyLoginFailure, applyLogout:applyLogout, shouldShowIndicator:shouldShowIndicator, getIndicatorLabel:getIndicatorLabel };
+})();
+</script>
+</body>
+</html>

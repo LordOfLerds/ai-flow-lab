@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0019-F-1",
+  "parent_task_id": "T-0019",
+  "title": "Add true headless-browser smoke coverage for Start UI visibility after runtime scripts execute",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "The executor explicitly reported that current coverage cannot catch regressions caused by runtime JavaScript hiding the Start UI. A small follow-up can raise fidelity by loading the actual pages through a local HTTP server and asserting computed visibility in a real browser context.",
+  "smallest_safe_scope": "Add one minimal browser automation smoke spec covering `index.html` and `game.html` only, reusing any existing repo test/server conventions if present and avoiding broader e2e expansion.",
+  "depends_on": "T-0019",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:25:49.834Z",
+  "index": 1
+}

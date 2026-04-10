@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0005-F-4",
+  "parent_task_id": "T-0005",
+  "title": "Add level editor or dynamic level generation",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Replayability and content generation. Optional but valuable for extended play.",
+  "smallest_safe_scope": "Simple in-game level editor or procedural level generation algorithm.",
+  "depends_on": "T-0001 through T-0005",
+  "priority": "LOW",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:46:30.021Z",
+  "index": 4
+}

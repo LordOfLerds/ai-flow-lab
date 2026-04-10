@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0052-F-1",
+  "parent_task_id": "T-0052",
+  "title": "Add browser smoke coverage for pause overlay and timer freeze behavior",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "The executor found the feature already implemented, so the highest-value small follow-up is verification. This adds regression protection for Escape-triggered pause, Resume / Restart / Quit actions, and pause-time freeze behavior without reopening runtime architecture.",
+  "smallest_safe_scope": "Add a focused browser-level smoke test that starts gameplay, triggers pause with Escape, asserts the overlay actions are visible, verifies Resume returns to the same run, verifies Restart Level resets the run, verifies Quit to Menu returns to main menu, and verifies progression/time does not advance while paused.",
+  "depends_on": "T-0052",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-09T09:21:00.024Z",
+  "index": 1
+}

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0027-F-3",
+  "parent_task_id": "T-0027",
+  "title": "Implement enemy collision and death/respawn system",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Enemies are rendered at their positions but don't move or interact with the player. Add enemy patrol movement (walker walks back and forth, flyer bobs vertically), player-enemy collision (damage or stomp-kill), death animation, and respawn at level start with life tracking.",
+  "smallest_safe_scope": "Enemy patrol AI, player-enemy collision, player death + respawn at start. No game-over screen yet.",
+  "depends_on": "F-1",
+  "priority": "normal",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T23:16:03.473Z",
+  "index": 3
+}

@@ -1,0 +1,12 @@
+{
+  "id": "1775651962327-T-0040-critique",
+  "taskId": "T-0040",
+  "step": "critique",
+  "provider": "openai",
+  "model": "gpt-5.4",
+  "status": "completed",
+  "createdAt": "2026-04-08T12:39:22.328Z",
+  "promptFile": "1775651962327-T-0040-critique.prompt.md",
+  "responseFile": "1775651962327-T-0040-critique.response.md",
+  "completedAt": "2026-04-08T12:40:16.562Z"
+}

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0003-F-4",
+  "parent_task_id": "T-0003",
+  "title": "Add HUD, score tracking, game over, menus, and polish",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Completes feedback loop and player experience. Visual polish ties gameplay together.",
+  "smallest_safe_scope": "Render score/XP to HUD, game-over screen with restart, main menu transitions.",
+  "depends_on": "T-0001, T-0002, T-0003",
+  "priority": "MEDIUM",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:45:27.772Z",
+  "index": 4
+}

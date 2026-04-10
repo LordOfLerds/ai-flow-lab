@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0002-F-4",
+  "parent_task_id": "T-0002",
+  "title": "Build XP, leveling, skills, and skins system",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Long-term progression system. Depends on collectible/reward loop being established.",
+  "smallest_safe_scope": "XP counter, level threshold table, basic skill tree display (no gameplay effects yet).",
+  "depends_on": "T-0001, T-0002, collectibles (F-3)",
+  "priority": "MEDIUM",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:44:49.595Z",
+  "index": 4
+}

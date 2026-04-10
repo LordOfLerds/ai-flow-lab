@@ -7,6 +7,7 @@ coverage/
 *.log
 automation/node_modules/
 starter-test/node_modules/
+starter-test/.cache/
 wt/
 
 # Runtime state for local agent orchestration

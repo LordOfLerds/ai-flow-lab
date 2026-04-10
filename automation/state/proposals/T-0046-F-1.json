@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0046-F-1",
+  "parent_task_id": "T-0046",
+  "title": "**lane_type:** feature-lane",
+  "lane_type": "** feature-lane",
+  "executor": "** codex",
+  "rationale": "** Level complete screen and death screen now exist but have no audio feedback. Add Web Audio API hooks (beep patterns) for: level complete jingle, death sound, coin collect, gem collect.",
+  "smallest_safe_scope": "** Add `playSound(type)` utility that plays simple oscillator-based sound effects. Call it from `showLevelCompleteScreen`, `killPlayer`, coin/gem collection handlers.",
+  "depends_on": "",
+  "priority": "** LOW",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T23:55:38.116Z",
+  "index": 1
+}

@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0016-F-2",
+  "parent_task_id": "T-0016",
+  "title": "Mirror logged-in session indicator into the gameplay HUD",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "rationale": "The executor recommended keeping session state visible while the overlay is hidden. A HUD-level indicator is a narrow usability improvement that complements T-0016 without changing auth behavior.",
+  "smallest_safe_scope": "Add a compact HUD session label/chip that appears only while logged in and reuses existing auth-state helpers for visibility and label content, without adding new auth actions or persistence behavior.",
+  "depends_on": "T-0016",
+  "priority": "low",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T19:53:46.630Z",
+  "index": 2
+}

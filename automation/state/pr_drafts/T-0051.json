@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0051",
+  "parent_goal_id": "G-0005",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0051",
+  "base_branch": "main",
+  "title": "[T-0051] Polish: level complete celebration, progress bar, smooth transitions",
+  "summary": "Polish: level complete celebration, progress bar, smooth transitions",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "issues",
+  "non_goals": "(see spec)",
+  "followup_notes": "No critical follow-ups needed. All 6 polish items were implemented.\n\n\n- title: Add sound effects for transitions, level complete, and death\n- description: Add optional audio feedback — celebration jingle on level complete, subtle whoosh on menu transitions, impact sound on death. Use Web Audio API o…",
+  "status": "draft",
+  "created_at": "2026-04-09T00:49:09.488Z"
+}

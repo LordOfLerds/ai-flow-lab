@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0028-F-1",
+  "parent_task_id": "T-0028",
+  "title": "Implement enemy AI movement and player-enemy collision",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Enemies (walkers and flyers) are rendered at their positions but are completely static. This task adds patrol AI (walkers walk back and forth on platforms, flyers bob vertically), player-enemy collision detection (damage from sides, stomp-kill from above with bounce), and enemy death/removal. This is the next major gameplay feature needed to make the levels challenging.",
+  "smallest_safe_scope": "Walker patrol movement (reverse at edges/walls), flyer vertical bobbing, player-enemy overlap detection, stomp-kill with bounce, side-hit damage/death. No enemy spawning or enemy-enemy interaction.",
+  "depends_on": "T-0028",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T23:36:42.069Z",
+  "index": 1
+}

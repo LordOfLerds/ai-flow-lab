@@ -1,0 +1,12 @@
+{
+  "id": "1775538781297-T-0006-critique",
+  "taskId": "T-0006",
+  "step": "critique",
+  "provider": "gemini",
+  "model": "gemini-3-flash-preview",
+  "status": "completed",
+  "createdAt": "2026-04-07T05:13:01.299Z",
+  "promptFile": "1775538781297-T-0006-critique.prompt.md",
+  "responseFile": "1775538781297-T-0006-critique.response.md",
+  "completedAt": "2026-04-07T05:13:29.406Z"
+}

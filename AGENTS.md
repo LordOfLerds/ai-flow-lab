@@ -1,5 +1,30 @@
 # AGENTS.md
 
+## Agent Roles
+
+### ChatGPT (Architect / Planner)
+- Designs system architecture and task decomposition
+- Writes specs, plans, and proposals
+- Provides strategic direction
+- Available via API (api mode) or desktop app (app mode)
+
+### Claude (Executor / Reviewer / Git Manager)
+- Implements what ChatGPT designs
+- Reviews ChatGPT output with constructive critique
+- Manages all git operations
+- Makes Decision-Gate calls during autonomous runs
+- Runs the full automation pipeline
+
+### Gemini (Critical Reviewer)
+- Reviews specs for contradictions, edge cases, hidden assumptions
+- Provides independent perspective from a different model
+- Available via API (api mode) or manual paste (app mode)
+
+### Human Owner
+- Sets goals and priorities
+- Can override any Decision-Gate
+- Monitors progress via UI dashboard
+
 ## Source of truth
 Always consult first:
 - docs/DOMAIN_MODEL.md

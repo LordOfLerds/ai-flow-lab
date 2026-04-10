@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0013-F-2",
+  "parent_task_id": "T-0013",
+  "title": "Add logout control and visible logged-in indicator for the mock auth state",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "rationale": "The current implementation gates entry into the app but does not provide an explicit way to leave the mock authenticated state within the same session. This is a small, user-visible completeness improvement that stays within the local-only auth model.",
+  "smallest_safe_scope": "Add a logout button and simple logged-in indicator in the menu/HUD layer that clears `gs.auth.isLoggedIn`, resets auth status/message as needed, and returns the user to the login screen without changing broader game systems.",
+  "depends_on": "T-0013",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T09:37:27.756Z",
+  "index": 2
+}

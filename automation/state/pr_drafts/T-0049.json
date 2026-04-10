@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0049",
+  "parent_goal_id": "G-0005",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0049",
+  "base_branch": "main",
+  "title": "[T-0049] Fix skin progression lock and expand shop with meaningful items",
+  "summary": "Fix skin progression lock and expand shop with meaningful items",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "- title: Balance economy — adjust coin/gem drop rates for shop pricing\n- description: With the new shop prices (skins up to 3000 coins, gems up to 100), the current coin/gem drop rates may make premium items unachievable. Need to audit drop rates across 100 levels and adjust so players can afford mi…",
+  "status": "draft",
+  "created_at": "2026-04-09T00:28:20.701Z"
+}

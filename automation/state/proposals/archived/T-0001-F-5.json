@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0001-F-5",
+  "parent_task_id": "T-0001",
+  "title": "Build HUD, menus, and game-over state",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Completes player feedback loop. Score/XP already tracked in gameState but not rendered.",
+  "smallest_safe_scope": "Render score, XP, lives to HUD div; wire game-over overlay with restart button; ensure state transitions trigger screen updates.",
+  "depends_on": "T-0001",
+  "priority": "MEDIUM",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:43:58.791Z",
+  "index": 5
+}

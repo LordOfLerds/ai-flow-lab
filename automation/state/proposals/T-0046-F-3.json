@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0046-F-3",
+  "parent_task_id": "T-0046",
+  "title": "**lane_type:** feature-lane",
+  "lane_type": "** feature-lane",
+  "executor": "** codex",
+  "rationale": "** Currently no \"Are you sure?\" when buying skins with coins/gems.",
+  "smallest_safe_scope": "** Add confirmation prompt before deducting currency.",
+  "depends_on": "",
+  "priority": "** LOW",
+  "should_spawn_now": false,
+  "created_at": "2026-04-08T23:55:38.116Z",
+  "index": 3
+}

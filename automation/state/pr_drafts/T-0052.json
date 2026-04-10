@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0052",
+  "parent_goal_id": null,
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0052",
+  "base_branch": "main",
+  "title": "[T-0052] Add pause menu with resume/restart/quit options",
+  "summary": "Add pause menu with resume/restart/quit options",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "issues",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0052 Follow-ups\n\nTask outcome summary\n\nThe executor reports that the pause feature already existed in the runtime and satisfies the requested behavior without requiring new implementation. According to the report, Escape opens pause during PLAYING, the overlay exposes Resume / Restart Level / Quit…",
+  "status": "draft",
+  "created_at": "2026-04-09T09:21:16.992Z"
+}

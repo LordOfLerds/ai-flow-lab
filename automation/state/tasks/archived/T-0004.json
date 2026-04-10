@@ -1,0 +1,28 @@
+{
+  "task_id": "T-0004",
+  "title": "Add obstacles and enemies",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0004-add-obstacles-and-enemies",
+  "worktree_path": "../wt/T-0004",
+  "spec_path": "ai/specs/T-0004_spec.md",
+  "review_path": "ai/reviews/T-0004_gemini_review.md",
+  "brief_path": "ai/briefs/T-0004_implementation.md",
+  "result_path": "ai/results/T-0004_executor_report.md",
+  "followup_path": "ai/followups/T-0004_followups.md",
+  "owner_lock": "task:T-0004",
+  "created_at": "2026-04-07T04:39:48.354Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "description": "Implement multiple obstacle types: static spikes (instant kill), moving platforms (horizontal and vertical), crumbling platforms (break after standing on them briefly), and enemy NPCs that patrol back and forth on platforms. Enemies should be pixel-art sprites with simple walk animation. Player can defeat enemies by jumping on top of them (Mario-style). Contact from the side causes damage. Dependencies: Task 2, Task 3",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "pr_draft_path": "ai/pr/T-0004_pr_draft.md",
+  "written_files": [
+    "index.html"
+  ]
+}

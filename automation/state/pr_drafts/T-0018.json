@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0018",
+  "parent_goal_id": null,
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "bug/T-0018-start-ui-nicht-mehr-vorhanden-wenn-auf-game-oder-game-html",
+  "base_branch": "main",
+  "title": "[T-0018] Start UI nicht mehr vorhanden wenn auf game oder game.html",
+  "summary": "Start UI nicht mehr vorhanden wenn auf game oder game.html",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "issue",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0018 restored Start-UI visibility for the reported access paths, but the executor achieved this with a mixed approach:\n\n- added a root-level `game.html` redirect to `index.html`\n- changed `automation/ui/game.html` so it now stays in menu state and shows a Start UI on load\n- documented the finding …",
+  "status": "draft",
+  "created_at": "2026-04-07T20:18:10.183Z"
+}

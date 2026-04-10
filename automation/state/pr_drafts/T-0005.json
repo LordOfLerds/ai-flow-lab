@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0005",
+  "parent_goal_id": "G-0001",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0005-implement-collectibles-rewards-and-power-ups",
+  "base_branch": "main",
+  "title": "[T-0005] Implement collectibles, rewards, and power-ups",
+  "summary": "Implement collectibles, rewards, and power-ups",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": false,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "(none identified in review)",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0005 successfully implemented collectibles (coins, gems), power-ups (invulnerability shield, speed boost), and reward mechanisms. The system integrates pickups with score/XP tracking and visual feedback (particles, sounds). Gameplay now has a complete reward loop driving player engagement.\n\n\n1. **…",
+  "status": "draft",
+  "created_at": "2026-04-07T05:46:34.140Z"
+}

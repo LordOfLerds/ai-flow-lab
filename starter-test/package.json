@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "tsx src/index.ts",
-    "test": "vitest run",
-    "testwatch": "vitest"
+    "test": "node ./scripts/run-vitest-with-chrome.mjs",
+    "testwatch": "node ./scripts/run-vitest-with-chrome.mjs --watch"
   },
   "keywords": [],
   "author": "",

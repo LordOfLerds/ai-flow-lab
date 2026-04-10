@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0014-F-4",
+  "parent_task_id": "T-0014",
+  "title": "Extract game configuration constants",
+  "lane_type": "refactor-lane",
+  "executor": "claude",
+  "rationale": "Game constants are scattered throughout single file, making balance adjustments difficult",
+  "smallest_safe_scope": "Extract only numeric constants (gravity, speeds, timers) to configuration object at top of file",
+  "depends_on": "F-1 (if code is kept as authoritative)",
+  "priority": "low",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:16:45.634Z",
+  "index": 4
+}

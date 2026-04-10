@@ -1,0 +1,9 @@
+{
+  "goal_id": "G-0001",
+  "title": "Build Pixel Jump & Run Game",
+  "description": "Build a complete pixel-art style Jump & Run platformer game as a single HTML file. Features: player character with pixel sprite, multiple obstacle types (spikes, gaps, moving platforms, enemies), collectible rewards (coins, gems, power-ups), unlockable skins system, XP and leveling system with skill upgrades (double jump, dash, shield), scrolling levels with increasing difficulty, score tracking, dark pixel-art theme, smooth controls with arrow keys/WASD, game over and restart flow.",
+  "priority": "P0",
+  "state": "COMPLETED",
+  "created_at": "2026-04-07T04:35:09.396Z",
+  "updated_at": "2026-04-07T05:20:44.907Z"
+}

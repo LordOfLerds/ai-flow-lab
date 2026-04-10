@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0021-F-1",
+  "parent_task_id": "T-0021",
+  "title": "Pin a specific Chrome for Testing release in CI for deterministic Start UI smoke runs",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "The executor explicitly recommended setting `CFT_RELEASE` in CI; this is the smallest remaining step to eliminate drift from \"latest stable\" changing between runs.",
+  "smallest_safe_scope": "Update the CI workflow that runs `starter-test` so it exports a chosen `CFT_RELEASE` value for the smoke-test job, without changing the local default behavior.",
+  "depends_on": "T-0021",
+  "priority": "high",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T20:49:17.185Z",
+  "index": 1
+}

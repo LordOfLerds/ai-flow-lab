@@ -1,0 +1,8 @@
+[
+  {
+    "step": "propose-followups",
+    "message": "fatal: ambiguous argument 'main...feature/T-0042-level-select-screen-and-multi-level-system': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]'\n\n---\n[routing] Step=\"propose-followups\" Lane=\"feature-lane\" → Provider=\"openai\" (mode=app)\n\n[APP MODE] Prompt queued: 1775685441224-T-0042-propose-followups\n  Prompt: /sessions/gracious-eloquent-sagan/mnt/ai-flow-lab/automation/state/prompts-queue/1775685441224-T-0042-propose-followups.prompt.md\n  Waiting for response at: /sessions/gracious-eloquent-sagan/mnt/ai-flow-lab/automation/state/prompts-queue/1775685441224-T-0042-propose-followups.response.md\n\n---\nCommand failed: node scripts/propose-followups-api.mjs T-0042\nfatal: ambiguous argument 'main...feature/T-0042-level-select-screen-and-multi-level-system': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]' [KILLED signal=SIGTERM — likely timeout]",
+    "timestamp": "2026-04-08T22:27:37.704Z",
+    "depth": 0
+  }
+]

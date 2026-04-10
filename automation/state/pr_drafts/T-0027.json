@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0027",
+  "parent_goal_id": "G-0002",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0027-implement-tile-rendering-and-camera-system-for-pixel-runner",
+  "base_branch": "main",
+  "title": "[T-0027] Implement tile rendering and camera system for Pixel Runner",
+  "summary": "Implement tile rendering and camera system for Pixel Runner",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "issues",
+  "non_goals": "out of scope. Just structure the code to allow it later.",
+  "followup_notes": "T-0027 implemented the tile rendering and camera system for Pixel Runner. The `render()` function in `index.html` was replaced from placeholder text with a full rendering pipeline including: background gradient with parallax star field, camera system with lerp smoothing, tile rendering with per-type…",
+  "status": "draft",
+  "created_at": "2026-04-07T23:16:04.068Z"
+}

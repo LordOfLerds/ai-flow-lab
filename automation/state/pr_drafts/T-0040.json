@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0040",
+  "parent_goal_id": "G-0003",
+  "parent_task_id": null,
+  "linked_decisions": [],
+  "branch_name": "feature/T-0040-enhanced-game-over-screen-and-visual-polish",
+  "base_branch": "main",
+  "title": "[T-0040] Enhanced Game Over Screen and Visual Polish",
+  "summary": "Enhanced Game Over Screen and Visual Polish",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "concern",
+  "non_goals": "(see spec)",
+  "followup_notes": "T-0040 (Enhanced Game Over Screen and Visual Polish) was executed. The executor report describes implementing a rich game over overlay with score breakdown, XP bar, star rating, and action buttons. Parallax scrolling backgrounds with forest and city themes, screen shake on damage, particle effects f…",
+  "status": "draft",
+  "created_at": "2026-04-08T12:59:22.691Z"
+}

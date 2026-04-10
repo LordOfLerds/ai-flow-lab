@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0007-F-5",
+  "parent_task_id": "T-0007",
+  "title": "Level editor or procedural generation",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Extended content and replayability. Nice-to-have for post-MVP expansion.",
+  "smallest_safe_scope": "In-game level editor UI or simple procedural generation algorithm for endless mode.",
+  "depends_on": "T-0001 through T-0007",
+  "priority": "LOW",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T05:47:30.650Z",
+  "index": 5
+}

@@ -1,0 +1,9 @@
+{
+  "id": "fix-T-0052-1775723989122",
+  "taskId": "T-0052",
+  "step": "critique",
+  "risk": "LOW",
+  "content": "---\n\n## Summary\nReplace the deprecated `gemini-2.0-flash` default model ID with `gemini-2.5-flash-preview-04-17` in both scripts that hardcode it.\n\n## Risk Level\nLOW\n\n## Changes\n\n### FILE: `automation/scripts/_llm-utils.mjs` (line 522)\n```diff\n-  const model = process.env.GEMINI_MODEL || \"gemini-2.0-flash\";\n+  const model = process.env.GEMINI_MODEL || \"gemini-2.5-flash-preview-04-17\";\n```\n\n### FILE: `automation/scripts/serve-dashboard.mjs` (line 2054)\n```diff\n-  const model = process.env.GEMINI_MODEL || \"gemini-2.0-flash\";\n+  const model = process.env.GEMINI_MODEL || \"gemini-2.5-flash-preview-04-17\";\n```\n\n**Note:** `automation/docs/user/CONFIGURATION.md:71` documents `GEMINI_MODEL=gemini-2.0-flash` as an example — update that for accuracy, but it has no runtime effect.\n\n## Post-Fix Actions\n1. Restart the dashboard server (`serve-dashboard.mjs`) so the new default is picked up in the running process.\n2. Retry T-0052 from state `ARCHITECTED` via the dashboard or `POST /api/cascade/retry` — no prior work is lost.\n3. Optionally, set `GEMINI_MODEL=gemini-2.5-flash-preview-04-17` in your `.env` to override the default permanently and avoid relying on the hardcoded fallback.",
+  "generated_at": "2026-04-09T08:39:49.122Z",
+  "status": "pending"
+}

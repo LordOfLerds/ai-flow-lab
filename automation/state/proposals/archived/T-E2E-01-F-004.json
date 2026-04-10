@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-E2E-01-F-004",
+  "parent_task_id": "T-E2E-01",
+  "title": "Add component version matrix documentation",
+  "lane_type": "docs-lane",
+  "executor": "claude",
+  "rationale": "AI Flow Lab has multiple subsystems (automation pipeline, agents, dashboard) that may evolve at different rates; users need component compatibility information",
+  "smallest_safe_scope": "Create docs/VERSIONS.md documenting current versions of automation scripts, AI agent configurations, dashboard, and compatibility matrix",
+  "depends_on": "F-003 (version management strategy)",
+  "priority": "low",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:23:47.973Z",
+  "index": 4
+}

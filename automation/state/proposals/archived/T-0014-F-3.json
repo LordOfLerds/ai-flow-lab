@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0014-F-3",
+  "parent_task_id": "T-0014",
+  "title": "Add basic automated tests for game mechanics",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "No test coverage exists for collision detection, physics, or game state transitions - risk of regressions",
+  "smallest_safe_scope": "Create test suite for core collision detection and player state transitions only",
+  "depends_on": "F-1 (if code is kept as authoritative)",
+  "priority": "medium",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T09:16:45.634Z",
+  "index": 3
+}

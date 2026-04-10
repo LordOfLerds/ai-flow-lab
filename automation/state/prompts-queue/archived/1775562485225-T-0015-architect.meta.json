@@ -1,0 +1,11 @@
+{
+  "id": "1775562485225-T-0015-architect",
+  "taskId": "T-0015",
+  "step": "architect",
+  "provider": "openai",
+  "model": "gpt-5.4",
+  "status": "pending",
+  "createdAt": "2026-04-07T11:48:05.226Z",
+  "promptFile": "1775562485225-T-0015-architect.prompt.md",
+  "responseFile": "1775562485225-T-0015-architect.response.md"
+}

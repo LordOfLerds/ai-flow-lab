@@ -1,0 +1,23 @@
+{
+  "task_id": "T-0030",
+  "parent_goal_id": null,
+  "parent_task_id": "T-0029",
+  "linked_decisions": [],
+  "branch_name": "feature/T-0030-build-on-canvas-hud-with-score-coins-level-and-health-display",
+  "base_branch": "main",
+  "title": "[T-0030] Build on-canvas HUD with score, coins, level, and health display",
+  "summary": "Build on-canvas HUD with score, coins, level, and health display",
+  "validation": {
+    "spec_exists": true,
+    "review_exists": true,
+    "brief_exists": true,
+    "result_exists": true,
+    "followups_exist": true,
+    "all_decisions_resolved": true
+  },
+  "risks": "Issues",
+  "non_goals": "Out of scope — basic display first.",
+  "followup_notes": "T-0030 implemented the HUD system for Pixel Runner. The HTML HUD now displays real-time score, coins, gems, level number, shield indicator, and active powerup timers during gameplay. DOM references are cached in `initHUD()` and only updated when values change (throttled writes). A canvas-based debug…",
+  "status": "draft",
+  "created_at": "2026-04-07T23:57:52.327Z"
+}

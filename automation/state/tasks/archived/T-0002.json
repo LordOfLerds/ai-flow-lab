@@ -1,0 +1,28 @@
+{
+  "task_id": "T-0002",
+  "title": "Implement player character with physics and controls",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0002-implement-player-character-with-physics-and-controls",
+  "worktree_path": "../wt/T-0002",
+  "spec_path": "ai/specs/T-0002_spec.md",
+  "review_path": "ai/reviews/T-0002_gemini_review.md",
+  "brief_path": "ai/briefs/T-0002_implementation.md",
+  "result_path": "ai/results/T-0002_executor_report.md",
+  "followup_path": "ai/followups/T-0002_followups.md",
+  "owner_lock": "task:T-0002",
+  "created_at": "2026-04-07T04:39:48.195Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "description": "Create the player character as a pixel-art sprite (16x24 px). Implement gravity, jumping (with variable jump height based on key hold duration), horizontal movement with acceleration/deceleration, and ground detection. Support arrow keys and WASD. Add running animation frames (at least idle, run-left, run-right, jump). Implement coyote time (brief grace period to jump after leaving a platform edge). Dependencies: Task 1",
+  "parent_goal_id": "G-0001",
+  "current_step": null,
+  "pr_draft_path": "ai/pr/T-0002_pr_draft.md",
+  "written_files": [
+    "index.html"
+  ]
+}

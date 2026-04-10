@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0003-F-2",
+  "parent_task_id": "T-0003",
+  "title": "Implement collectibles, rewards, and power-ups",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Engagement loop now viable with stable levels. Collectibles drive score progression.",
+  "smallest_safe_scope": "Coin entity type, pickup collision detection, score increment, particle feedback.",
+  "depends_on": "T-0001, T-0002, T-0003",
+  "priority": "HIGH",
+  "should_spawn_now": true,
+  "created_at": "2026-04-07T05:45:27.772Z",
+  "index": 2
+}

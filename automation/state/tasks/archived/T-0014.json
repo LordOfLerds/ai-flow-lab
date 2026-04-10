@@ -1,0 +1,34 @@
+{
+  "task_id": "T-0014",
+  "title": "Alle Docs f\u00fcr das Jump and Run nachziehen",
+  "repo": "ai-flow-lab",
+  "lane_type": "docs-lane",
+  "executor": "codex",
+  "parent_task_id": "",
+  "origin": "user",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "failed_step": null,
+  "last_error": null,
+  "branch_name": "docs/T-0014-alle-docs-f-r-das-jump-and-run-nachziehen",
+  "worktree_path": "../wt/T-0014",
+  "spec_path": "ai/specs/T-0014_spec.md",
+  "review_path": "ai/reviews/T-0014_gemini_review.md",
+  "brief_path": "ai/briefs/T-0014_implementation.md",
+  "result_path": "ai/results/T-0014_result.md",
+  "followup_path": "ai/followups/T-0014_followups.md",
+  "owner_lock": "task:T-0014",
+  "created_at": "2026-04-07T07:57:01.603Z",
+  "updated_at": "2026-04-07T12:00:00.000Z",
+  "current_step": null,
+  "written_files": [
+    "ai/current-state/drift-register.md",
+    "docs/DOMAIN_MODEL.md",
+    "docs/INVARIANTS.md",
+    "docs/ARCHITECTURE.md"
+  ],
+  "open_decisions": [
+    "DP-0009"
+  ],
+  "pr_draft_path": "ai/pr/T-0014_pr_draft.md"
+}

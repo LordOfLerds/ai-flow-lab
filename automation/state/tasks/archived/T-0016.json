@@ -1,0 +1,37 @@
+{
+  "task_id": "T-0016",
+  "title": "Add logout control and visible logged-in indicator for the mock auth state",
+  "repo": "ai-flow-lab",
+  "lane_type": "feature-lane",
+  "executor": "claude",
+  "parent_task_id": "T-0013",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "feature/T-0016-add-logout-control-and-visible-logged-in-indicator-for-the-mock-auth-state",
+  "worktree_path": "../wt/T-0016",
+  "spec_path": "ai/specs/T-0016_spec.md",
+  "review_path": "ai/reviews/T-0016_gemini_review.md",
+  "brief_path": "ai/briefs/T-0016_implementation.md",
+  "result_path": "ai/results/T-0016_executor_report.md",
+  "followup_path": "ai/followups/T-0016_followups.md",
+  "owner_lock": "task:T-0016",
+  "created_at": "2026-04-07T11:44:38.651Z",
+  "updated_at": "2026-04-07T19:53:46.783Z",
+  "followup_source_proposal_id": "T-0013-F-2",
+  "planner_notes": {
+    "rationale": "The current implementation gates entry into the app but does not provide an explicit way to leave the mock authenticated state within the same session. This is a small, user-visible completeness improvement that stays within the local-only auth model.",
+    "smallest_safe_scope": "Add a logout button and simple logged-in indicator in the menu/HUD layer that clears `gs.auth.isLoggedIn`, resets auth status/message as needed, and returns the user to the login screen without changing broader game systems.",
+    "depends_on": "T-0013",
+    "priority": "medium"
+  },
+  "current_step": null,
+  "failed_step": null,
+  "last_error": null,
+  "written_files": [
+    "index.html",
+    "auth-state.js",
+    "starter-test/tests/auth-session.test.js"
+  ],
+  "pr_draft_path": "ai/pr/T-0016_pr_draft.md"
+}

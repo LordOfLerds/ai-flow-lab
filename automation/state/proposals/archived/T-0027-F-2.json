@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0027-F-2",
+  "parent_task_id": "T-0027",
+  "title": "Add collectible pickup logic (coins, gems, powerups)",
+  "lane_type": "feature-lane",
+  "executor": "codex",
+  "rationale": "Coins, gems, and powerups are rendered but cannot be collected. Add collision detection between player and collectible tiles, remove collected tiles from the grid, update score/coins/gems counters, apply powerup effects (speed boost, shield, magnet), and show floating text feedback.",
+  "smallest_safe_scope": "Coin/gem collection with score update, powerup pickup with timed effects. No HUD display yet.",
+  "depends_on": "F-1",
+  "priority": "normal",
+  "should_spawn_now": false,
+  "created_at": "2026-04-07T23:16:03.473Z",
+  "index": 2
+}

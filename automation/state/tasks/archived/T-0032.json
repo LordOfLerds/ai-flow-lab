@@ -1,0 +1,35 @@
+{
+  "task_id": "T-0032",
+  "title": "Add executor file-safety guardrail to pipeline",
+  "repo": "ai-flow-lab",
+  "lane_type": "bug-lane",
+  "executor": "claude",
+  "parent_task_id": "T-0030",
+  "origin": "architect-followup",
+  "state": "PR_DRAFTED",
+  "runtime_status": "IDLE",
+  "branch_name": "bug/T-0032-add-executor-file-safety-guardrail-to-pipeline",
+  "worktree_path": "../wt/T-0032",
+  "spec_path": "ai/specs/T-0032_spec.md",
+  "review_path": "ai/reviews/T-0032_gemini_review.md",
+  "brief_path": "ai/briefs/T-0032_implementation.md",
+  "result_path": "ai/results/T-0032_executor_report.md",
+  "followup_path": "ai/followups/T-0032_followups.md",
+  "owner_lock": "task:T-0032",
+  "created_at": "2026-04-08T00:07:51.943Z",
+  "updated_at": "2026-04-08T00:15:43.745Z",
+  "followup_source_proposal_id": "T-0030-F-3",
+  "planner_notes": {
+    "rationale": "The Codex executor has destroyed index.html three times (T-0027, T-0029, T-0030), each time overwriting the complete file with truncated content or placeholder comments. This costs significant manual rebuild time. The pipeline needs a pre-execution backup and post-execution line-count validation to catch destructive overwrites before they merge.",
+    "smallest_safe_scope": "Before executor runs, snapshot target files (copy to `.backup/`). After executor completes, compare line counts — if any file shrinks by more than 30%, flag as potential destruction, restore from backup, and fail the step with a descriptive error. No UI changes needed.",
+    "depends_on": "none",
+    "priority": "critical"
+  },
+  "current_step": null,
+  "last_error": null,
+  "failed_step": null,
+  "written_files": [
+    "automation/scripts/execute-task-api.mjs"
+  ],
+  "pr_draft_path": "ai/pr/T-0032_pr_draft.md"
+}

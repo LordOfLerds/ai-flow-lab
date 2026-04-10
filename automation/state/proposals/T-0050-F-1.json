@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0050-F-1",
+  "parent_task_id": "T-0050",
+  "title": "Create Supabase database migration script and setup guide",
+  "lane_type": "docs-lane",
+  "executor": "codex",
+  "rationale": "",
+  "smallest_safe_scope": "",
+  "depends_on": "",
+  "priority": "normal",
+  "should_spawn_now": false,
+  "created_at": "2026-04-09T00:38:15.124Z",
+  "index": 1
+}
