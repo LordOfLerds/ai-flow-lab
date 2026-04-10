@@ -93,6 +93,50 @@ export function getLLMMode() {
   return (process.env.LLM_MODE || "mock").toLowerCase();
 }
 
+// ─── Quota state: persist per-provider exhaustion to disk ───
+
+const _quotaStateFile = () => path.join(automationRoot(), "state", "quota-state.json");
+let _quotaCache = null;
+let _quotaCacheTs = 0;
+const QUOTA_CACHE_TTL = 30_000;
+
+export function getQuotaState() {
+  if (Date.now() - _quotaCacheTs < QUOTA_CACHE_TTL && _quotaCache) return _quotaCache;
+  try { _quotaCache = JSON.parse(fs.readFileSync(_quotaStateFile(), "utf8")); }
+  catch { _quotaCache = {}; }
+  _quotaCacheTs = Date.now();
+  return _quotaCache;
+}
+
+export function setProviderExhausted(provider, ttlMs = 3_600_000) {
+  const state = getQuotaState();
+  state[provider] = {
+    exhausted: true,
+    exhaustedAt: new Date().toISOString(),
+    resetAt: new Date(Date.now() + ttlMs).toISOString()
+  };
+  _quotaCache = state;
+  _quotaCacheTs = Date.now();
+  try {
+    fs.mkdirSync(path.dirname(_quotaStateFile()), { recursive: true });
+    fs.writeFileSync(_quotaStateFile(), JSON.stringify(state, null, 2));
+  } catch {}
+}
+
+export function isProviderAvailable(provider) {
+  const state = getQuotaState();
+  const s = state[provider];
+  if (!s || !s.exhausted) return true;
+  if (s.resetAt && new Date(s.resetAt) <= new Date()) {
+    // Auto-heal: TTL passed
+    s.exhausted = false;
+    _quotaCache = state;
+    try { fs.writeFileSync(_quotaStateFile(), JSON.stringify(state, null, 2)); } catch {}
+    return true;
+  }
+  return false;
+}
+
 // --- Executor routing: resolve provider per pipeline step + lane ---
 
 /**
@@ -189,6 +233,87 @@ export function getProviderForStep(step, laneType = "feature-lane") {
 }
 
 /**
+ * Like getProviderForStep but returns {primary, fallbacks} supporting both
+ * plain-string config (backward compat) and {primary, fallback:[]} object format.
+ */
+export function getRoutingForStep(step, laneType = "feature-lane") {
+  const root = repoRoot();
+  const configPath = path.join(root, "ai", "project.config.yaml");
+
+  const defaults = {
+    architect:  { primary: "openai",  fallback: ["gemini"] },
+    critique:   { primary: "gemini",  fallback: ["openai"] },
+    synthesize: { primary: "openai",  fallback: ["gemini"] },
+    execute:    { primary: "codex",   fallback: ["claude"] },
+    followups:  { primary: "openai",  fallback: ["gemini"] },
+    pr_draft:   { primary: "openai",  fallback: ["gemini"] },
+    "propose-followups": { primary: "openai", fallback: ["gemini"] }
+  };
+
+  const normalizedStep = step === "propose-followups" ? "followups" : step;
+
+  const toRouting = (val) => {
+    if (!val || typeof val === "string") return { primary: val || "openai", fallback: [] };
+    // Already {primary, fallback} — normalize fallback key
+    const fb = val.fallback || val.fallbacks || [];
+    return { primary: val.primary || "openai", fallback: Array.isArray(fb) ? fb : [fb] };
+  };
+
+  if (!fs.existsSync(configPath)) return defaults[normalizedStep] || { primary: "openai", fallback: [] };
+
+  try {
+    const raw = fs.readFileSync(configPath, "utf8");
+
+    // --- Parse executor_routing section (supports both plain and object YAML) ---
+    let routing = {};
+    let overrides = {};
+    let section = null;
+    let overrideLane = null;
+
+    for (const line of raw.split("\n")) {
+      if (/^executor_routing\s*:/.test(line)) { section = "top"; continue; }
+      if ((section === "top" || section === "default") && /^\s+default\s*:/.test(line)) { section = "default"; continue; }
+      if ((section === "top" || section === "default") && /^\s+overrides\s*:/.test(line)) { section = "overrides"; continue; }
+
+      if (section === "default" && /^\s{4}\w/.test(line)) {
+        const m = line.match(/^\s{4}(\w[\w-]*):\s*(.+)/);
+        if (m) {
+          const val = m[2].trim();
+          // Detect inline object: { primary: openai, fallback: [gemini] }
+          const primM = val.match(/primary:\s*([\w-]+)/);
+          const fbM = val.match(/fallback:\s*\[([^\]]*)\]/);
+          if (primM) {
+            routing[m[1].trim()] = {
+              primary: primM[1],
+              fallback: fbM ? fbM[1].split(",").map(s => s.trim()).filter(Boolean) : []
+            };
+          } else {
+            routing[m[1].trim()] = val;
+          }
+        }
+      }
+
+      if (section === "overrides" && /^\s{4}[\w-]+\s*:/.test(line)) {
+        const m = line.match(/^\s{4}([\w-]+)\s*:/);
+        if (m) overrideLane = m[1].trim();
+      }
+      if (section === "overrides" && overrideLane && /^\s{6}\w/.test(line)) {
+        const m = line.match(/^\s{6}(\w[\w-]*):\s*(.+)/);
+        if (m) { if (!overrides[overrideLane]) overrides[overrideLane] = {}; overrides[overrideLane][m[1].trim()] = m[2].trim(); }
+      }
+      if (section && /^\S/.test(line) && !/^executor_routing/.test(line)) break;
+    }
+
+    const lane = (laneType || "").trim();
+    if (overrides[lane]?.[normalizedStep]) return toRouting(overrides[lane][normalizedStep]);
+    if (routing[normalizedStep]) return toRouting(routing[normalizedStep]);
+    return defaults[normalizedStep] || { primary: "openai", fallback: [] };
+  } catch {
+    return defaults[normalizedStep] || { primary: "openai", fallback: [] };
+  }
+}
+
+/**
  * High-level dispatcher: calls the right LLM based on executor_routing config.
  * Maps provider names to actual API call functions.
  *
@@ -198,67 +323,86 @@ export function getProviderForStep(step, laneType = "feature-lane") {
  */
 export async function callLLMForStep({ instructions, input, taskId, step, laneType, prompt }) {
   const mode = getLLMMode();
-  const provider = getProviderForStep(step, laneType);
-  console.log(`[routing] Step="${step}" Lane="${laneType}" → Provider="${provider}" (mode=${mode})`);
+  const { primary, fallback: fallbacks = [] } = getRoutingForStep(step, laneType);
+  console.log(`[routing] Step="${step}" Lane="${laneType}" → Primary="${primary}" Fallbacks=[${fallbacks.join(",")}] (mode=${mode})`);
 
-  // Mock mode: let the individual call* functions handle it
+  // Mock mode: use primary provider only
   if (mode === "mock") {
-    const normalizedProvider = provider === "codex" ? "openai" : provider;
-    switch (normalizedProvider) {
+    const mp = primary === "codex" ? "openai" : primary;
+    switch (mp) {
       case "claude": return await callClaude({ instructions, input, taskId, step });
       case "gemini": {
         const gp = prompt || (instructions ? `${instructions}\n\n---\n\n${input}` : input);
         return await callGemini({ prompt: gp, taskId, step });
       }
-      case "openai": default: return await callOpenAI({ instructions, input, taskId, step });
+      default: return await callOpenAI({ instructions, input, taskId, step });
     }
   }
 
-  // RULE: Claude → ALWAYS use claude CLI (regardless of mode)
-  if (provider === "claude") {
-    console.log(`[routing] Provider "claude" → always Claude CLI (mode=${mode} ignored)`);
-    const cliInstructions = instructions || "";
-    const cliInput = input || prompt || "";
-    return await callClaudeCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
-  }
-
-  // RULE: Codex → ALWAYS use codex CLI, fallback to claude CLI
-  if (provider === "codex") {
-    const cliInstructions = instructions || "";
-    const cliInput = input || prompt || "";
-    try {
-      const { execSync: es } = await import("node:child_process");
-      es("which codex", { stdio: "ignore" });
-      console.log(`[routing] Provider "codex" → codex CLI (mode=${mode} ignored)`);
-      return await callCodexCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
-    } catch {
-      console.log(`[routing] Provider "codex" but codex CLI not found → fallback to Claude CLI`);
-      return await callClaudeCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
-    }
-  }
-
-  // In CLI mode, route remaining providers (openai/gemini) through Claude CLI too
+  // CLI mode: always Claude CLI regardless of provider
   if (mode === "cli") {
-    console.log(`[routing] CLI mode: provider "${provider}" → claude CLI`);
-    const cliInstructions = instructions || "";
-    const cliInput = input || prompt || "";
-    return await callClaudeCLI({ instructions: cliInstructions, input: cliInput, taskId, step });
+    console.log(`[routing] CLI mode → claude CLI`);
+    return await callClaudeCLI({ instructions: instructions || "", input: input || prompt || "", taskId, step });
   }
 
-  // API/APP mode for openai and gemini — use their native APIs or app queue
-  const normalizedProvider = provider === "codex" ? "openai" : provider;
-  switch (normalizedProvider) {
+  // API/APP mode: iterate through provider chain with quota fallback
+  const chain = [primary, ...fallbacks].filter(p => isProviderAvailable(p));
+  if (chain.length === 0) chain.push(primary); // always try primary even if exhausted
+
+  let lastErr;
+  for (const provider of chain) {
+    try {
+      console.log(`[routing] Trying provider "${provider}"`);
+      return await _callWithProvider(provider, { instructions, input, prompt, taskId, step });
+    } catch (err) {
+      lastErr = err;
+      const msg = err.message || "";
+      const isQuotaErr = /quota exhausted|rate.?limit|free.tier|limit.*0|429|503 Service/i.test(msg);
+      if (isQuotaErr) {
+        const ttl = /quota exhausted|free.tier|limit.*0/i.test(msg) ? 86_400_000 : 3_600_000;
+        console.warn(`[routing] Provider "${provider}" quota/rate error — marking exhausted (${ttl / 3600_000}h), trying fallback`);
+        setProviderExhausted(provider, ttl);
+        continue;
+      }
+      throw err; // non-quota errors propagate immediately
+    }
+  }
+
+  // All providers exhausted → manual queue
+  console.warn(`[routing] All providers exhausted for step="${step}" — falling back to manual queue`);
+  return await callLLMApp({ instructions, input: input || prompt || "", taskId, step, provider: "manual-fallback", model: "manual" });
+}
+
+/** Internal dispatcher: maps provider name to the appropriate call function */
+async function _callWithProvider(provider, { instructions, input, prompt, taskId, step }) {
+  const i = instructions || "";
+  const inp = input || prompt || "";
+
+  switch (provider) {
+    case "claude":
+      return await callClaudeCLI({ instructions: i, input: inp, taskId, step });
+
+    case "codex":
+      try {
+        const { execSync: es } = await import("node:child_process");
+        es("which codex", { stdio: "ignore" });
+        return await callCodexCLI({ instructions: i, input: inp, taskId, step });
+      } catch {
+        console.log(`[routing] codex CLI not found → fallback to Claude CLI`);
+        return await callClaudeCLI({ instructions: i, input: inp, taskId, step });
+      }
+
     case "gemini": {
-      const geminiPrompt = prompt || (instructions ? `${instructions}\n\n---\n\n${input}` : input);
-      return await callGemini({ prompt: geminiPrompt, taskId, step });
+      const gp = prompt || (instructions ? `${instructions}\n\n---\n\n${inp}` : inp);
+      return await callGemini({ prompt: gp, taskId, step });
     }
+
+    case "chatgpt_worker":
+      return await callLLMApp({ instructions: i, input: inp, taskId, step, provider: "chatgpt-worker", model: "chatgpt" });
+
     case "openai":
-    default: {
-      // If caller passed a single `prompt` (e.g. critique step) instead of instructions+input,
-      // map it to `input` so callOpenAI/callLLMApp can handle it correctly.
-      const effectiveInput = input || prompt || "";
-      return await callOpenAI({ instructions, input: effectiveInput, taskId, step });
-    }
+    default:
+      return await callOpenAI({ instructions, input: inp, taskId, step });
   }
 }
 

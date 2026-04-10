@@ -145,6 +145,7 @@ class HeadlessChrome {
 
     const { id, webSocketDebuggerUrl } = await this.requestJson(
       `/json/new?${encodeURIComponent(targetUrl)}`,
+      'POST',
     );
 
     if (!id || !webSocketDebuggerUrl) {
@@ -255,7 +256,7 @@ class HeadlessChrome {
     throw new Error('Chrome DevTools HTTP endpoint did not become ready in time');
   }
 
-  private requestJson(path: string): Promise<any> {
+  private requestJson(path: string, method: 'GET' | 'POST' = 'GET'): Promise<any> {
     if (!this.host || !this.port) {
       throw new Error('DevTools host/port not initialized');
     }
@@ -266,7 +267,7 @@ class HeadlessChrome {
           hostname: this.host!,
           port: this.port!,
           path,
-          method: 'GET',
+          method,
         },
         (res) => {
           if (res.statusCode && res.statusCode >= 400) {
