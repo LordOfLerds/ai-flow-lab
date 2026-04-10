@@ -435,13 +435,36 @@
                 </div>
                 <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">Data Sources</h2>
                 <div class="card" id="data-sources"></div>
+                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">AI Routing</h2>
+                <div class="card" id="ai-routing-card">
+                    <div id="provider-health-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;"></div>
+                    <div id="routing-grid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-primary btn-sm" onclick="saveRouting()">&#10003; Save Routing</button>
+                        <button class="btn btn-secondary btn-sm" onclick="renderAIRouting()">&#8635; Refresh</button>
+                    </div>
+                    <div id="routing-save-status" style="display:none;margin-top:8px;font-size:12px;"></div>
+                </div>
+                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">ChatGPT Browser Worker</h2>
+                <div class="card" id="chatgpt-worker-card">
+                    <div id="chatgpt-worker-status" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                        <span id="worker-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text-muted);flex-shrink:0;"></span>
+                        <span id="worker-status-label" style="font-size:13px;color:var(--text-secondary);">Checking...</span>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-bottom:10px;">
+                        <button class="btn btn-secondary btn-sm" id="worker-start-btn" onclick="startChatGPTWorker()">&#9654; Start</button>
+                        <button class="btn btn-secondary btn-sm" id="worker-stop-btn" onclick="stopChatGPTWorker()">&#9646;&#9646; Stop</button>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleWorkerLog()">&#128196; Log</button>
+                    </div>
+                    <div id="worker-log-box" style="display:none;background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;padding:10px;max-height:180px;overflow-y:auto;font-family:monospace;font-size:11px;color:var(--text-secondary);white-space:pre-wrap;line-height:1.5;"></div>
+                    <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">First run: starts headed (visible browser). Log in to ChatGPT once — session is persisted. Set <code>chatgpt_chat_url</code> in <code>ai/project.config.yaml</code> to pin to a project chat.</p>
+                </div>
                 <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">Project Onboarding</h2>
                 <div class="card" style="display:flex;flex-direction:column;gap:10px;">
                     <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Set up a new project or import an existing codebase into AI Flow Lab.</p>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn btn-primary" onclick="openModal('onboard-new-modal')">&#10024; New Project</button>
-                        <button class="btn btn-secondary" onclick="openModal('onboard-import-modal')">&#128230; Import Codebase</button>
-                        <button class="btn btn-secondary" onclick="openModal('onboard-chat-modal')">&#128172; Extract from ChatGPT</button>
+                        <button class="btn btn-secondary" onclick="openModal('onboard-import-modal')">&#128230; Import Existing Project</button>
                     </div>
                 </div>
             </div>
@@ -517,7 +540,7 @@
 <div class="modal-overlay" id="onboard-import-modal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal('onboard-import-modal')">&#10005;</button>
-        <div class="modal-title">&#128230; Import Existing Codebase</div>
+        <div class="modal-title">&#128230; Import Existing Project</div>
         <div class="modal-subtitle">Analyze an existing project directory. The codebase will be scanned and ChatGPT will reverse-engineer your domain model and architecture.</div>
         <div class="form-group"><label class="form-label">Project Path</label><input type="text" class="form-input" id="onboard-import-path" placeholder="/Users/you/projects/my-app"><div class="form-hint">Absolute path to the project root directory.</div></div>
         <div id="onboard-import-analysis" style="display:none;margin-bottom:12px;"></div>
@@ -526,34 +549,6 @@
             <button class="btn btn-primary" style="flex:1;" onclick="submitOnboardImport()">&#128640; Import Project</button>
         </div>
         <div id="onboard-import-status" style="display:none;padding:10px;margin-bottom:12px;border-radius:6px;font-size:12px;"></div>
-        <div style="border-top:1px solid var(--border-color);padding-top:14px;margin-top:8px;">
-            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Already have a ChatGPT chat about this project? Use <a href="#" onclick="closeModal('onboard-import-modal');openModal('onboard-chat-modal');return false;" style="color:var(--accent);">Extract from ChatGPT</a> instead.</p>
-        </div>
-    </div>
-</div>
-
-<!-- EXTRACT FROM CHATGPT MODAL -->
-<div class="modal-overlay" id="onboard-chat-modal">
-    <div class="modal" style="max-width:640px;">
-        <button class="modal-close" onclick="closeModal('onboard-chat-modal')">&#10005;</button>
-        <div class="modal-title">&#128172; Extract from Existing ChatGPT Chat</div>
-        <div class="modal-subtitle">If you already discussed this project with ChatGPT, paste the extraction prompt into that chat, then paste ChatGPT's response here.</div>
-
-        <div id="onboard-chat-step1">
-            <div class="form-group"><label class="form-label">Project Name</label><input type="text" class="form-input" id="onboard-chat-name" placeholder="e.g. my-saas-app"></div>
-            <div style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;padding:14px;margin-bottom:12px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span class="form-label" style="margin:0;">Step 1: Copy this prompt</span>
-                    <button class="btn btn-secondary btn-sm" onclick="copyExtractPrompt()">&#128203; Copy</button>
-                </div>
-                <div id="onboard-chat-prompt-preview" class="mono" style="font-size:11px;color:var(--text-secondary);max-height:120px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;">Loading prompt template...</div>
-            </div>
-            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;">Paste this prompt into your existing ChatGPT conversation about this project, then paste ChatGPT's response below.</p>
-        </div>
-
-        <div class="form-group"><label class="form-label">Step 2: Paste ChatGPT's Response</label><textarea class="form-textarea" id="onboard-chat-response" style="min-height:200px;font-size:12px;" placeholder="Paste the full ChatGPT response here..."></textarea></div>
-        <div id="onboard-chat-status" style="display:none;padding:10px;margin-bottom:12px;border-radius:6px;font-size:12px;"></div>
-        <button class="btn btn-primary" style="width:100%;" onclick="submitOnboardChat()">&#10003; Apply Response to Project</button>
     </div>
 </div>
 
@@ -2757,6 +2752,8 @@ function renderTokens() {
 async function renderSettings() {
     if(!APP.project) APP.project = await APP.fetch('/api/project');
     const mode = APP.state?.mode||'API';
+    renderChatGPTWorkerStatus();
+    renderAIRouting();
     document.querySelectorAll('.mode-btn').forEach(b=>{b.classList.toggle('btn-primary',b.dataset.mode===mode);b.classList.toggle('btn-secondary',b.dataset.mode!==mode);});
     $('project-info').innerHTML=`<div style="display:flex;flex-direction:column;gap:12px;">
         <div><div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Name</div><div style="font-weight:600;">${APP.project?.name||'?'}</div></div>
@@ -2906,51 +2903,163 @@ async function submitOnboardImport() {
     }
 }
 
-// Chat extract prompt template (loaded once)
-let _extractPromptTemplate = '';
-async function loadExtractPrompt() {
+
+// ===== AI ROUTING =====
+const ROUTING_STEPS = [
+    { id: 'architect',  label: 'Architect' },
+    { id: 'critique',   label: 'Critique' },
+    { id: 'synthesize', label: 'Synthesize' },
+    { id: 'execute',    label: 'Execute' },
+    { id: 'followups',  label: 'Follow-ups' },
+    { id: 'pr_draft',   label: 'PR Draft' },
+];
+const PROVIDER_OPTIONS = [
+    { id: 'openai',         label: 'OpenAI' },
+    { id: 'gemini',         label: 'Gemini' },
+    { id: 'claude',         label: 'Claude CLI' },
+    { id: 'codex',          label: 'Codex CLI' },
+    { id: 'chatgpt_worker', label: 'ChatGPT Worker' },
+];
+
+let _routingState = {}; // step → {primary, fallbacks[]}
+let _providerStatus = {};
+
+async function renderAIRouting() {
     try {
-        const res = await fetch('/api/document?path=template/prompts/chatgpt-chat-extract.prompt.md');
-        const data = await res.json();
-        _extractPromptTemplate = data?.content || '# Extract prompt not found\nCheck template/prompts/chatgpt-chat-extract.prompt.md';
-    } catch {
-        _extractPromptTemplate = '# Could not load extract prompt template';
-    }
-}
-
-function getExtractPrompt() {
-    const name = $('onboard-chat-name').value.trim() || '{{PROJECT_NAME}}';
-    return _extractPromptTemplate.replace(/\{\{PROJECT_NAME\}\}/g, name);
-}
-
-function copyExtractPrompt() {
-    const text = getExtractPrompt();
-    navigator.clipboard.writeText(text).then(() => toast('Prompt copied!', 'success')).catch(() => toast('Copy failed', 'error'));
-}
-
-async function submitOnboardChat() {
-    const name = $('onboard-chat-name').value.trim();
-    const response = $('onboard-chat-response').value.trim();
-    if (!name) { toast('Enter a project name', 'warning'); return; }
-    if (!response) { toast('Paste the ChatGPT response', 'warning'); return; }
-    setOnboardStatus('onboard-chat-status', 'Applying response...', 'info');
-    try {
-        const res = await fetch('/api/project/apply-response', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ projectName: name, response })
-        });
-        const data = await res.json();
-        if (data.success) {
-            setOnboardStatus('onboard-chat-status', `Applied! Created ${(data.written || []).length} documents.`, 'success');
-            toast('Project docs created', 'success');
-            await APP.load();
-            setTimeout(() => { closeModal('onboard-chat-modal'); navigateTo('documents'); render(); }, 1500);
-        } else {
-            setOnboardStatus('onboard-chat-status', data.error || 'Failed to apply', 'error');
+        const [ps, us, rt] = await Promise.all([
+            APP.fetch('/api/providers/status'),
+            APP.fetch('/api/usage/summary'),
+            APP.fetch('/api/providers/routing'),
+        ]);
+        // Seed _routingState from server config (only if not already edited by user)
+        if (rt.routing) {
+            for (const [step, r] of Object.entries(rt.routing)) {
+                if (!_routingState[step]) {
+                    _routingState[step] = { primary: r.primary || '', fallbacks: r.fallback || [] };
+                }
+            }
         }
-    } catch (e) {
-        setOnboardStatus('onboard-chat-status', 'Error: ' + e.message, 'error');
+        _providerStatus = ps.providers || {};
+        const usage = us.providers || {};
+
+        // Provider health bar
+        const bar = $('provider-health-bar');
+        if (bar) bar.innerHTML = PROVIDER_OPTIONS.map(p => {
+            const s = _providerStatus[p.id] || {};
+            const u = usage[p.id] || {};
+            const color = s.exhausted ? 'var(--error)' : s.available ? 'var(--success)' : 'var(--text-muted)';
+            const title = s.exhausted ? `Exhausted — resets ${new Date(s.resetAt).toLocaleTimeString()}` :
+                          s.available ? `Ready (${s.source})` : 'Not configured';
+            const cost = u.todayCostUsd ? `$${u.todayCostUsd.toFixed(3)}` : '';
+            return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;background:var(--bg-input);border:1px solid ${color}33;border-radius:6px;min-width:80px;cursor:default;" title="${title}">
+                <span style="width:8px;height:8px;border-radius:50%;background:${color};"></span>
+                <span style="font-size:11px;font-weight:600;">${p.label}</span>
+                ${cost ? `<span style="font-size:10px;color:var(--text-muted);">${cost}/day</span>` : ''}
+            </div>`;
+        }).join('');
+
+        // Routing grid — one row per step
+        const grid = $('routing-grid');
+        if (!grid) return;
+        grid.innerHTML = ROUTING_STEPS.map(s => {
+            const cur = _routingState[s.id] || { primary: '', fallbacks: [] };
+            const primaryOpts = PROVIDER_OPTIONS.map(p =>
+                `<option value="${p.id}" ${cur.primary === p.id ? 'selected' : ''}>${p.label}</option>`
+            ).join('');
+            const fallbackChecks = PROVIDER_OPTIONS.map(p =>
+                `<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;margin-right:8px;cursor:pointer;">
+                    <input type="checkbox" data-step="${s.id}" data-fb="${p.id}" ${(cur.fallbacks||[]).includes(p.id) ? 'checked' : ''}> ${p.label}
+                </label>`
+            ).join('');
+            return `<div style="display:grid;grid-template-columns:90px 1fr 2fr;gap:8px;align-items:start;padding:8px;background:var(--bg-input);border-radius:6px;">
+                <span style="font-size:12px;font-weight:600;padding-top:4px;">${s.label}</span>
+                <select class="form-select" style="font-size:12px;padding:4px 6px;" id="route-primary-${s.id}" onchange="updateRoutingState('${s.id}')">
+                    ${primaryOpts}
+                </select>
+                <div style="padding-top:3px;">${fallbackChecks}</div>
+            </div>`;
+        }).join('');
+
+        // Wire checkbox change handlers
+        grid.querySelectorAll('input[type=checkbox]').forEach(cb => {
+            cb.addEventListener('change', () => updateRoutingState(cb.dataset.step));
+        });
+    } catch (e) { console.warn('AI routing load failed', e); }
+}
+
+function updateRoutingState(stepId) {
+    const primary = $(`route-primary-${stepId}`)?.value || '';
+    const fallbacks = [...document.querySelectorAll(`input[data-step="${stepId}"][data-fb]:checked`)]
+        .map(cb => cb.dataset.fb).filter(fb => fb !== primary);
+    _routingState[stepId] = { primary, fallbacks };
+}
+
+async function saveRouting() {
+    const statusEl = $('routing-save-status');
+    // Collect current UI state for all steps
+    ROUTING_STEPS.forEach(s => updateRoutingState(s.id));
+
+    let errors = 0;
+    for (const [step, { primary, fallbacks }] of Object.entries(_routingState)) {
+        if (!primary) continue;
+        try {
+            await APP.fetch('/api/providers/routing', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step, primary, fallbacks })
+            });
+        } catch { errors++; }
     }
+
+    if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.color = errors ? 'var(--error)' : 'var(--success)';
+        statusEl.textContent = errors ? `${errors} step(s) failed to save` : 'Routing saved!';
+        setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+    }
+    toast(errors ? 'Save failed' : 'Routing saved', errors ? 'error' : 'success');
+}
+
+// ===== CHATGPT WORKER =====
+async function renderChatGPTWorkerStatus() {
+    try {
+        const status = await APP.fetch('/api/chatgpt-worker/status');
+        const dot = $('worker-dot');
+        const label = $('worker-status-label');
+        const logBox = $('worker-log-box');
+        if (!dot) return;
+        dot.style.background = status.running ? 'var(--success)' : 'var(--error)';
+        label.textContent = status.running ? `Running (PID ${status.pid})` : 'Stopped';
+        if (!status.running && status.logTail?.length) {
+            logBox.textContent = status.logTail.join('\n');
+            logBox.style.display = 'block';
+            logBox.style.borderColor = 'rgba(239,68,68,0.4)';
+        }
+    } catch {}
+}
+async function startChatGPTWorker() {
+    toast('Starting ChatGPT Worker...', 'info');
+    const res = await APP.fetch('/api/chatgpt-worker/start', { method: 'POST' });
+    if (res.error) {
+        toast('Worker error: ' + res.error, 'error');
+        if (res.logTail?.length) { const b=$('worker-log-box'); b.textContent=res.logTail.join('\n'); b.style.display='block'; b.style.borderColor='rgba(239,68,68,0.4)'; }
+    } else if (res.running) {
+        toast('Worker started', 'success');
+    }
+    await renderChatGPTWorkerStatus();
+}
+async function stopChatGPTWorker() {
+    await APP.fetch('/api/chatgpt-worker/stop', { method: 'POST' });
+    toast('Worker stopped', 'info');
+    await renderChatGPTWorkerStatus();
+}
+async function toggleWorkerLog() {
+    const box = $('worker-log-box');
+    if (box.style.display !== 'none') { box.style.display = 'none'; return; }
+    const data = await APP.fetch('/api/chatgpt-worker/log');
+    box.textContent = (data.lines || []).join('\n') || '(no log yet)';
+    box.style.borderColor = 'var(--border-color)';
+    box.style.display = 'block';
 }
 
 // ===== INIT =====
@@ -2997,13 +3106,6 @@ document.addEventListener('DOMContentLoaded', async()=>{
     $('new-goal-btn').addEventListener('click',openGoalModal);
     $('new-task-btn').addEventListener('click',openTaskModal);
     $('goals-new-btn').addEventListener('click',openGoalModal);
-    // Load extract prompt template and wire up preview
-    loadExtractPrompt().then(() => {
-        $('onboard-chat-prompt-preview').textContent = getExtractPrompt();
-    });
-    $('onboard-chat-name')?.addEventListener('input', () => {
-        $('onboard-chat-prompt-preview').textContent = getExtractPrompt();
-    });
     // Global click delegation for SVG commit nodes (survives re-renders)
     document.addEventListener('click', function(e) {
         const g = e.target.closest ? e.target.closest('[data-hash]') : null;

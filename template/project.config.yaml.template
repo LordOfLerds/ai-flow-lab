@@ -66,6 +66,46 @@ human_gates:
   before_destructive_migration: true # Require human approval before running destructive migrations
   before_danger_lane_pr: true      # Require human approval before opening PR in danger-lane
 
+# AI Provider configuration — controls which LLMs are available and their budgets
+providers:
+  openai:
+    enabled: true           # requires OPENAI_API_KEY in .env
+    model: gpt-4o
+    daily_budget_usd: 5.0   # alert when today's cost exceeds this
+  gemini:
+    enabled: true           # requires GEMINI_API_KEY in .env
+    model: gemini-2.5-flash-lite
+    daily_budget_usd: 2.0
+  claude_cli:
+    enabled: true           # auto-detected via `claude auth status`
+  codex_cli:
+    enabled: true           # auto-detected via `codex --version`
+  chatgpt_worker:
+    enabled: false          # requires browser worker running (Settings → ChatGPT Worker)
+    chatgpt_chat_url: ""    # optional: pin to a specific ChatGPT project chat URL
+
+# Per-step AI routing — primary provider + ordered fallback chain
+# Format: { primary: <provider>, fallback: [<provider>, ...] }
+# Providers: openai, gemini, claude, codex, chatgpt_worker
+# Fallback chain is tried in order when the primary is exhausted/unavailable.
+# If all fail, falls back to the manual prompt queue (APP mode).
+executor_routing:
+  default:
+    architect:  { primary: openai,  fallback: [gemini] }
+    critique:   { primary: gemini,  fallback: [openai] }
+    synthesize: { primary: openai,  fallback: [gemini] }
+    execute:    { primary: codex,   fallback: [claude] }
+    followups:  { primary: openai,  fallback: [gemini] }
+    pr_draft:   { primary: openai,  fallback: [gemini] }
+  overrides:
+    bug-lane:
+      execute: { primary: claude, fallback: [codex] }
+    danger-lane:
+      execute: { primary: claude, fallback: [] }
+    analysis-lane:
+      synthesize: { primary: claude, fallback: [] }
+      execute:    { primary: claude, fallback: [] }
+
 # AI executor configuration
 executors:
   claude:

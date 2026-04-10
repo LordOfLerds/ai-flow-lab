@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { exec, execSync } from "node:child_process";
+import { exec, execSync, spawn } from "node:child_process";
 import dotenv from "dotenv";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -156,6 +156,33 @@ function respondFile(res, filePath, contentType = "text/html") {
 }
 
 // API route handlers
+// ─── ChatGPT Worker PID management ───
+let _chatgptWorkerPid = null;
+
+function _workerPidFile() { return path.join(automationRoot, "state", ".chatgpt-worker.pid"); }
+function _workerLogFile() { return path.join(automationRoot, "state", "chatgpt-worker.log"); }
+
+function loadWorkerPid() {
+  try {
+    const p = parseInt(fs.readFileSync(_workerPidFile(), "utf8").trim(), 10);
+    process.kill(p, 0); // throws if dead
+    _chatgptWorkerPid = p;
+  } catch { _chatgptWorkerPid = null; try { fs.unlinkSync(_workerPidFile()); } catch {} }
+}
+function saveWorkerPid(pid) {
+  try {
+    if (pid) { fs.writeFileSync(_workerPidFile(), String(pid)); _chatgptWorkerPid = pid; }
+    else { try { fs.unlinkSync(_workerPidFile()); } catch {} _chatgptWorkerPid = null; }
+  } catch {}
+}
+function workerLogTail(n = 10) {
+  try {
+    const lines = fs.readFileSync(_workerLogFile(), "utf8").split("\n").filter(Boolean);
+    return lines.slice(-n);
+  } catch { return []; }
+}
+loadWorkerPid();
+
 const apiRoutes = {
   "GET /api/health": (req, res) => {
     // Diagnostic: check LLM mode, API keys, CLI availability
@@ -2174,7 +2201,201 @@ Apply the fix now.`;
     // Sort newest first
     tests.sort((a, b) => new Date(b.tested_at || 0) - new Date(a.tested_at || 0));
     respondJSON(res, 200, { tests });
-  }
+  },
+
+  // ─── ChatGPT Browser Worker ───
+
+  "GET /api/chatgpt-worker/status": (req, res) => {
+    let running = false;
+    if (_chatgptWorkerPid) {
+      try { process.kill(_chatgptWorkerPid, 0); running = true; }
+      catch { saveWorkerPid(null); }
+    }
+    respondJSON(res, 200, { running, pid: running ? _chatgptWorkerPid : null, logTail: workerLogTail(8) });
+  },
+
+  "GET /api/chatgpt-worker/log": (req, res) => {
+    respondJSON(res, 200, { lines: workerLogTail(50) });
+  },
+
+  "POST /api/chatgpt-worker/start": async (req, res) => {
+    // Already running?
+    if (_chatgptWorkerPid) {
+      try { process.kill(_chatgptWorkerPid, 0); return respondJSON(res, 200, { running: true, pid: _chatgptWorkerPid }); }
+      catch { saveWorkerPid(null); }
+    }
+
+    // Prereq: playwright installed?
+    try {
+      execSync('node -e "require(\'playwright\')"', { cwd: automationRoot, timeout: 5000, stdio: "ignore" });
+    } catch {
+      return respondJSON(res, 200, { running: false, error: "playwright not installed. Run: cd automation && npm install" });
+    }
+
+    // Read optional CHATGPT_CHAT_URL from project config
+    let chatUrl = "";
+    try {
+      const cfgPath = path.join(repoRoot, "ai", "project.config.yaml");
+      if (fs.existsSync(cfgPath)) {
+        const m = fs.readFileSync(cfgPath, "utf8").match(/chatgpt_chat_url:\s*"?([^"\n]+)"?/);
+        if (m) chatUrl = m[1].trim();
+      }
+    } catch {}
+
+    const logFile = _workerLogFile();
+    const logStream = fs.openSync(logFile, "a");
+    const worker = spawn(
+      "node",
+      [path.join(__dirname, "chatgpt-browser-worker.mjs"), "--headed"],
+      { cwd: automationRoot, detached: true, stdio: ["ignore", logStream, logStream],
+        env: { ...process.env, ...(chatUrl ? { CHATGPT_CHAT_URL: chatUrl } : {}) } }
+    );
+    worker.unref();
+    fs.closeSync(logStream);
+    saveWorkerPid(worker.pid);
+
+    // Health check: wait 1.5s then verify process is still alive
+    await new Promise(r => setTimeout(r, 1500));
+    let alive = false;
+    try { process.kill(worker.pid, 0); alive = true; } catch { saveWorkerPid(null); }
+
+    if (!alive) {
+      return respondJSON(res, 200, { running: false, error: "Worker crashed on startup", logTail: workerLogTail(10) });
+    }
+
+    worker.on("exit", () => { if (_chatgptWorkerPid === worker.pid) saveWorkerPid(null); });
+    respondJSON(res, 200, { running: true, pid: worker.pid });
+  },
+
+  "POST /api/chatgpt-worker/stop": (req, res) => {
+    if (!_chatgptWorkerPid) return respondJSON(res, 200, { running: false });
+    try { process.kill(_chatgptWorkerPid, "SIGTERM"); } catch {}
+    saveWorkerPid(null);
+    respondJSON(res, 200, { running: false });
+  },
+
+  // ─── Provider Status & AI Routing ───
+
+  "GET /api/providers/routing": async (req, res) => {
+    const { getRoutingForStep } = await import("./_llm-utils.mjs");
+    const steps = ["architect", "critique", "synthesize", "execute", "followups", "pr_draft"];
+    const routing = {};
+    for (const step of steps) {
+      routing[step] = getRoutingForStep(step, "feature-lane");
+    }
+    respondJSON(res, 200, { routing });
+  },
+
+  "GET /api/providers/status": (req, res) => {
+    const hasOpenAI = !!(process.env.OPENAI_API_KEY || "").trim();
+    const hasGemini = !!(process.env.GEMINI_API_KEY || "").trim();
+    const hasAnthropic = !!(process.env.ANTHROPIC_API_KEY || "").trim();
+    let hasClaudeCLI = false, hasCodexCLI = false;
+    try { execSync("which claude", { stdio: "ignore" }); hasClaudeCLI = true; } catch {}
+    try { execSync("which codex", { stdio: "ignore" }); hasCodexCLI = true; } catch {}
+
+    // Quota state
+    let quotaState = {};
+    try {
+      const qf = path.join(automationRoot, "state", "quota-state.json");
+      if (fs.existsSync(qf)) quotaState = JSON.parse(fs.readFileSync(qf, "utf8"));
+    } catch {}
+
+    const workerRunning = _chatgptWorkerPid ? (() => { try { process.kill(_chatgptWorkerPid, 0); return true; } catch { return false; } })() : false;
+
+    // Read per-provider config from project.config.yaml
+    let dailyBudgets = {};
+    try {
+      const cfgPath = path.join(repoRoot, "ai", "project.config.yaml");
+      if (fs.existsSync(cfgPath)) {
+        const raw = fs.readFileSync(cfgPath, "utf8");
+        const m = raw.match(/providers\s*:([\s\S]*?)(?:^\S|\z)/m);
+        if (m) {
+          for (const bm of m[1].matchAll(/(\w+):\s*\n(?:.*\n)*?\s+daily_budget_usd:\s*([\d.]+)/g)) {
+            dailyBudgets[bm[1]] = parseFloat(bm[2]);
+          }
+        }
+      }
+    } catch {}
+
+    const mkProvider = (id, available, source) => ({
+      available,
+      source,
+      exhausted: !!(quotaState[id]?.exhausted),
+      resetAt: quotaState[id]?.resetAt || null,
+      dailyBudget: dailyBudgets[id] || null
+    });
+
+    respondJSON(res, 200, {
+      providers: {
+        openai:         mkProvider("openai",         hasOpenAI,    hasOpenAI ? "api-key" : "missing"),
+        gemini:         mkProvider("gemini",          hasGemini,    hasGemini ? "api-key" : "missing"),
+        claude:         mkProvider("claude",          hasClaudeCLI || hasAnthropic, hasClaudeCLI ? "cli" : hasAnthropic ? "api-key" : "missing"),
+        codex:          mkProvider("codex",           hasCodexCLI,  hasCodexCLI ? "cli" : "missing"),
+        chatgpt_worker: mkProvider("chatgpt_worker",  workerRunning, workerRunning ? "running" : "stopped"),
+      }
+    });
+  },
+
+  "GET /api/usage/summary": (req, res) => {
+    const usageDir = path.join(automationRoot, "state", "usage-log");
+    const today = new Date().toISOString().slice(0, 10);
+    const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
+    const totals = {};
+
+    try {
+      const files = fs.existsSync(usageDir) ? fs.readdirSync(usageDir).filter(f => f.endsWith(".jsonl")) : [];
+      for (const file of files) {
+        const lines = fs.readFileSync(path.join(usageDir, file), "utf8").split("\n").filter(Boolean);
+        for (const line of lines) {
+          try {
+            const u = JSON.parse(line);
+            const prov = u.provider || "unknown";
+            if (!totals[prov]) totals[prov] = { todayCostUsd: 0, weekCostUsd: 0, totalCostUsd: 0, calls: 0 };
+            const cost = u.costUsd || 0;
+            const ts = (u.timestamp || "").slice(0, 10);
+            totals[prov].totalCostUsd += cost;
+            totals[prov].calls++;
+            if (ts >= weekAgo) totals[prov].weekCostUsd += cost;
+            if (ts === today) totals[prov].todayCostUsd += cost;
+          } catch {}
+        }
+      }
+    } catch {}
+
+    respondJSON(res, 200, { providers: totals });
+  },
+
+  "POST /api/providers/routing": async (req, res) => {
+    const body = await readBody(req);
+    let data;
+    try { data = JSON.parse(body); } catch { return respondError(res, 400, "Invalid JSON"); }
+
+    const { step, primary, fallbacks = [] } = data;
+    if (!step || !primary) return respondError(res, 400, "step and primary required");
+
+    const cfgPath = path.join(repoRoot, "ai", "project.config.yaml");
+    if (!fs.existsSync(cfgPath)) return respondError(res, 404, "project.config.yaml not found");
+
+    try {
+      let raw = fs.readFileSync(cfgPath, "utf8");
+      const fbStr = fallbacks.length ? `[${fallbacks.join(", ")}]` : "[]";
+      const newLine = `    ${step}: { primary: ${primary}, fallback: ${fbStr} }`;
+
+      // Replace existing step line under executor_routing.default, or append
+      const stepRe = new RegExp(`(    ${step}:\\s*).*`, "m");
+      if (stepRe.test(raw)) {
+        raw = raw.replace(stepRe, newLine);
+      } else {
+        // Append under default: section
+        raw = raw.replace(/(  default:\s*\n)((?:    \w[\w-]*:.*\n)*)/, `$1$2${newLine}\n`);
+      }
+      fs.writeFileSync(cfgPath, raw);
+      respondJSON(res, 200, { success: true });
+    } catch (e) {
+      respondError(res, 500, e.message);
+    }
+  },
 };
 
 // ===== GIT BRANCH HELPERS =====
