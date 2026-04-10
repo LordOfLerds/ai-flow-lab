@@ -641,7 +641,7 @@ const PIPELINE_STEPS = [
     { key:'merge',      label:'Merge',        ai:'auto',   icon:'\u{1F517}', states:['PR_DRAFTED','MERGED'] }
 ];
 
-const STATE_ORDER = ['NEW','ARCHITECTED','CRITIQUED','SYNTHESIZED','IMPLEMENTING','EXECUTED','COWORK_TESTING','TESTED','TEST_FAILED','BLOCKED_ON_DECISION','FOLLOWUPS_PROPOSED','PR_DRAFTED','MERGED'];
+const STATE_ORDER = ['NEW','ARCHITECTED','CRITIQUED','SYNTHESIZED','IMPLEMENTING','IMPLEMENTED','EXECUTED','COWORK_TESTING','TESTED','TEST_FAILED','BLOCKED_ON_DECISION','FOLLOWUPS_PROPOSED','PR_DRAFTED','MERGED'];
 const COMPLETED_STATES = new Set(['MERGED','PR_DRAFTED','FOLLOWUPS_PROPOSED','TESTED']);
 const POST_MERGE_STEPS = new Set([]); // merge is now last step, no post-merge steps
 
@@ -931,6 +931,8 @@ function renderTaskCard(task) {
     const isRunningTask = task.runtime_status==='running'||task.runtime_status==='QUEUED';
     const isFailedTask = task.runtime_status==='FAILED';
     const isBlockedTask = task.state==='BLOCKED_ON_DECISION';
+    const isClarificationBlocked = isBlockedTask && !!task.blocked_at_step;
+    const isUnblockedTask = task.runtime_status==='UNBLOCKED';
     const isTestingTask = task.state==='COWORK_TESTING';
     if (!APP._expandedTasks._initialized) {
         if (isNewTask || isRunningTask || isFailedTask || isBlockedTask || isTestingTask) APP._expandedTasks.add(task.task_id);
@@ -938,8 +940,8 @@ function renderTaskCard(task) {
     const isExpanded = APP._expandedTasks.has(task.task_id);
     const collapsedId = `task-${task.task_id}`;
 
-    return `<div class="pipeline-task-group" ${isFailedTask||isBlockedTask?'style="border:1px solid rgba(239,68,68,0.3);border-radius:8px;"':isTestingTask?'style="border:1px solid rgba(245,158,11,0.3);border-radius:8px;"':''}>
-        <div class="pipeline-task-header ${isExpanded?'expanded':''}" style="cursor:pointer;${isFailedTask||isBlockedTask?'background:rgba(239,68,68,0.06);':isTestingTask?'background:rgba(245,158,11,0.04);':''}" onclick="const id='${task.task_id}';document.getElementById('${collapsedId}').classList.toggle('open');this.classList.toggle('expanded');if(APP._expandedTasks.has(id))APP._expandedTasks.delete(id);else APP._expandedTasks.add(id);">
+    return `<div class="pipeline-task-group" ${isClarificationBlocked?'style="border:1px solid rgba(59,130,246,0.3);border-radius:8px;"':isFailedTask||isBlockedTask?'style="border:1px solid rgba(239,68,68,0.3);border-radius:8px;"':isUnblockedTask?'style="border:1px solid rgba(34,197,94,0.3);border-radius:8px;"':isTestingTask?'style="border:1px solid rgba(245,158,11,0.3);border-radius:8px;"':''}>
+        <div class="pipeline-task-header ${isExpanded?'expanded':''}" style="cursor:pointer;${isClarificationBlocked?'background:rgba(59,130,246,0.06);':isFailedTask||isBlockedTask?'background:rgba(239,68,68,0.06);':isUnblockedTask?'background:rgba(34,197,94,0.06);':isTestingTask?'background:rgba(245,158,11,0.04);':''}" onclick="const id='${task.task_id}';document.getElementById('${collapsedId}').classList.toggle('open');this.classList.toggle('expanded');if(APP._expandedTasks.has(id))APP._expandedTasks.delete(id);else APP._expandedTasks.add(id);">
             <span class="task-id">${task.task_id}</span>
             <span class="task-title" style="flex:1;">${task.title}</span>
             <span class="badge badge-${task.executor==='codex'?'openai':task.executor==='claude'?'claude':'info'}" style="font-size:10px;">${task.executor||'?'}</span>
@@ -948,13 +950,30 @@ function renderTaskCard(task) {
             ${COMPLETED_STATES.has(task.state) && task.failed_step ? `<span class="badge badge-warning" style="font-size:10px;">⚠ ${task.failed_step} skipped</span>`:''}
             ${isRunningTask?'<span class="badge badge-warning" style="animation:pulse 1.5s infinite;font-size:10px;">⚙ Running</span>':''}
             ${task.state==='COWORK_TESTING'?'<span class="badge badge-warning" style="animation:pulse 1.5s infinite;font-size:10px;">🧪 Testing</span>':''}
-            ${task.state==='BLOCKED_ON_DECISION'?'<span class="badge badge-error" style="font-size:10px;">⏸ Needs Decision</span>':''}
+            ${isClarificationBlocked?'<span class="badge" style="font-size:10px;background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);">&#10067; Needs Answer</span>':''}
+            ${isBlockedTask&&!isClarificationBlocked?'<span class="badge badge-error" style="font-size:10px;">⏸ Needs Decision</span>':''}
+            ${isUnblockedTask?'<span class="badge badge-success" style="font-size:10px;">&#10003; Answered</span>':''}
             ${isRunningTask?`<button class="btn btn-sm" onclick="event.stopPropagation();cancelTask('${task.task_id}')" style="margin-left:auto;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:10px;padding:3px 10px;">✕ Cancel</button>`:''}
             ${isFailedTask?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();retryTask('${task.task_id}')" style="margin-left:auto;">↻ Retry</button>`:''}
-            ${isNewTask&&!isFailedTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" style="margin-left:auto;">▶ Start</button>`:''}
-            ${!isNewTask&&!isRunningTask&&!isFailedTask?`<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openTaskPanel('${task.task_id}')" style="margin-left:auto;">Details</button>`:''}
+            ${isUnblockedTask&&!isRunningTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" style="margin-left:auto;">▶ Resume</button>`:''}
+            ${isNewTask&&!isFailedTask&&!isUnblockedTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" style="margin-left:auto;">▶ Start</button>`:''}
+            ${!isNewTask&&!isRunningTask&&!isFailedTask&&!isUnblockedTask?`<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openTaskPanel('${task.task_id}')" style="margin-left:auto;">Details</button>`:''}
         </div>
         <div id="${collapsedId}" class="pipeline-steps ${isExpanded?'open':''}">
+            ${task.state==='BLOCKED_ON_DECISION' && task.blocked_at_step ? (()=>{
+                const taskDPs = (APP.state.decision_proposals||[]).filter(dp=>dp.source_task_id===task.task_id && dp.type==='clarification' && dp.status!=='resolved');
+                if(!taskDPs.length) return '';
+                return `<div style="margin:8px 12px;padding:12px;border-radius:8px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-left:3px solid #3b82f6;" onclick="event.stopPropagation();">
+                    <div style="font-size:11px;font-weight:700;color:#3b82f6;text-transform:uppercase;margin-bottom:6px;">&#10067; Clarification Needed (${task.blocked_at_step})</div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">The AI needs your input before continuing. Answer below or go to the Decisions tab.</div>
+                    ${taskDPs.map(dp=>`<div style="margin-bottom:10px;padding:8px;background:rgba(0,0,0,0.15);border-radius:6px;">
+                        <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">${escHtml(dp.topic)}</div>
+                        ${dp.rationale?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">${escHtml(dp.rationale)}</div>`:''}
+                        <textarea class="form-textarea" id="cq-${dp.decision_proposal_id}" style="min-height:50px;font-size:11px;margin-bottom:6px;" placeholder="Your answer..." onclick="event.stopPropagation();"></textarea>
+                        <button class="btn btn-sm" onclick="event.stopPropagation();resolveClarificationInline('${dp.decision_proposal_id}')" style="font-size:10px;padding:4px 12px;background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);">Answer</button>
+                    </div>`).join('')}
+                </div>`;
+            })() : ''}
             ${task.state==='BLOCKED_ON_DECISION' && task.guardrail_result ? `<div style="margin:8px 12px;padding:12px;border-radius:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);" onclick="event.stopPropagation();">
                 <div style="font-size:11px;font-weight:700;color:#ef4444;text-transform:uppercase;margin-bottom:6px;">🔴 Guardrail: Critical Issues Detected</div>
                 <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">The executor produced changes that exceed safety thresholds. Review and decide:</div>
@@ -2515,17 +2534,34 @@ function renderDecisions() {
     const dps = APP.state?.decision_proposals || [];
     const open = dps.filter(d=>d.status!=='resolved');
     const resolved = dps.filter(d=>d.status==='resolved');
-    $('open-proposals').innerHTML = open.length ? open.map(p=>`
-        <div class="card">
-            <div style="font-weight:600;margin-bottom:8px;">${p.topic||p.question||'Decision'}</div>
+    $('open-proposals').innerHTML = open.length ? open.map(p=>{
+        const isClarification = p.type === 'clarification';
+        const headerColor = isClarification ? 'rgba(59,130,246,0.15)' : '';
+        const headerBorder = isClarification ? 'border-left:3px solid #3b82f6;' : '';
+        const icon = isClarification ? '&#10067; ' : '';
+        const taskLink = p.source_task_id ? `<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">${p.source_task_id}${p.blocked_step ? ' / '+p.blocked_step : ''}</span>` : '';
+        if (isClarification) {
+            // Clarification: free-text answer instead of dropdown
+            return `<div class="card" style="${headerBorder}padding:16px;">
+                <div style="font-weight:600;margin-bottom:8px;">${icon}${p.topic||'Clarification'}${taskLink}</div>
+                ${p.rationale?`<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${p.rationale}</div>`:''}
+                <div class="form-group"><label class="form-label">Your Answer</label>
+                    <textarea class="form-textarea" id="opt-${p.decision_proposal_id}" style="min-height:80px;" placeholder="Answer the question..."></textarea>
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="resolveClarification('${p.decision_proposal_id}')">&#10003; Answer &amp; Continue Pipeline</button>
+            </div>`;
+        }
+        // Regular decision: dropdown options
+        return `<div class="card">
+            <div style="font-weight:600;margin-bottom:8px;">${p.topic||p.question||'Decision'}${taskLink}</div>
             ${p.rationale?`<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${p.rationale}</div>`:''}
             <div class="form-group"><label class="form-label">Option</label>
-                <select class="form-select" id="opt-${p.decision_proposal_id}"><option value="">-- Choose --</option>${(p.options||[]).map(o=>`<option value="${o}">${o}</option>`).join('')}</select>
+                <select class="form-select" id="opt-${p.decision_proposal_id}"><option value="">-- Choose --</option>${(p.options||[]).map(o=>`<option value="${typeof o==='object'?o.id||o.label:o}">${typeof o==='object'?o.label:o}</option>`).join('')}</select>
             </div>
             <div class="form-group"><label class="form-label">Rationale</label><textarea class="form-textarea" id="rat-${p.decision_proposal_id}" style="min-height:60px;" placeholder="Why..."></textarea></div>
             <button class="btn btn-primary" style="width:100%;" onclick="resolveDP('${p.decision_proposal_id}')">&#10003; Resolve</button>
-        </div>
-    `).join('') : '<div style="color:var(--text-muted);text-align:center;padding:40px;">No open proposals</div>';
+        </div>`;
+    }).join('') : '<div style="color:var(--text-muted);text-align:center;padding:40px;">No open proposals</div>';
     $('resolved-decisions').innerHTML = resolved.map(p=>`
         <div class="card" style="padding:14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -2541,6 +2577,18 @@ async function resolveDP(id){
     if(!opt){toast('Select an option','warning');return;}
     await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:opt,rationale:rat})});
     toast('Resolved','success'); await APP.refresh(); render();
+}
+async function resolveClarification(id){
+    const answer=document.getElementById('opt-'+id)?.value?.trim();
+    if(!answer){toast('Please provide an answer','warning');return;}
+    await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:answer,rationale:'Clarification answer from owner'})});
+    toast('Answered — pipeline will resume','success'); await APP.refresh(); render();
+}
+async function resolveClarificationInline(id){
+    const answer=document.getElementById('cq-'+id)?.value?.trim();
+    if(!answer){toast('Please provide an answer','warning');return;}
+    await fetch('/api/decisions/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposalId:id,selectedOption:answer,rationale:'Clarification answer from owner'})});
+    toast('Answered — pipeline will resume','success'); await APP.refresh(); render();
 }
 
 // ===== RENDER: TESTS =====

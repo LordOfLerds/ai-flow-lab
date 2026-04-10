@@ -647,6 +647,7 @@ cascade_limits:
         selected_option: selectedOption,
         rationale: rationale || `Resolved from proposal ${proposalId}`,
         scope: proposal.blocking_scope,
+        source_type: proposal.type || 'manual',
         implications: "",
         linked_tasks: [proposal.source_task_id].filter(Boolean),
         linked_goals: [proposal.source_goal_id].filter(Boolean),
@@ -673,7 +674,14 @@ cascade_limits:
         if (task && task.state === "BLOCKED_ON_DECISION" && task.open_decisions?.includes(proposalId)) {
           task.open_decisions = task.open_decisions.filter(d => d !== proposalId);
           if (task.open_decisions.length === 0) {
-            task.state = "READY_AFTER_DECISION";
+            // Clarification re-run: reset to pre-step state so cascade re-runs the blocked step
+            if (task.blocked_at_step) {
+              const preStepState = { 'architect': 'NEW', 'synthesize': 'CRITIQUED' };
+              task.state = preStepState[task.blocked_at_step] || 'READY_AFTER_DECISION';
+              delete task.blocked_at_step;
+            } else {
+              task.state = "READY_AFTER_DECISION";
+            }
             task.runtime_status = "UNBLOCKED";
             delete task.open_decisions;
           }
@@ -2717,6 +2725,38 @@ function loadCascadeConfig() {
 }
 
 // ===== DEDUP: Title similarity =====
+// ===== HELPER: Parse clarification questions from LLM markdown output =====
+function parseClarifications(markdown) {
+  if (!markdown) return [];
+  // Check if there's a "## Clarification Needed" section at all
+  if (!/##\s+Clarification Needed/i.test(markdown)) return [];
+
+  const blocks = [...markdown.matchAll(/###\s+(CQ-\d+)\s*\r?\n([\s\S]*?)(?=\r?\n###\s+CQ-\d+|\r?\n##\s|$)/g)];
+  return blocks.map((m) => {
+    const body = m[2];
+    function field(name) {
+      const patterns = [
+        new RegExp(`-\\s+${name}:\\s*(.*)`, 'i'),
+        new RegExp(`\\*\\*${name}\\*\\*:\\s*(.*)`, 'i'),
+        new RegExp(`${name}:\\s*(.*)`, 'i')
+      ];
+      for (const r of patterns) {
+        const mm = body.match(r);
+        if (mm && mm[1].trim()) return mm[1].trim().replace(/^\*+\s*/, '').replace(/\*+$/, '');
+      }
+      return '';
+    }
+    const question = field('question');
+    if (!question) return null; // Skip malformed blocks
+    return {
+      id: m[1],
+      question,
+      why_needed: field('why_needed'),
+      blocking: field('blocking') !== 'false'
+    };
+  }).filter(Boolean);
+}
+
 function wordTokens(str) {
   return (str || "").toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(Boolean);
 }
@@ -2864,6 +2904,57 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
         const commitMsg = `[${taskId}] ${stepName}: ${tf2?.title || taskId}`;
         await execAsync(`git add -A && git diff --cached --quiet || git commit -m "${commitMsg.replace(/"/g,'\\"')}"`, { cwd: _repoRoot, timeout: 10000 });
       } catch (_) {}
+
+      // ===== CLARIFICATION CHECK (after architect/synthesize) =====
+      if (stepName === 'architect' || stepName === 'synthesize') {
+        const tfClar = readJSON(taskFile);
+        const outputRelPath = stepName === 'architect' ? tfClar?.spec_path : tfClar?.brief_path;
+        if (outputRelPath) {
+          try {
+            const outputAbs = path.join(_repoRoot, outputRelPath);
+            const outputContent = fs.existsSync(outputAbs) ? fs.readFileSync(outputAbs, 'utf8') : '';
+            const clarifications = parseClarifications(outputContent);
+            if (clarifications.length > 0) {
+              console.log(`[CASCADE] ${taskId}: ${stepName} has ${clarifications.length} clarification(s) — blocking for user input`);
+              const dpIds = [];
+              const dpDir = path.join(_stateDir, 'decision_proposals');
+              fs.mkdirSync(dpDir, { recursive: true });
+              for (let ci = 0; ci < clarifications.length; ci++) {
+                const cq = clarifications[ci];
+                const dpId = `DP-CQ-${taskId}-${stepName}-${ci + 1}-${Date.now()}`;
+                const dp = {
+                  decision_proposal_id: dpId,
+                  type: 'clarification',
+                  source_task_id: taskId,
+                  source_goal_id: tfClar.parent_goal_id || '',
+                  blocked_step: stepName,
+                  topic: cq.question,
+                  rationale: cq.why_needed || `Clarification needed during ${stepName} step`,
+                  blocking_scope: 'task',
+                  options: [],
+                  recommended_default: '',
+                  urgency: 'high',
+                  status: 'open',
+                  created_at: new Date().toISOString()
+                };
+                fs.writeFileSync(path.join(dpDir, `${dpId}.json`), JSON.stringify(dp, null, 2));
+                dpIds.push(dpId);
+                console.log(`[CASCADE] ${taskId}: Created clarification DP ${dpId}: ${cq.question.substring(0, 80)}`);
+              }
+              tfClar.state = 'BLOCKED_ON_DECISION';
+              tfClar.runtime_status = 'IDLE';
+              tfClar.current_step = `${stepName}-clarification`;
+              tfClar.blocked_at_step = stepName;
+              tfClar.open_decisions = dpIds;
+              tfClar.updated_at = new Date().toISOString();
+              fs.writeFileSync(taskFile, JSON.stringify(tfClar, null, 2));
+              break; // Stop cascade — user must answer
+            }
+          } catch (clarErr) {
+            console.error(`[CASCADE] ${taskId}: Clarification parsing error:`, clarErr.message);
+          }
+        }
+      }
 
       // ===== GUARDRAIL ROUTING (after execute step) =====
       if (stepName === 'execute') {
@@ -3213,6 +3304,7 @@ const STATE_TO_NEXT_STEP = {
   'COWORK_TESTING': 'propose-followups', // resume after test → followups
   'TEST_FAILED': 'execute',             // retry from execute
   'BLOCKED_ON_DECISION': null,          // blocked — no auto-advance
+  'READY_AFTER_DECISION': 'propose-followups', // resume after guardrail decision
   'FOLLOWUPS_PROPOSED': 'pr-draft',
   'PR_DRAFTED': 'merge',               // merge is now last step
   'MERGED': null                        // pipeline complete

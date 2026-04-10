@@ -81,6 +81,23 @@ function loadTruthFiles() {
 const truthContext = loadTruthFiles();
 const codeContext = discoverSourceContext(10, 60);
 
+// Load resolved clarification answers from previous runs (if re-running after user answered)
+function loadResolvedClarifications() {
+  const automationRoot = process.cwd();
+  const decisionsDir = path.join(automationRoot, "state", "decisions");
+  if (!fs.existsSync(decisionsDir)) return "";
+  try {
+    const decisions = fs.readdirSync(decisionsDir)
+      .filter(f => f.endsWith('.json'))
+      .map(f => { try { return JSON.parse(fs.readFileSync(path.join(decisionsDir, f), 'utf8')); } catch { return null; } })
+      .filter(d => d && d.source_type === 'clarification' && d.linked_tasks?.includes(taskId));
+    if (decisions.length === 0) return "";
+    return "\n\nOwner clarifications (use these as authoritative answers):\n" +
+      decisions.map(d => `- Q: ${d.topic}\n  A: ${d.selected_option}`).join("\n") + "\n";
+  } catch { return ""; }
+}
+const clarificationContext = loadResolvedClarifications();
+
 // Add task description if available
 const descriptionBlock = task.description ? `\nTask description:\n${task.description}\n` : "";
 
@@ -89,7 +106,11 @@ Return ONLY markdown for the spec file.
 Do not implement code.
 Do not invent business rules.
 Treat docs as primary truth.
-If code may be ahead of docs, state uncertainty explicitly.`;
+If code may be ahead of docs, state uncertainty explicitly.
+
+IMPORTANT: If you need information that is NOT available in the truth docs or code context,
+do NOT invent it. Instead, add a "## Clarification Needed" section at the end of your spec.
+Only use this when critical information is genuinely missing — not for nice-to-haves.`;
 
 const input = `
 Task metadata:
@@ -108,6 +129,14 @@ Write a spec with these sections exactly:
 - ## Acceptance criteria
 - ## Risks
 - ## Open questions
+- ## Clarification Needed (optional — only if critical info is missing from truth docs)
+
+If you include "## Clarification Needed", use this format per question:
+
+### CQ-1
+- question: <the specific question>
+- why_needed: <why this info is critical and cannot be inferred>
+- blocking: true
 
 Repo truth files:
 
@@ -116,7 +145,7 @@ ${truthContext || "(no truth files found in repo)"}
 Current code context:
 
 ${codeContext || "(no source files found)"}
-`;
+${clarificationContext}`;
 
 const text = await callLLMForStep({
   instructions,

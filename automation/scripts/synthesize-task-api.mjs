@@ -77,11 +77,32 @@ function loadTruthFiles() {
 
 const truthContext = loadTruthFiles();
 
+// Load resolved clarification answers from previous runs (if re-running after user answered)
+function loadResolvedClarifications() {
+  const automationRoot = process.cwd();
+  const decisionsDir = path.join(automationRoot, "state", "decisions");
+  if (!fs.existsSync(decisionsDir)) return "";
+  try {
+    const decisions = fs.readdirSync(decisionsDir)
+      .filter(f => f.endsWith('.json'))
+      .map(f => { try { return JSON.parse(fs.readFileSync(path.join(decisionsDir, f), 'utf8')); } catch { return null; } })
+      .filter(d => d && d.source_type === 'clarification' && d.linked_tasks?.includes(taskId));
+    if (decisions.length === 0) return "";
+    return "\n\nOwner clarifications (use these as authoritative answers):\n" +
+      decisions.map(d => `- Q: ${d.topic}\n  A: ${d.selected_option}`).join("\n") + "\n";
+  } catch { return ""; }
+}
+const clarificationContext = loadResolvedClarifications();
+
 const instructions = `You are the architecture synthesizer.
 Return ONLY markdown for an execution-ready implementation brief.
 Do not implement code.
 Keep scope tight.
-Resolve contradictions explicitly.`;
+Resolve contradictions explicitly.
+
+IMPORTANT: If you need information that is NOT available in the spec, review, or truth docs,
+do NOT invent it. Instead, add a "## Clarification Needed" section at the end of your brief.
+Only use this when critical information is genuinely missing — not for nice-to-haves.`;
 
 const input = `
 Task metadata:
@@ -100,6 +121,14 @@ Write a brief with these sections exactly:
 - ## Chosen minimal policy
 - ## Risks
 - ## Explicit non-goals
+- ## Clarification Needed (optional — only if critical info is missing)
+
+If you include "## Clarification Needed", use this format per question:
+
+### CQ-1
+- question: <the specific question>
+- why_needed: <why this info is critical and cannot be inferred>
+- blocking: true
 
 Note: Project truth files (CLAUDE.md, AGENTS.md, DOMAIN_MODEL.md, etc.) are already
 incorporated in the spec and review above. Do NOT request them again — use the spec
@@ -114,7 +143,7 @@ Review:
 
 [${task.review_path}]
 ${review}
-`;
+${clarificationContext}`;
 
 const text = await callLLMForStep({
   instructions,
