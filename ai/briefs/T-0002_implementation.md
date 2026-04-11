@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0002
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # Implementation Brief: T-0002 Player Character
 
 ## Merged Requirements
@@ -189,3 +196,10 @@ All 13 original criteria plus enhancements:
 - Input buffering handles 2-frame pre-landing jump presses
 - No sprite tunneling through solid tiles
 - All state persists correctly between frames
+
+
+## Related Documents
+- [[ai/specs/T-0002_spec.md|T-0002 spec]]
+- [[ai/reviews/T-0002_gemini_review.md|T-0002 review]]
+- [[ai/followups/T-0002_followups.md|T-0002 followup]]
+- [[ai/pr/T-0002_pr_draft.md|T-0002 pr-draft]]

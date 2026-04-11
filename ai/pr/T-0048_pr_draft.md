@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0048
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0048] Expand skill system: 8+ skills with meaningful progression tree
 
 ## Summary
@@ -65,3 +72,11 @@ Expand the skill system from 3 skills to 8 skills with meaningful gameplay mecha
 **Branch**: `feature/T-0048` → `main`
 **Generated**: 2026-04-09T00:16:12.199Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0048_spec.md|T-0048 spec]]
+- [[ai/reviews/T-0048_gemini_review.md|T-0048 review]]
+- [[ai/briefs/T-0048_implementation.md|T-0048 document]]
+- [[ai/results/T-0048_executor_report.md|T-0048 result]]
+- [[ai/followups/T-0048_followups.md|T-0048 followup]]

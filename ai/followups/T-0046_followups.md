@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0046
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # Follow-up Proposals for T-0046
 
 ## Recommended
@@ -27,3 +34,11 @@
 - **rationale:** Currently no "Are you sure?" when buying skins with coins/gems.
 - **smallest_safe_scope:** Add confirmation prompt before deducting currency.
 - **should_spawn_now:** false
+
+
+## Related Documents
+- [[ai/specs/T-0046_spec.md|T-0046 spec]]
+- [[ai/reviews/T-0046_gemini_review.md|T-0046 review]]
+- [[ai/briefs/T-0046_implementation.md|T-0046 document]]
+- [[ai/results/T-0046_executor_report.md|T-0046 result]]
+- [[ai/pr/T-0046_pr_draft.md|T-0046 pr-draft]]

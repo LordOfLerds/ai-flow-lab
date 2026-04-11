@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0013
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0013 Spec
 
 ## Task metadata
@@ -96,3 +103,10 @@ None of those can be mandated as business truth from the current repository cont
 - Is there an existing backend or API for authentication that is not visible in the provided code context?
 - Should login gate access to the whole app, only persistence/progression features, or something else?
 - What should happen for users who do not yet have an account?
+
+## Related Documents
+- [[ai/reviews/T-0013_gemini_review.md|T-0013 review]]
+- [[ai/briefs/T-0013_implementation.md|T-0013 document]]
+- [[ai/results/T-0013_executor_report.md|T-0013 result]]
+- [[ai/followups/T-0013_followups.md|T-0013 followup]]
+- [[ai/pr/T-0013_pr_draft.md|T-0013 pr-draft]]

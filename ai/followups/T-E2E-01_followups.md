@@ -1,3 +1,9 @@
+---
+type: followup
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-E2E-01 Follow-ups
 
 ## Task outcome summary

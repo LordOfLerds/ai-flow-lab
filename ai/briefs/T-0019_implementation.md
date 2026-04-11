@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0019
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0019 Implementation Brief
 
 ## Goal
@@ -92,3 +99,10 @@ Concrete policy decisions:
 - Verifying mobile viewport behavior.
 - Changing `index.html` or `game.html` product behavior beyond minimal test harness compatibility.
 - Declaring `/game` extensionless route as required support without confirmation from existing docs/infrastructure.
+
+## Related Documents
+- [[ai/specs/T-0019_spec.md|T-0019 spec]]
+- [[ai/reviews/T-0019_gemini_review.md|T-0019 review]]
+- [[ai/results/T-0019_executor_report.md|T-0019 result]]
+- [[ai/followups/T-0019_followups.md|T-0019 followup]]
+- [[ai/pr/T-0019_pr_draft.md|T-0019 pr-draft]]

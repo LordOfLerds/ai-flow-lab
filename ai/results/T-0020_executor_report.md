@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0020
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0020 Executor Result
 
 ## Task
@@ -535,3 +542,11 @@ async function waitFor<T>(
 1. **Provision headless-friendly Chrome** — Install Chrome for Testing or supply a zipped headless-shell binary that works without LaunchServices registration so the new smoke test can execute on CI. *(lane_type: test-lane)*
 2. **Automate browser binary detection** — Add configuration (e.g., `CHROME_PATH` in project settings) and document how to point the harness at alternate browsers (Chromium, Chrome Canary) for developers without standard Chrome access. *(lane_type: docs-lane)*
 3. **Consider cached Playwright browsers** — If offline environments remain common, bundle a vetted headless browser binary (or enable Playwright cache sync) inside the repo to avoid sandbox-denied installs. *(lane_type: infrastructure-lane)*
+
+
+## Related Documents
+- [[ai/specs/T-0020_spec.md|T-0020 spec]]
+- [[ai/reviews/T-0020_gemini_review.md|T-0020 review]]
+- [[ai/briefs/T-0020_implementation.md|T-0020 document]]
+- [[ai/followups/T-0020_followups.md|T-0020 followup]]
+- [[ai/pr/T-0020_pr_draft.md|T-0020 pr-draft]]

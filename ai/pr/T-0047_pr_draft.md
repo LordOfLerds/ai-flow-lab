@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0047
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0047] Expand to 100 levels with progressive difficulty and themed biomes
 
 ## Summary
@@ -70,3 +77,11 @@ Issues
 **Branch**: `feature/T-0047` → `main`
 **Generated**: 2026-04-09T00:03:28.295Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0047_spec.md|T-0047 spec]]
+- [[ai/reviews/T-0047_gemini_review.md|T-0047 review]]
+- [[ai/briefs/T-0047_implementation.md|T-0047 document]]
+- [[ai/results/T-0047_executor_report.md|T-0047 result]]
+- [[ai/followups/T-0047_followups.md|T-0047 followup]]

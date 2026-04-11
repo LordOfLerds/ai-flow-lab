@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0032
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0032 Implementation Brief
 
 ## Goal
@@ -196,3 +203,11 @@ const safetySection = issues.length > 0
 - Git-based restoration (`git checkout`)
 - Protection against logic errors or subtle bugs
 - AST-level validation
+
+
+## Related Documents
+- [[ai/specs/T-0032_spec.md|T-0032 spec]]
+- [[ai/reviews/T-0032_gemini_review.md|T-0032 review]]
+- [[ai/results/T-0032_executor_report.md|T-0032 result]]
+- [[ai/followups/T-0032_followups.md|T-0032 followup]]
+- [[ai/pr/T-0032_pr_draft.md|T-0032 pr-draft]]

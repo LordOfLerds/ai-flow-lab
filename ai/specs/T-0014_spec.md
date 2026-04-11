@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0014
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0014 Spec
 
 ## Task metadata
@@ -148,3 +155,11 @@ Expected documentation coverage, without inventing new rules:
   - plus README-style user docs,
   - or also ADRs and task-specific notes?
 - Should the documentation describe the current code behavior exactly, even where the code may contain quirks, or should such quirks be called out as implementation-specific uncertainty?
+
+## Related Documents
+- [[ai/reviews/T-0014_gemini_review.md|T-0014 review]]
+- [[ai/briefs/T-0014_implementation.md|T-0014 document]]
+- [[ai/results/T-0014_executor_report.md|T-0014 result]]
+- [[ai/results/T-0014_result.md|T-0014 result]]
+- [[ai/followups/T-0014_followups.md|T-0014 followup]]
+- [[ai/pr/T-0014_pr_draft.md|T-0014 pr-draft]]

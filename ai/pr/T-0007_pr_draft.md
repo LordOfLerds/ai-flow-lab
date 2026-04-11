@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0007
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0007] Add HUD, score tracking, game over, menus, and polish
 
 ## Summary
@@ -62,3 +69,10 @@ T-0007 successfully completed the core game experience with HUD rendering, score
 **Branch**: `feature/T-0007-add-hud-score-tracking-game-over-menus-and-polish` → `main`
 **Generated**: 2026-04-07T05:47:36.037Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0007_spec.md|T-0007 spec]]
+- [[ai/reviews/T-0007_gemini_review.md|T-0007 review]]
+- [[ai/briefs/T-0007_implementation.md|T-0007 document]]
+- [[ai/followups/T-0007_followups.md|T-0007 followup]]

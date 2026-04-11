@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0048
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0048 Gemini Review
 
 ## Review target
@@ -32,3 +39,11 @@ Spec T-0048: Expand skill system from 3 to 8 skills with progression tree.
 3. Specify magnet pull radius scales with level or is fixed at 80px.
 4. Add stomp minimum-height check (at least 2 tiles above ground).
 5. Clarify that Time Slow cooldown is 10s and pressing T during active slow-mo does nothing.
+
+
+## Related Documents
+- [[ai/specs/T-0048_spec.md|T-0048 spec]]
+- [[ai/briefs/T-0048_implementation.md|T-0048 document]]
+- [[ai/results/T-0048_executor_report.md|T-0048 result]]
+- [[ai/followups/T-0048_followups.md|T-0048 followup]]
+- [[ai/pr/T-0048_pr_draft.md|T-0048 pr-draft]]

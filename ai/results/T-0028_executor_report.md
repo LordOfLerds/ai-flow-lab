@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0028
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0028 Executor Report
 
 ## Task
@@ -53,3 +60,11 @@ Added ~254 lines of player physics, collision, and game interaction code.
 
 ## Status
 COMPLETED — All acceptance criteria met.
+
+
+## Related Documents
+- [[ai/specs/T-0028_spec.md|T-0028 spec]]
+- [[ai/reviews/T-0028_gemini_review.md|T-0028 review]]
+- [[ai/briefs/T-0028_implementation.md|T-0028 document]]
+- [[ai/followups/T-0028_followups.md|T-0028 followup]]
+- [[ai/pr/T-0028_pr_draft.md|T-0028 pr-draft]]

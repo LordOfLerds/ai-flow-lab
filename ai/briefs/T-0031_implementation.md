@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0031
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0031 Implementation Brief
 
 ## Goal
@@ -190,3 +197,11 @@ Also add this same initialization in `checkExitCollision()` where the next level
 - Moving platform sound effects
 - Variable platform motion patterns (only sinusoidal)
 - Moving platform visual indicators (arrows, glow)
+
+
+## Related Documents
+- [[ai/specs/T-0031_spec.md|T-0031 spec]]
+- [[ai/reviews/T-0031_gemini_review.md|T-0031 review]]
+- [[ai/results/T-0031_executor_report.md|T-0031 result]]
+- [[ai/followups/T-0031_followups.md|T-0031 followup]]
+- [[ai/pr/T-0031_pr_draft.md|T-0031 pr-draft]]

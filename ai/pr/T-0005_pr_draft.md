@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0005
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0005] Implement collectibles, rewards, and power-ups
 
 ## Summary
@@ -62,3 +69,10 @@ T-0005 successfully implemented collectibles (coins, gems), power-ups (invulnera
 **Branch**: `feature/T-0005-implement-collectibles-rewards-and-power-ups` → `main`
 **Generated**: 2026-04-07T05:46:34.140Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0005_spec.md|T-0005 spec]]
+- [[ai/reviews/T-0005_gemini_review.md|T-0005 review]]
+- [[ai/briefs/T-0005_implementation.md|T-0005 document]]
+- [[ai/followups/T-0005_followups.md|T-0005 followup]]

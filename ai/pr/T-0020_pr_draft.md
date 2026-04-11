@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0020
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0020] Add true headless-browser smoke coverage for Start UI visibility after runtime scripts execute
 
 ## Summary
@@ -77,3 +84,11 @@ What is now covered:
 **Branch**: `test/T-0020-add-true-headless-browser-smoke-coverage-for-start-ui-visibility-after-runtime-scripts-execute` → `main`
 **Generated**: 2026-04-07T20:41:22.843Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0020_spec.md|T-0020 spec]]
+- [[ai/reviews/T-0020_gemini_review.md|T-0020 review]]
+- [[ai/briefs/T-0020_implementation.md|T-0020 document]]
+- [[ai/results/T-0020_executor_report.md|T-0020 result]]
+- [[ai/followups/T-0020_followups.md|T-0020 followup]]

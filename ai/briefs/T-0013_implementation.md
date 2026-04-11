@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0013
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0013 Implementation Brief
 
 ## Goal
@@ -135,3 +142,10 @@ Use this minimal implementation policy unless overridden by discovered repo docs
 - Cross-tab/session persistence beyond explicitly documented local mock behavior
 - Broad app architecture refactor
 - Rewriting task metadata or repo role docs
+
+## Related Documents
+- [[ai/specs/T-0013_spec.md|T-0013 spec]]
+- [[ai/reviews/T-0013_gemini_review.md|T-0013 review]]
+- [[ai/results/T-0013_executor_report.md|T-0013 result]]
+- [[ai/followups/T-0013_followups.md|T-0013 followup]]
+- [[ai/pr/T-0013_pr_draft.md|T-0013 pr-draft]]

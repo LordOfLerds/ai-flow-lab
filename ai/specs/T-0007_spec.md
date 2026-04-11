@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0007
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0007 Spec
 
 ## Task metadata
@@ -130,3 +137,10 @@ The game currently has functional gameplay but lacks UI, polish, and state manag
 3. Should restart level reset player XP counter, or keep progress? (Assumption: keep XP progress; only reset level-specific state)
 4. Can player pause during gameplay, or only at menu? (Assumption: no pause; deferred to future feature)
 5. Should background animate (e.g., scrolling parallax), or static? (Assumption: static; parallax deferred to future polish)
+
+
+## Related Documents
+- [[ai/reviews/T-0007_gemini_review.md|T-0007 review]]
+- [[ai/briefs/T-0007_implementation.md|T-0007 document]]
+- [[ai/followups/T-0007_followups.md|T-0007 followup]]
+- [[ai/pr/T-0007_pr_draft.md|T-0007 pr-draft]]

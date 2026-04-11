@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0047
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # Spec: T-0047 — Expand to 100 levels with progressive difficulty
 
 ## Overview
@@ -97,3 +104,11 @@ The level-grid needs to handle 100 levels efficiently:
 - [ ] Biome progression: complete 8/10 levels to unlock next biome
 - [ ] First 10 levels (Meadow) feel easy and tutorialish
 - [ ] Last 10 levels (Space) feel challenging
+
+
+## Related Documents
+- [[ai/reviews/T-0047_gemini_review.md|T-0047 review]]
+- [[ai/briefs/T-0047_implementation.md|T-0047 document]]
+- [[ai/results/T-0047_executor_report.md|T-0047 result]]
+- [[ai/followups/T-0047_followups.md|T-0047 followup]]
+- [[ai/pr/T-0047_pr_draft.md|T-0047 pr-draft]]

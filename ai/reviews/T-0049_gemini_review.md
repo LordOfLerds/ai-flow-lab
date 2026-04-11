@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0049
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0049 Gemini Review
 
 ## Review target
@@ -33,3 +40,11 @@ Spec T-0049: Fix skin progression lock and expand shop with meaningful items.
 3. Cap active boosters to max 3 to prevent stacking exploits.
 4. Add explicit booster non-stacking rule: same booster type cannot be active twice.
 5. Trail particles should use a separate array from any existing particle system to avoid conflicts.
+
+
+## Related Documents
+- [[ai/specs/T-0049_spec.md|T-0049 spec]]
+- [[ai/briefs/T-0049_implementation.md|T-0049 document]]
+- [[ai/results/T-0049_executor_report.md|T-0049 result]]
+- [[ai/followups/T-0049_followups.md|T-0049 followup]]
+- [[ai/pr/T-0049_pr_draft.md|T-0049 pr-draft]]

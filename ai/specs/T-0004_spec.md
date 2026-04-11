@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0004
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0004 Spec
 
 ## Task metadata
@@ -96,3 +103,10 @@ The game currently supports a single player entity with basic movement and gravi
 3. Should crumbling platforms respawn at original position or fall off-screen? (Assumption: respawn at original)
 4. Can players stand on flying enemies? (Assumption: yes, same as walker)
 5. Should enemy patrol direction reverse when hitting a wall, or is there a waypoint system? (Assumption: reverse at platform edges)
+
+
+## Related Documents
+- [[ai/reviews/T-0004_gemini_review.md|T-0004 review]]
+- [[ai/briefs/T-0004_implementation.md|T-0004 document]]
+- [[ai/followups/T-0004_followups.md|T-0004 followup]]
+- [[ai/pr/T-0004_pr_draft.md|T-0004 pr-draft]]

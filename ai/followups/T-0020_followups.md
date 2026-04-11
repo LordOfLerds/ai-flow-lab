@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0020
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0020 Follow-ups
 
 ## Task outcome summary
@@ -65,3 +72,10 @@ Reason:
 - **F-2** is safe to run in parallel with F-1 because it is documentation-only and based on behavior already implemented in T-0020.
 - Do **not** spawn a follow-up to add more Start UI browser assertions right now; the more urgent gap is execution environment readiness, not assertion breadth.
 - Do **not** propose redirect coverage for `game.html`; that area is already handled by **T-0019** or intentionally left outside T-0020 scope.
+
+## Related Documents
+- [[ai/specs/T-0020_spec.md|T-0020 spec]]
+- [[ai/reviews/T-0020_gemini_review.md|T-0020 review]]
+- [[ai/briefs/T-0020_implementation.md|T-0020 document]]
+- [[ai/results/T-0020_executor_report.md|T-0020 result]]
+- [[ai/pr/T-0020_pr_draft.md|T-0020 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0029
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0029] Implement enemy AI movement and player-enemy collision
 
 ## Summary
@@ -79,3 +86,11 @@ T-0029 implemented enemy AI movement and player-enemy collision for Pixel Runner
 **Branch**: `feature/T-0029-implement-enemy-ai-movement-and-player-enemy-collision` → `main`
 **Generated**: 2026-04-07T23:45:16.869Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0029_spec.md|T-0029 spec]]
+- [[ai/reviews/T-0029_gemini_review.md|T-0029 review]]
+- [[ai/briefs/T-0029_implementation.md|T-0029 document]]
+- [[ai/results/T-0029_executor_report.md|T-0029 result]]
+- [[ai/followups/T-0029_followups.md|T-0029 followup]]

@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0036
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0036 Gemini Review
 
 ## Review target
@@ -66,3 +73,8 @@ Spec for T-0036: "Restore skills/abilities system (skill selection, cooldowns, e
 5. **Add Integration Analysis**: Before implementation, analyze how restored skills will interact with existing power-up system, input handling, HUD display, and save/load functionality.
 
 6. **Verify Product Direction**: Confirm with domain owner that skills system should be restored rather than permanently removed. The "incident" language suggests unplanned removal, but this needs verification not assumption.
+
+## Related Documents
+- [[ai/specs/T-0036_spec.md|T-0036 spec]]
+- [[ai/briefs/T-0036_implementation.md|T-0036 document]]
+- [[ai/results/T-0036_executor_report.md|T-0036 result]]

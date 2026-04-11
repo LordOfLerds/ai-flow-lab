@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0030
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0030 Follow-ups
 
 ## Task outcome summary
@@ -50,3 +57,11 @@ T-0030 implemented the HUD system for Pixel Runner. The HTML HUD now displays re
 - The executor destruction pattern is: it rewrites the entire file but loses ~600 lines of existing code, either truncating mid-file or inserting placeholder comments like `// ... [content continues] ...`. The file needs to be treated as append-only by the executor, or the pipeline needs backup/restore logic.
 - Enemy AI, physics, rendering, and HUD are now all functional — the game is playable end-to-end with real gameplay mechanics.
 - Consider prioritizing F-3 (guardrail) even above F-1 since every future feature task will risk the same destruction.
+
+
+## Related Documents
+- [[ai/specs/T-0030_spec.md|T-0030 spec]]
+- [[ai/reviews/T-0030_gemini_review.md|T-0030 review]]
+- [[ai/briefs/T-0030_implementation.md|T-0030 document]]
+- [[ai/results/T-0030_executor_report.md|T-0030 result]]
+- [[ai/pr/T-0030_pr_draft.md|T-0030 pr-draft]]

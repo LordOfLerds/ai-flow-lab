@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0001
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0001 Follow-ups
 
 ## Task outcome summary
@@ -68,3 +75,10 @@ Spawn **F-1 (Implement player character with physics and controls)** immediately
 - T-0001 foundation is solid and ready for building vertical slices. All major systems (loop, camera, rendering, input) are functional.
 - F-1 and F-2 can proceed in parallel if desired, but F-2 benefits from seeing player movement first to validate level design.
 - F-3, F-4, F-5 depend on F-1 and F-2 being reasonably complete. Consider sequencing them as F-1 → F-2 → {F-3, F-4} → F-5 for cohesive vertical slice.
+
+
+## Related Documents
+- [[ai/specs/T-0001_spec.md|T-0001 spec]]
+- [[ai/reviews/T-0001_gemini_review.md|T-0001 review]]
+- [[ai/briefs/T-0001_implementation.md|T-0001 document]]
+- [[ai/pr/T-0001_pr_draft.md|T-0001 pr-draft]]

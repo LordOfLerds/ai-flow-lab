@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0027
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0027] Implement tile rendering and camera system for Pixel Runner
 
 ## Summary
@@ -81,3 +88,11 @@ T-0027 implemented the tile rendering and camera system for Pixel Runner. The `r
 **Branch**: `feature/T-0027-implement-tile-rendering-and-camera-system-for-pixel-runner` → `main`
 **Generated**: 2026-04-07T23:16:04.067Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0027_spec.md|T-0027 spec]]
+- [[ai/reviews/T-0027_gemini_review.md|T-0027 review]]
+- [[ai/briefs/T-0027_implementation.md|T-0027 document]]
+- [[ai/results/T-0027_executor_report.md|T-0027 result]]
+- [[ai/followups/T-0027_followups.md|T-0027 followup]]

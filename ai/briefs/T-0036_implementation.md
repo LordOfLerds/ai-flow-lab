@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0036
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 T-0036 Implementation Brief
 
 Goal
@@ -140,3 +147,8 @@ Explicit non-goals
 	•	Do not replace the power-up system with the skills system.
 	•	Do not introduce a brand-new ability framework, hotbar, or complex cooldown architecture.
 	•	Do not perform broad cleanup of menu, HUD, or input systems outside the minimal skill restoration path.
+
+## Related Documents
+- [[ai/specs/T-0036_spec.md|T-0036 spec]]
+- [[ai/reviews/T-0036_gemini_review.md|T-0036 review]]
+- [[ai/results/T-0036_executor_report.md|T-0036 result]]

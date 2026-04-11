@@ -1,3 +1,9 @@
+---
+type: review
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-E2E-01 Gemini Review
 
 ## Review target

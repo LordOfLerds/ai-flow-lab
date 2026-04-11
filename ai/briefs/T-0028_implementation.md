@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0028
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0028 Implementation Brief
 
 ## Goal
@@ -378,3 +385,11 @@ function gameLoop() {
 - Sound effects
 - HUD updates (separate task)
 - Moving platform collision with player (separate task)
+
+
+## Related Documents
+- [[ai/specs/T-0028_spec.md|T-0028 spec]]
+- [[ai/reviews/T-0028_gemini_review.md|T-0028 review]]
+- [[ai/results/T-0028_executor_report.md|T-0028 result]]
+- [[ai/followups/T-0028_followups.md|T-0028 followup]]
+- [[ai/pr/T-0028_pr_draft.md|T-0028 pr-draft]]

@@ -1,3 +1,9 @@
+---
+type: invariants
+created: 2026-04-10
+tags: [ai-flow-lab, invariants]
+---
+
 # INVARIANTS
 
 > **Note**: This documentation is inferred from code implementation in `index.html` as of T-0045. Updated to reflect authentication, multi-level progression, shop, battle pass, and themed environment systems added in G-0003.

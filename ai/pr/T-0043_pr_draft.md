@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0043
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0043] Coin Shop and Cosmetics Store
 
 ## Summary
@@ -74,3 +81,11 @@ T-0043 (Coin Shop and Cosmetics Store) was executed after an initial guardrail R
 **Branch**: `feature/T-0043-coin-shop-and-cosmetics-store` → `main`
 **Generated**: 2026-04-08T13:25:45.630Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0043_spec.md|T-0043 spec]]
+- [[ai/reviews/T-0043_gemini_review.md|T-0043 review]]
+- [[ai/briefs/T-0043_implementation.md|T-0043 document]]
+- [[ai/results/T-0043_executor_report.md|T-0043 result]]
+- [[ai/followups/T-0043_followups.md|T-0043 followup]]

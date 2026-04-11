@@ -1,3 +1,9 @@
+---
+type: readme
+created: 2026-04-10
+tags: [ai-flow-lab, readme]
+---
+
 # AI Flow Lab
 
 A sophisticated AI-assisted development workflow system that orchestrates multiple AI agents (ChatGPT, Claude, Gemini) to automate software development tasks through structured planning, execution, and review cycles.

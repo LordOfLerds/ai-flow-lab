@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0049
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0049 Spec
 
 ## Task metadata
@@ -117,3 +124,11 @@ On game load, merge localStorage data with gs state.
 ## Open questions
 - Should gem earning rate be adjusted to make gem-locked items achievable?
 - Should boosters stack (e.g., 2x XP + 2x XP = 4x)?
+
+
+## Related Documents
+- [[ai/reviews/T-0049_gemini_review.md|T-0049 review]]
+- [[ai/briefs/T-0049_implementation.md|T-0049 document]]
+- [[ai/results/T-0049_executor_report.md|T-0049 result]]
+- [[ai/followups/T-0049_followups.md|T-0049 followup]]
+- [[ai/pr/T-0049_pr_draft.md|T-0049 pr-draft]]

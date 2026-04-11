@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0034
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0034 Spec: Score does not reset on game restart
 
 ## Overview
@@ -46,3 +53,9 @@ The `initHUD()` function (called from `startGame()`) already resets the DOM disp
 ## Risk Assessment
 
 **Low risk** — This is a 4-line addition to a single function with no side effects. The change is purely additive (setting values that were previously left stale).
+
+
+## Related Documents
+- [[ai/reviews/T-0034_gemini_review.md|T-0034 review]]
+- [[ai/briefs/T-0034_implementation.md|T-0034 document]]
+- [[ai/results/T-0034_executor_report.md|T-0034 result]]

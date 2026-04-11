@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0047
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # Implementation Brief: T-0047 — 100 Levels with Progressive Difficulty
 
 ## Changes Required
@@ -44,3 +51,11 @@ The current theme filter uses hardcoded `['Forest', 'Desert', 'Ice', 'Lava', 'Sk
 - [ ] Level select shows biome organization with scroll
 - [ ] Biome unlock requires 6/10 previous biome levels
 - [ ] Existing saved progress migrates correctly
+
+
+## Related Documents
+- [[ai/specs/T-0047_spec.md|T-0047 spec]]
+- [[ai/reviews/T-0047_gemini_review.md|T-0047 review]]
+- [[ai/results/T-0047_executor_report.md|T-0047 result]]
+- [[ai/followups/T-0047_followups.md|T-0047 followup]]
+- [[ai/pr/T-0047_pr_draft.md|T-0047 pr-draft]]

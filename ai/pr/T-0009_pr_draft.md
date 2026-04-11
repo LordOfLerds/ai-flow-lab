@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0009
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0009] Player falls through platform edges
 
 ## Summary
@@ -81,3 +88,11 @@ Task T-0009 successfully completed the implementation as specified. The changes 
 **Branch**: `bug/T-0009-player-falls-through-platform-edges` → `main`
 **Generated**: 2026-04-07T07:23:05.152Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0009_spec.md|T-0009 spec]]
+- [[ai/reviews/T-0009_gemini_review.md|T-0009 review]]
+- [[ai/briefs/T-0009_implementation.md|T-0009 document]]
+- [[ai/results/T-0009_result.md|T-0009 result]]
+- [[ai/followups/T-0009_followups.md|T-0009 followup]]

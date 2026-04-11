@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0052
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 T-0052 Implementation Brief
 
 Goal
@@ -124,3 +131,10 @@ Explicit non-goals
 	•	Do not add new persistence semantics for pause, restart, or quit.
 	•	Do not add support for pausing from menu, death, login, shop, battle pass, or other non-PLAYING states unless already required by current documented behavior.
 	•	Do not perform broad cleanup of unrelated input, transition, or overlay systems unless a narrowly scoped safety fix is required for pause to work correctly.
+
+## Related Documents
+- [[ai/specs/T-0052_spec.md|T-0052 spec]]
+- [[ai/reviews/T-0052_gemini_review.md|T-0052 review]]
+- [[ai/results/T-0052_executor_report.md|T-0052 result]]
+- [[ai/followups/T-0052_followups.md|T-0052 followup]]
+- [[ai/pr/T-0052_pr_draft.md|T-0052 pr-draft]]

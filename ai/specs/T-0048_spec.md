@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0048
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # Spec: T-0048 — Expand skill system to 8+ skills
 
 ## Overview
@@ -56,3 +63,11 @@ Show all 8 skills in a grid. Unlocked = green border, locked = gray with "Requir
 - [ ] Skills menu shows all 8 with unlock status
 - [ ] Time Slow has visible slow-motion effect
 - [ ] Wall Jump works on vertical surfaces
+
+
+## Related Documents
+- [[ai/reviews/T-0048_gemini_review.md|T-0048 review]]
+- [[ai/briefs/T-0048_implementation.md|T-0048 document]]
+- [[ai/results/T-0048_executor_report.md|T-0048 result]]
+- [[ai/followups/T-0048_followups.md|T-0048 followup]]
+- [[ai/pr/T-0048_pr_draft.md|T-0048 pr-draft]]

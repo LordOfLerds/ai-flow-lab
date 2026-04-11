@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0013
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0013 Executor Result
 
 ## Task
@@ -1615,3 +1622,11 @@ requestAnimationFrame(gameLoop);
   - lane_type: docs-lane
 - Restore or provide the missing `docs/DOMAIN_MODEL.md`, `docs/INVARIANTS.md`, `docs/ARCHITECTURE.md`, and ADR files referenced by `AGENTS.md`  
   - lane_type: docs-lane
+
+
+## Related Documents
+- [[ai/specs/T-0013_spec.md|T-0013 spec]]
+- [[ai/reviews/T-0013_gemini_review.md|T-0013 review]]
+- [[ai/briefs/T-0013_implementation.md|T-0013 document]]
+- [[ai/followups/T-0013_followups.md|T-0013 followup]]
+- [[ai/pr/T-0013_pr_draft.md|T-0013 pr-draft]]

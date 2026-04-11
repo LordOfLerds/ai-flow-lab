@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # End-to-End Test Walkthrough
 
 Reproducible CLI walkthrough for the AI Flow Lab reference flow.

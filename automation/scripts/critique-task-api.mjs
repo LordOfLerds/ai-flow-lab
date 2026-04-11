@@ -5,7 +5,8 @@ import {
   readRepoFile,
   writeRepoFile,
   callLLMForStep,
-  repoRoot
+  repoRoot,
+  addFrontmatter
 } from "./_llm-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -112,7 +113,14 @@ const text = await callLLMForStep({
   laneType: task.lane_type || "feature-lane"
 });
 
-writeRepoFile(task.review_path, text);
+const withFm = addFrontmatter(text, {
+  type: 'review',
+  task_id: taskId,
+  goal_id: task.parent_goal_id || '',
+  created: new Date().toISOString().split('T')[0],
+  tags: `[ai-flow-lab, review, ${task.lane_type || 'feature'}]`
+});
+writeRepoFile(task.review_path, withFm);
 saveTask(taskId, task);
 
 console.log(`Wrote ${task.review_path}`);

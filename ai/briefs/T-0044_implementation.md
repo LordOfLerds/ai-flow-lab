@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0044
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0044 Implementation Brief
 
 ## Goal
@@ -81,3 +88,11 @@ function getCurrentBattlePassTier() {
 - Pass battle pass progress to other players
 - Prestige/reset mechanics
 - Legacy season archives or cosmetics
+
+
+## Related Documents
+- [[ai/specs/T-0044_spec.md|T-0044 spec]]
+- [[ai/reviews/T-0044_gemini_review.md|T-0044 review]]
+- [[ai/results/T-0044_executor_report.md|T-0044 result]]
+- [[ai/followups/T-0044_followups.md|T-0044 followup]]
+- [[ai/pr/T-0044_pr_draft.md|T-0044 pr-draft]]

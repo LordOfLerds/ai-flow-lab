@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0041
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0041 Spec
 
 ## Task metadata
@@ -79,3 +86,11 @@ The Pixel Runner game currently has no user authentication or progress persisten
 1. Should the game auto-login if a previous session exists in localStorage? (Suggested: No — always show login screen for simplicity)
 2. Should the password have a minimum length requirement? (Suggested: No — it's mock auth, any non-empty password works)
 3. Should there be a "Remember me" checkbox? (Suggested: No — keep it simple for v1)
+
+
+## Related Documents
+- [[ai/reviews/T-0041_gemini_review.md|T-0041 review]]
+- [[ai/briefs/T-0041_implementation.md|T-0041 document]]
+- [[ai/results/T-0041_executor_report.md|T-0041 result]]
+- [[ai/followups/T-0041_followups.md|T-0041 followup]]
+- [[ai/pr/T-0041_pr_draft.md|T-0041 pr-draft]]

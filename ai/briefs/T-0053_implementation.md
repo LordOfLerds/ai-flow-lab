@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0053
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 T-0053 Implementation Brief
 
 Goal
@@ -124,3 +131,9 @@ Explicit non-goals
 	•	Do not change gameplay mechanics, controls, pause behavior, menus, shop, skins, or skills.
 	•	Do not modify game.html beyond its existing redirect role.
 	•	Do not introduce a second HUD system or parallel rendering path.
+
+## Related Documents
+- [[ai/specs/T-0053_spec.md|T-0053 spec]]
+- [[ai/reviews/T-0053_gemini_review.md|T-0053 review]]
+- [[ai/results/T-0053_executor_report.md|T-0053 result]]
+- [[ai/followups/T-0053_followups.md|T-0053 followup]]

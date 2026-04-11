@@ -205,8 +205,15 @@ After diagnosis, users can request Claude CLI to generate an actual code fix:
 **Summary**: After execute, the guardrail classifies changes as Green/Yellow/Red:
 - **Green** (no issues): Skip test, proceed to merge (unchanged behavior)
 - **Green** (docs-lane): Docs-lane tasks always get GREEN — function/line guardrails don't apply to markdown files
-- **Yellow** (1-2 functions changed/missing): ✅ Route to COWORK_TESTING → runs `cowork-test.mjs` via Claude CLI → TESTED (pass) or TEST_FAILED (fail, auto-creates bug tasks)
+- **Yellow** (1-2 functions changed/missing, or 0 files detected): ✅ Pipeline pauses at BLOCKED_ON_DECISION → Dashboard shows decision UI → user chooses Accept/Run Cowork Test/Restore Snapshot. Cowork Test is **only** run on explicit user request (FIX-046).
 - **Red** (>10% functions missing): ✅ Pipeline pauses at BLOCKED_ON_DECISION → Dashboard shows decision UI → user chooses Accept/Restore/Run Test
+
+**Snapshot & Diff mechanism (execute-task-api.mjs)**:
+1. Before execute: `snapshotSourceFiles(repoRoot)` recursively walks the project tree and captures file content, line count, and function names for all source files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.mts`, `.html`, `.css`, `.json`). Skips `node_modules`, `.git`, `.next`, `dist`, `build`, `automation/state/`, etc. Max depth 12, max 2000 files, max 1 MB per file.
+2. Execute runs (Codex CLI, Claude CLI with tools, or text-based)
+3. After execute: takes a second snapshot and diffs against the first. New files and modified files are added to `written_files`.
+4. Fallback: if the executor's text output contains `` ```file:path `` blocks, those are also written to disk and added to `written_files`.
+5. Both Codex CLI and Claude CLI tool-mode write files directly to the filesystem — the snapshot-diff detects their changes. The executor does NOT need to output file blocks in its text response.
 
 **Phase 1 (Implemented 2026-04-08)**:
 - Guardrail threshold classification in execute-task-api.mjs (green/yellow/red)

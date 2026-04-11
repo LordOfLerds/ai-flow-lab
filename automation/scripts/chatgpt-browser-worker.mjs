@@ -300,8 +300,27 @@ async function main() {
   console.log("[WORKER] Press Ctrl+C to stop\n");
 
   // Process loop
+  let _cycleCount = 0;
   while (true) {
+    _cycleCount++;
     try {
+      // Periodic login re-check (every 5 cycles)
+      if (_cycleCount % 5 === 0) {
+        const stillLoggedIn = await checkLoggedIn();
+        if (!stillLoggedIn) {
+          console.log("[WORKER] ⚠️  Session expired — navigating to ChatGPT to re-establish...");
+          await page.goto(CHATGPT_URL, { waitUntil: "domcontentloaded", timeout: 30000 });
+          await page.waitForTimeout(3000);
+          if (!await checkLoggedIn()) {
+            console.log("[WORKER] ⚠️  Still not logged in. Waiting for manual login...");
+            for (let i = 0; i < 60; i++) {
+              await page.waitForTimeout(5000);
+              if (await checkLoggedIn()) { console.log("[WORKER] ✅ Re-logged in!"); break; }
+            }
+          }
+        }
+      }
+
       const pending = findPendingPrompts();
 
       if (pending.length > 0) {

@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0045
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0045] Update game architecture and domain docs for all new features
 
 ## Summary
@@ -61,3 +68,11 @@ T-0045 (Update game architecture and domain docs) was executed. The executor upd
 **Branch**: `docs/T-0045-update-game-architecture-and-domain-docs-for-all-new-features` → `main`
 **Generated**: 2026-04-08T13:11:53.451Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0045_spec.md|T-0045 spec]]
+- [[ai/reviews/T-0045_gemini_review.md|T-0045 review]]
+- [[ai/briefs/T-0045_implementation.md|T-0045 document]]
+- [[ai/results/T-0045_executor_report.md|T-0045 result]]
+- [[ai/followups/T-0045_followups.md|T-0045 followup]]

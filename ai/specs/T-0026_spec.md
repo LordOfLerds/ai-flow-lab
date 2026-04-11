@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0026
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0026 Spec
 
 ## Task metadata
@@ -49,3 +56,10 @@ Add P key and Escape key as alternative pause/resume triggers.
 
 ## F-2: Add audio mute on pause
 If audio exists, mute during pause and resume on unpause.
+
+## Related Documents
+- [[ai/reviews/T-0026_gemini_review.md|T-0026 review]]
+- [[ai/briefs/T-0026_implementation.md|T-0026 document]]
+- [[ai/results/T-0026_executor_report.md|T-0026 result]]
+- [[ai/followups/T-0026_followups.md|T-0026 followup]]
+- [[ai/pr/T-0026_pr_draft.md|T-0026 pr-draft]]

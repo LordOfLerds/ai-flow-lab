@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0030
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0030 Implementation Brief
 
 ## Goal
@@ -215,3 +222,11 @@ if (hudContainer) {
 - Enemy health bars
 - Responsive HUD scaling (current fixed-size layout is sufficient)
 - Delta-time based powerup timers
+
+
+## Related Documents
+- [[ai/specs/T-0030_spec.md|T-0030 spec]]
+- [[ai/reviews/T-0030_gemini_review.md|T-0030 review]]
+- [[ai/results/T-0030_executor_report.md|T-0030 result]]
+- [[ai/followups/T-0030_followups.md|T-0030 followup]]
+- [[ai/pr/T-0030_pr_draft.md|T-0030 pr-draft]]

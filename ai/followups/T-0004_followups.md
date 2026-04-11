@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0004
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0004 Follow-ups
 
 ## Task outcome summary
@@ -59,3 +66,10 @@ Spawn **F-1 (Implement collectibles, rewards, and power-ups)** immediately. Rewa
 - F-1 should include at least one power-up type (e.g., invulnerability) to add strategic depth and player agency.
 - F-2 progression system should tie XP to both collectibles and enemy defeats to create multiple reward vectors.
 - F-3 is critical path item; prioritize completion before considering F-4 polish.
+
+
+## Related Documents
+- [[ai/specs/T-0004_spec.md|T-0004 spec]]
+- [[ai/reviews/T-0004_gemini_review.md|T-0004 review]]
+- [[ai/briefs/T-0004_implementation.md|T-0004 document]]
+- [[ai/pr/T-0004_pr_draft.md|T-0004 pr-draft]]

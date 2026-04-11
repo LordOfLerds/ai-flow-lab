@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0022
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0022 Follow-ups
 
 ## Task outcome summary
@@ -65,3 +72,10 @@ Why this one first:
 - Do not spawn a follow-up for additional Start UI visibility coverage because that is already handled by **T-0019** and **T-0020**.
 - Cross-browser support and HTTP-served test coverage may be valid later, but they are broader than necessary right now and are less aligned with the immediate docs outcome.
 - If the repository review shows no missing CI documentation after all, no immediate follow-up is needed beyond verifying the T-0022 artifact landed correctly.
+
+## Related Documents
+- [[ai/specs/T-0022_spec.md|T-0022 spec]]
+- [[ai/reviews/T-0022_gemini_review.md|T-0022 review]]
+- [[ai/briefs/T-0022_implementation.md|T-0022 document]]
+- [[ai/results/T-0022_executor_report.md|T-0022 result]]
+- [[ai/pr/T-0022_pr_draft.md|T-0022 pr-draft]]

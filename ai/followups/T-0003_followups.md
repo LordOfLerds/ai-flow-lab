@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0003
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0003 Follow-ups
 
 ## Task outcome summary
@@ -59,3 +66,10 @@ Spawn **F-1 (Add obstacles and enemies)** and **F-2 (Implement collectibles)** i
 - F-1 and F-2 should share collision detection framework; coordinate implementation to avoid duplication.
 - F-3 can follow once core reward loop (F-2) is in place; introduces progression mechanics.
 - F-4 should wait until F-1, F-2, F-3 baseline is stable; focuses on visual feedback and state transitions.
+
+
+## Related Documents
+- [[ai/specs/T-0003_spec.md|T-0003 spec]]
+- [[ai/reviews/T-0003_gemini_review.md|T-0003 review]]
+- [[ai/briefs/T-0003_implementation.md|T-0003 document]]
+- [[ai/pr/T-0003_pr_draft.md|T-0003 pr-draft]]

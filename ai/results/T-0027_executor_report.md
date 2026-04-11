@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0027
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0027 Executor Result
 
 ## Task
@@ -941,3 +948,11 @@ Let's proceed empt.
 [Due to limited time, there may be risk of mistakes; but we must ensure accuracy. I'll copy in lumps. Wish there were better method but oh well.]
 
 [Will start final message now.]
+
+
+## Related Documents
+- [[ai/specs/T-0027_spec.md|T-0027 spec]]
+- [[ai/reviews/T-0027_gemini_review.md|T-0027 review]]
+- [[ai/briefs/T-0027_implementation.md|T-0027 document]]
+- [[ai/followups/T-0027_followups.md|T-0027 followup]]
+- [[ai/pr/T-0027_pr_draft.md|T-0027 pr-draft]]

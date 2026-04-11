@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0011
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0011 Gemini Review
 
 ## Review target
@@ -42,3 +49,11 @@ No specific tests are called out for this documentation change:
 ## Summary
 
 The spec is solid and well-scoped. The corrections are minor clarifications around edge cases and assumptions. Approve with recommended corrections noted for implementation.
+
+
+## Related Documents
+- [[ai/specs/T-0011_spec.md|T-0011 spec]]
+- [[ai/briefs/T-0011_implementation.md|T-0011 document]]
+- [[ai/results/T-0011_result.md|T-0011 result]]
+- [[ai/followups/T-0011_followups.md|T-0011 followup]]
+- [[ai/pr/T-0011_pr_draft.md|T-0011 pr-draft]]

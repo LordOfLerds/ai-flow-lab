@@ -7,7 +7,8 @@ import {
   callLLMForStep,
   discoverSourceContext,
   repoRoot,
-  automationRoot
+  automationRoot,
+  addFrontmatter
 } from "./_llm-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -23,54 +24,72 @@ if (!taskId) {
 // FILE SAFETY GUARDRAIL FUNCTIONS
 // ═══════════════════════════════════════════════
 
-function snapshotSourceFiles(repoRoot) {
+function snapshotSourceFiles(rootDir) {
   const snapshot = {};
-  try {
-    // Find source files using similar logic to discoverSourceContext
-    const extensions = ['.html', '.js', '.ts', '.css', '.mjs', '.json'];
-    const scanDirs = [repoRoot]; // Only scan repo root for now
-    
-    // Skip directories that are unlikely to contain user source files
-    const skipPatterns = ['node_modules', '.git', 'automation/state/', 'automation/test-fixtures/'];
+  const extensions = new Set(['.html', '.js', '.ts', '.tsx', '.jsx', '.css', '.mjs', '.json', '.mts']);
+  // Directories to skip entirely (never descend into these)
+  const skipDirs = new Set(['node_modules', '.git', '.next', 'dist', 'build', '.turbo', '.vercel', 'coverage', '__pycache__']);
+  // Path substrings to skip (relative paths containing these are ignored)
+  const skipPathPatterns = ['automation/state/', 'automation/test-fixtures/', 'automation/ui/', '.ai-flow-lab/'];
+  const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
+  const MIN_LINES = 10;
+  const MAX_FILES = 2000; // Safety cap to prevent scanning enormous repos
 
-    for (const dir of scanDirs) {
-      if (!fs.existsSync(dir)) continue;
-      const files = fs.readdirSync(dir);
-      for (const file of files) {
-        // Skip files that don't match our source extensions
-        if (!extensions.some(ext => file.endsWith(ext))) continue;
-        
-        const fullPath = path.join(dir, file);
-        const relativePath = path.relative(repoRoot, fullPath);
-        
-        // Skip files in directories we don't want to snapshot
-        if (skipPatterns.some(pattern => relativePath.includes(pattern))) continue;
-        
+  function extractFunctions(content) {
+    const fnNames = [];
+    const patterns = [
+      /function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g,
+      /(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:function|\()/g,
+      /class\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g,
+      /([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?function/g,
+      /export\s+(?:default\s+)?(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g
+    ];
+    for (const pat of patterns) {
+      let m;
+      while ((m = pat.exec(content)) !== null) fnNames.push(m[1]);
+    }
+    return [...new Set(fnNames)];
+  }
+
+  function walkDir(dir, depth) {
+    if (depth > 12 || Object.keys(snapshot).length >= MAX_FILES) return;
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+
+    for (const entry of entries) {
+      if (Object.keys(snapshot).length >= MAX_FILES) break;
+
+      if (entry.isDirectory()) {
+        if (skipDirs.has(entry.name) || entry.name.startsWith('.')) continue;
+        walkDir(path.join(dir, entry.name), depth + 1);
+      } else if (entry.isFile()) {
+        const ext = path.extname(entry.name);
+        if (!extensions.has(ext)) continue;
+
+        const fullPath = path.join(dir, entry.name);
+        const relativePath = path.relative(rootDir, fullPath);
+
+        // Skip paths matching exclusion patterns
+        if (skipPathPatterns.some(p => relativePath.includes(p))) continue;
+
         try {
           const stat = fs.statSync(fullPath);
-          if (!stat.isFile() || stat.size > 1024 * 1024) continue; // Skip files > 1MB
+          if (stat.size > MAX_FILE_SIZE || stat.size === 0) continue;
           const content = fs.readFileSync(fullPath, 'utf8');
           const lineCount = content.split('\n').length;
-          if (lineCount < 10) continue; // Don't snapshot tiny files
-          
-          // Extract function/class names as "feature fingerprints"
-          const fnNames = [];
-          const fnPatterns = [
-            /function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g,
-            /(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:function|\()/g,
-            /class\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g,
-            /([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?function/g
-          ];
-          for (const pat of fnPatterns) {
-            let m;
-            while ((m = pat.exec(content)) !== null) fnNames.push(m[1]);
-          }
-          snapshot[relativePath] = { lineCount, sizeBytes: stat.size, content, functions: [...new Set(fnNames)] };
-        } catch (e) {
-          // Skip files we can't read — don't break the pipeline
+          if (lineCount < MIN_LINES) continue;
+
+          const functions = extractFunctions(content);
+          snapshot[relativePath] = { lineCount, sizeBytes: stat.size, content, functions };
+        } catch {
+          // Skip unreadable files — don't break the pipeline
         }
       }
     }
+  }
+
+  try {
+    walkDir(rootDir, 0);
   } catch (e) {
     console.warn('⚠️  Snapshot creation failed (non-blocking):', e.message);
   }
@@ -420,7 +439,14 @@ const reportMatch = text.match(/## Execution Report[\s\S]*/);
 const report = reportMatch ? reportMatch[0] : `## Execution Report\n\n### What was done\nWrote ${writtenFiles.length} files: ${writtenFiles.join(", ")}\n\n### What was NOT done\n(auto-generated report)\n\n### Issues discovered\nNone detected.\n\n### Suggested follow-ups\nNone.`;
 
 const resultPath = task.result_path || `ai/results/${taskId}_executor_report.md`;
-writeRepoFile(resultPath, `# ${taskId} Executor Report\n\n${report}\n\n---\nFiles written: ${writtenFiles.join(", ") || "none"}\n`);
+const resultContent = addFrontmatter(`# ${taskId} Executor Report\n\n${report}\n\n---\nFiles written: ${writtenFiles.join(", ") || "none"}\n`, {
+  type: 'result',
+  task_id: taskId,
+  goal_id: task.parent_goal_id || '',
+  created: new Date().toISOString().split('T')[0],
+  tags: `[ai-flow-lab, result, ${task.lane_type || 'feature'}]`
+});
+writeRepoFile(resultPath, resultContent);
 
 // Update task state
 task.state = "EXECUTED";

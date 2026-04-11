@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0042
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0042] Level Select Screen and Multi-Level System
 
 ## Summary
@@ -70,3 +77,11 @@ T-0042 (Level Select Screen and Multi-Level System) was executed. The executor i
 **Branch**: `feature/T-0042-level-select-screen-and-multi-level-system` → `main`
 **Generated**: 2026-04-08T13:25:36.270Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0042_spec.md|T-0042 spec]]
+- [[ai/reviews/T-0042_gemini_review.md|T-0042 review]]
+- [[ai/briefs/T-0042_implementation.md|T-0042 document]]
+- [[ai/results/T-0042_executor_report.md|T-0042 result]]
+- [[ai/followups/T-0042_followups.md|T-0042 followup]]

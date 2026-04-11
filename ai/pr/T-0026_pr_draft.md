@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0026
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0026] Test APP mode: add pause button to game
 
 ## Summary
@@ -89,3 +96,11 @@ Concerns
 **Branch**: `feature/T-0026-test-app-mode-add-pause-button-to-game` → `main`
 **Generated**: 2026-04-07T22:42:12.375Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0026_spec.md|T-0026 spec]]
+- [[ai/reviews/T-0026_gemini_review.md|T-0026 review]]
+- [[ai/briefs/T-0026_implementation.md|T-0026 document]]
+- [[ai/results/T-0026_executor_report.md|T-0026 result]]
+- [[ai/followups/T-0026_followups.md|T-0026 followup]]

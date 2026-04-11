@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0040
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0040 Follow-ups
 
 ## Task outcome summary
@@ -33,3 +40,11 @@ None — all follow-ups can proceed autonomously.
 - Coin shop → T-0043
 - Battle pass → T-0044
 - Architecture docs → T-0045
+
+
+## Related Documents
+- [[ai/specs/T-0040_spec.md|T-0040 spec]]
+- [[ai/reviews/T-0040_gemini_review.md|T-0040 review]]
+- [[ai/briefs/T-0040_implementation.md|T-0040 document]]
+- [[ai/results/T-0040_executor_report.md|T-0040 result]]
+- [[ai/pr/T-0040_pr_draft.md|T-0040 pr-draft]]

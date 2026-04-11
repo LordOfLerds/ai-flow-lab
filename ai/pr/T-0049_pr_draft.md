@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0049
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0049] Fix skin progression lock and expand shop with meaningful items
 
 ## Summary
@@ -61,3 +68,11 @@ Fix skin unlock progression so skins require levels/coins/gems, expand shop to 3
 **Branch**: `feature/T-0049` → `main`
 **Generated**: 2026-04-09T00:28:20.700Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0049_spec.md|T-0049 spec]]
+- [[ai/reviews/T-0049_gemini_review.md|T-0049 review]]
+- [[ai/briefs/T-0049_implementation.md|T-0049 document]]
+- [[ai/results/T-0049_executor_report.md|T-0049 result]]
+- [[ai/followups/T-0049_followups.md|T-0049 followup]]

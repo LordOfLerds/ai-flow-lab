@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0003
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0003] Build level system with platforms, terrain, and scrolling
 
 ## Summary
@@ -64,3 +71,10 @@ T-0003 successfully implemented a tile-based level system with platform renderin
 **Branch**: `feature/T-0003-build-level-system-with-platforms-terrain-and-scrolling` → `main`
 **Generated**: 2026-04-07T05:45:32.208Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0003_spec.md|T-0003 spec]]
+- [[ai/reviews/T-0003_gemini_review.md|T-0003 review]]
+- [[ai/briefs/T-0003_implementation.md|T-0003 document]]
+- [[ai/followups/T-0003_followups.md|T-0003 followup]]

@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0005
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0005 Follow-ups
 
 ## Task outcome summary
@@ -60,3 +67,10 @@ Spawn **F-1 (Build XP, leveling, skills, and skins system)** and **F-2 (Add HUD,
 - F-2 is final critical path item; post-completion, game is feature-complete for MVP release.
 - F-3 (audio) adds significant polish but is not blocking release; defer to post-MVP if timeline is tight.
 - F-4 (level editor/generation) is nice-to-have for content expansion; prioritize based on community feedback post-release.
+
+
+## Related Documents
+- [[ai/specs/T-0005_spec.md|T-0005 spec]]
+- [[ai/reviews/T-0005_gemini_review.md|T-0005 review]]
+- [[ai/briefs/T-0005_implementation.md|T-0005 document]]
+- [[ai/pr/T-0005_pr_draft.md|T-0005 pr-draft]]

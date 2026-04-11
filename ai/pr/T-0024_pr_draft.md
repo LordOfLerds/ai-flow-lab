@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0024
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0024] Update architecture docs to reflect actual entry points and T-0018 behavior
 
 ## Summary
@@ -84,3 +91,11 @@ T-0024 found that no documentation change was needed. Claude reviewed the truth 
 **Branch**: `docs/T-0024-update-architecture-docs-to-reflect-actual-entry-points-and-t-0018-behavior` → `main`
 **Generated**: 2026-04-07T21:13:53.910Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0024_spec.md|T-0024 spec]]
+- [[ai/reviews/T-0024_gemini_review.md|T-0024 review]]
+- [[ai/briefs/T-0024_implementation.md|T-0024 document]]
+- [[ai/results/T-0024_executor_report.md|T-0024 result]]
+- [[ai/followups/T-0024_followups.md|T-0024 followup]]

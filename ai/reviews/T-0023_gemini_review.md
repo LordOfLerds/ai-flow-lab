@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0023
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0023 Gemini Review
 
 ## Review target
@@ -30,3 +37,10 @@
 - **Distinguish Routing Layers:** Explicitly separate "File-based redirects" (what `game.html` does) from "Server-based routing" (what might happen for `/game`) in the documentation to avoid confusing the user.
 - **Clarify "Legacy" Status:** Instead of labeling it "legacy" (which implies eventual removal), use the term "External Entry Compatibility" unless the docs explicitly state it is deprecated.
 - **Pre-analysis Step:** The executor should be required to read the existing `docs/ARCHITECTURE.md` as the very first action and update the `drift-register.md` *before* drafting the new documentation content if a conflict is found.
+
+## Related Documents
+- [[ai/specs/T-0023_spec.md|T-0023 spec]]
+- [[ai/briefs/T-0023_implementation.md|T-0023 document]]
+- [[ai/results/T-0023_executor_report.md|T-0023 result]]
+- [[ai/followups/T-0023_followups.md|T-0023 followup]]
+- [[ai/pr/T-0023_pr_draft.md|T-0023 pr-draft]]

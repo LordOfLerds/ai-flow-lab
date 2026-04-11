@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0048
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # Follow-ups for T-0048
 
 ## Spawnable follow-ups
@@ -24,3 +31,11 @@ None — the core skill system works and follow-up polish is optional.
 - Skin/shop progression → T-0049
 - Backend/auth → T-0050
 - Polish/transitions → T-0051
+
+
+## Related Documents
+- [[ai/specs/T-0048_spec.md|T-0048 spec]]
+- [[ai/reviews/T-0048_gemini_review.md|T-0048 review]]
+- [[ai/briefs/T-0048_implementation.md|T-0048 document]]
+- [[ai/results/T-0048_executor_report.md|T-0048 result]]
+- [[ai/pr/T-0048_pr_draft.md|T-0048 pr-draft]]

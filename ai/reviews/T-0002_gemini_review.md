@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0002
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # Critique: T-0002 Player Character Architecture
 
 ## Review Target
@@ -92,3 +99,10 @@ If timer > FRAME_DURATION: switch frame, reset timer
 **High**: Coyote time logic fix and jump input clarification - these affect core gameplay feel.
 **Medium**: Input buffering and animation state expansion - improves feel but not blocking.
 **Low**: Framerate independence and collision clarification - good-to-have for robustness.
+
+
+## Related Documents
+- [[ai/specs/T-0002_spec.md|T-0002 spec]]
+- [[ai/briefs/T-0002_implementation.md|T-0002 document]]
+- [[ai/followups/T-0002_followups.md|T-0002 followup]]
+- [[ai/pr/T-0002_pr_draft.md|T-0002 pr-draft]]

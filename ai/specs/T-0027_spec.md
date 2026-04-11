@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0027
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0027 Spec
 
 ## Task metadata
@@ -136,3 +143,11 @@ Increment `frameCount++` at the start of each `gameLoop()` call (before `render(
 1. Should the star field positions be stored in an array generated once at init, or regenerated each frame with a seeded PRNG? **Recommendation:** Generate once at init and store in a `stars` array on `gs` or as a module-level constant.
 2. Should enemy sprites be full pixel-art (like the player) or simple geometric shapes for now? **Recommendation:** Simple geometric shapes (rectangles with eyes) for now; full sprites can be a follow-up task.
 3. Should COIN/GEM tiles be removed from the tile grid when collected, or just hidden? **Recommendation:** Out of scope for this task (no collection logic), but design rendering to support it — check `tile !== TILE.EMPTY` before rendering.
+
+
+## Related Documents
+- [[ai/reviews/T-0027_gemini_review.md|T-0027 review]]
+- [[ai/briefs/T-0027_implementation.md|T-0027 document]]
+- [[ai/results/T-0027_executor_report.md|T-0027 result]]
+- [[ai/followups/T-0027_followups.md|T-0027 followup]]
+- [[ai/pr/T-0027_pr_draft.md|T-0027 pr-draft]]

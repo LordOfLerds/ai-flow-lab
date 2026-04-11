@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0005
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0005 Gemini Review
 
 ## Review target
@@ -61,3 +68,10 @@ Spec for implementing collectible coins, gems, and three power-up types (speed b
 
 6. **Verify XP system integration** - Add open question: "Confirm T-0006 will define gameState.totalXP and XP bar logic. T-0005 only accumulates (e.g., gameState.totalXP += 10 on coin)."
 
+
+
+## Related Documents
+- [[ai/specs/T-0005_spec.md|T-0005 spec]]
+- [[ai/briefs/T-0005_implementation.md|T-0005 document]]
+- [[ai/followups/T-0005_followups.md|T-0005 followup]]
+- [[ai/pr/T-0005_pr_draft.md|T-0005 pr-draft]]

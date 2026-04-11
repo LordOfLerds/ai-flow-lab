@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0001
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0001 Spec: Set up HTML canvas, game loop, and pixel-art rendering engine
 
 ## Overview
@@ -57,3 +64,9 @@ gameState = { phase: 'MENU', player: null, level: null, camera: {x:0,y:0}, score
 5. Input system tracks multiple simultaneous keys
 6. Game state machine transitions between phases
 7. No external dependencies
+
+## Related Documents
+- [[ai/reviews/T-0001_gemini_review.md|T-0001 review]]
+- [[ai/briefs/T-0001_implementation.md|T-0001 document]]
+- [[ai/followups/T-0001_followups.md|T-0001 followup]]
+- [[ai/pr/T-0001_pr_draft.md|T-0001 pr-draft]]

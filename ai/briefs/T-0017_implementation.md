@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0017
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0017 Implementation Brief
 
 ## Goal
@@ -75,3 +82,10 @@ Explicit contradiction resolution:
 - Do not introduce new progression mechanics, multipliers, bonuses, or penalties.
 - Do not redefine difficulty pacing, spawning, or timer-based systems unless they are directly part of the score increment path.
 - Do not implement objective-based scoring, combo systems, or vertical-progress rules unless existing docs explicitly require them.
+
+## Related Documents
+- [[ai/specs/T-0017_spec.md|T-0017 spec]]
+- [[ai/reviews/T-0017_gemini_review.md|T-0017 review]]
+- [[ai/results/T-0017_executor_report.md|T-0017 result]]
+- [[ai/followups/T-0017_followups.md|T-0017 followup]]
+- [[ai/pr/T-0017_pr_draft.md|T-0017 pr-draft]]

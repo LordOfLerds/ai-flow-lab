@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0026
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0026 Implementation Brief
 
 ## Summary
@@ -39,3 +46,10 @@ Add a pause button to the Pixel Runner game that toggles game state between play
 - Game loop stops processing physics/collision/scoring when paused
 - Visual overlay confirms paused state
 - Resume works via button click or Escape key
+
+## Related Documents
+- [[ai/specs/T-0026_spec.md|T-0026 spec]]
+- [[ai/reviews/T-0026_gemini_review.md|T-0026 review]]
+- [[ai/results/T-0026_executor_report.md|T-0026 result]]
+- [[ai/followups/T-0026_followups.md|T-0026 followup]]
+- [[ai/pr/T-0026_pr_draft.md|T-0026 pr-draft]]

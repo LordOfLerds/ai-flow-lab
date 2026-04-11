@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0022
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0022] Document browser binary discovery and  setup for the headless Start UI smoke test
 
 ## Summary
@@ -81,3 +88,11 @@ Confirmed from the executor report:
 **Branch**: `docs/T-0022-document-browser-binary-discovery-and-setup-for-the-headless-start-ui-smoke-test` → `main`
 **Generated**: 2026-04-07T20:54:26.446Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0022_spec.md|T-0022 spec]]
+- [[ai/reviews/T-0022_gemini_review.md|T-0022 review]]
+- [[ai/briefs/T-0022_implementation.md|T-0022 document]]
+- [[ai/results/T-0022_executor_report.md|T-0022 result]]
+- [[ai/followups/T-0022_followups.md|T-0022 followup]]

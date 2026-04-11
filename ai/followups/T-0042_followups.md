@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0042
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0042 Follow-ups
 
 ## Task outcome summary
@@ -23,3 +30,11 @@ None.
 - Coin shop → T-0043
 - Battle pass → T-0044
 - Docs → T-0045
+
+
+## Related Documents
+- [[ai/specs/T-0042_spec.md|T-0042 spec]]
+- [[ai/reviews/T-0042_gemini_review.md|T-0042 review]]
+- [[ai/briefs/T-0042_implementation.md|T-0042 document]]
+- [[ai/results/T-0042_executor_report.md|T-0042 result]]
+- [[ai/pr/T-0042_pr_draft.md|T-0042 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0044
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0044 Spec
 
 ## Task metadata
@@ -272,3 +279,11 @@ At configurable season end date/time (stored as `battlePass.config.seasonEndDate
 
 7. **Challenge Pool Size**: How many unique daily/weekly challenge templates should be created?
    - **Recommendation**: Start with 5–8 daily + 7–10 weekly templates; implement enough variety to avoid repetition within a season; can expand later
+
+
+## Related Documents
+- [[ai/reviews/T-0044_gemini_review.md|T-0044 review]]
+- [[ai/briefs/T-0044_implementation.md|T-0044 document]]
+- [[ai/results/T-0044_executor_report.md|T-0044 result]]
+- [[ai/followups/T-0044_followups.md|T-0044 followup]]
+- [[ai/pr/T-0044_pr_draft.md|T-0044 pr-draft]]

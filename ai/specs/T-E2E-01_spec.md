@@ -1,3 +1,9 @@
+---
+type: spec
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-E2E-01 Spec
 
 ## Task metadata

@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0007
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0007 Follow-ups
 
 ## Task outcome summary
@@ -70,3 +77,10 @@ Spawn **F-1 (Audio system and sound effects)** as immediate follow-up. Audio is 
 - F-2 (mobile) should follow if expanding to mobile platforms; otherwise defer.
 - F-3 (save/load) moderately improves retention; consider post-release based on player feedback.
 - F-4 (active skills) and F-5 (level editor) are post-MVP enhancements for content expansion.
+
+
+## Related Documents
+- [[ai/specs/T-0007_spec.md|T-0007 spec]]
+- [[ai/reviews/T-0007_gemini_review.md|T-0007 review]]
+- [[ai/briefs/T-0007_implementation.md|T-0007 document]]
+- [[ai/pr/T-0007_pr_draft.md|T-0007 pr-draft]]

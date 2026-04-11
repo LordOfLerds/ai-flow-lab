@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0021
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0021] Provision a headless-friendly Chrome binary for the Start UI smoke test in CI/test environments
 
 ## Summary
@@ -86,3 +93,11 @@ Completed work:
 **Branch**: `test/T-0021-provision-a-headless-friendly-chrome-binary-for-the-start-ui-smoke-test-in-ci-test-environments` → `main`
 **Generated**: 2026-04-07T20:49:17.596Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0021_spec.md|T-0021 spec]]
+- [[ai/reviews/T-0021_gemini_review.md|T-0021 review]]
+- [[ai/briefs/T-0021_implementation.md|T-0021 document]]
+- [[ai/results/T-0021_executor_report.md|T-0021 result]]
+- [[ai/followups/T-0021_followups.md|T-0021 followup]]

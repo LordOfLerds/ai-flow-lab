@@ -1,3 +1,9 @@
+---
+type: result
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-E2E-01 Executor Result
 
 ## Task

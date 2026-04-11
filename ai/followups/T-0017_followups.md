@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0017
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0017 Follow-ups
 
 ## Task outcome summary
@@ -60,3 +67,10 @@ Notable remaining gaps called out by the executor:
 - The horizontal-only definition of progress remains a design assumption, but it does not block safe follow-up work because T-0017 intentionally chose the minimal policy and documented it.
 - Do not spawn a “rebalance scoring values” task from this report; the executor explicitly said that was out of scope and no concrete defect was reported.
 - If only one follow-up is scheduled now, prefer the test task first; the config-tuning task can safely follow later.
+
+## Related Documents
+- [[ai/specs/T-0017_spec.md|T-0017 spec]]
+- [[ai/reviews/T-0017_gemini_review.md|T-0017 review]]
+- [[ai/briefs/T-0017_implementation.md|T-0017 document]]
+- [[ai/results/T-0017_executor_report.md|T-0017 result]]
+- [[ai/pr/T-0017_pr_draft.md|T-0017 pr-draft]]

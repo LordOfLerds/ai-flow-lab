@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0014
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0014 Implementation Brief
 
 ## Goal
@@ -119,3 +126,11 @@ Minimal safe path:
 - No creation of speculative ADRs to explain historical choices.
 - No silent reconciliation of docs/code conflicts.
 - No broad repository documentation cleanup beyond the jump-and-run and its source-of-truth docs.
+
+## Related Documents
+- [[ai/specs/T-0014_spec.md|T-0014 spec]]
+- [[ai/reviews/T-0014_gemini_review.md|T-0014 review]]
+- [[ai/results/T-0014_executor_report.md|T-0014 result]]
+- [[ai/results/T-0014_result.md|T-0014 result]]
+- [[ai/followups/T-0014_followups.md|T-0014 followup]]
+- [[ai/pr/T-0014_pr_draft.md|T-0014 pr-draft]]

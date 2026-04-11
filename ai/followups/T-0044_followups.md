@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0044
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0044 Follow-ups
 
 ## Task outcome summary
@@ -31,3 +38,11 @@ None.
 - Level select → T-0042
 - Coin shop → T-0043
 - Docs update → T-0045 (completed)
+
+
+## Related Documents
+- [[ai/specs/T-0044_spec.md|T-0044 spec]]
+- [[ai/reviews/T-0044_gemini_review.md|T-0044 review]]
+- [[ai/briefs/T-0044_implementation.md|T-0044 document]]
+- [[ai/results/T-0044_executor_report.md|T-0044 result]]
+- [[ai/pr/T-0044_pr_draft.md|T-0044 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0032
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0032] Add executor file-safety guardrail to pipeline
 
 ## Summary
@@ -75,3 +82,11 @@ T-0032 added a file safety guardrail to the executor pipeline in `execute-task-a
 **Branch**: `bug/T-0032-add-executor-file-safety-guardrail-to-pipeline` → `main`
 **Generated**: 2026-04-08T00:15:43.464Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0032_spec.md|T-0032 spec]]
+- [[ai/reviews/T-0032_gemini_review.md|T-0032 review]]
+- [[ai/briefs/T-0032_implementation.md|T-0032 document]]
+- [[ai/results/T-0032_executor_report.md|T-0032 result]]
+- [[ai/followups/T-0032_followups.md|T-0032 followup]]

@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0028
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0028 Spec
 
 ## Task metadata
@@ -162,3 +169,11 @@ function gameLoop() {
 1. Should BREAKABLE tiles break when hit from below (Mario-style)? **Recommendation:** Yes, break on head-bonk, replace with EMPTY.
 2. Should player bounce when stomping enemies? **Recommendation:** Out of scope — enemy collision is a separate task.
 3. Should score display update in real-time or only on changes? **Recommendation:** Update every frame — it's cheap.
+
+
+## Related Documents
+- [[ai/reviews/T-0028_gemini_review.md|T-0028 review]]
+- [[ai/briefs/T-0028_implementation.md|T-0028 document]]
+- [[ai/results/T-0028_executor_report.md|T-0028 result]]
+- [[ai/followups/T-0028_followups.md|T-0028 followup]]
+- [[ai/pr/T-0028_pr_draft.md|T-0028 pr-draft]]

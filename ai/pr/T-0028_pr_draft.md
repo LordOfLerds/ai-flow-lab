@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0028
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0028] Implement player physics, movement, and collision detection
 
 ## Summary
@@ -70,3 +77,11 @@ T-0028 implemented complete player physics, movement, and collision detection fo
 **Branch**: `feature/T-0028-implement-player-physics-movement-and-collision-detection` → `main`
 **Generated**: 2026-04-07T23:36:42.634Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0028_spec.md|T-0028 spec]]
+- [[ai/reviews/T-0028_gemini_review.md|T-0028 review]]
+- [[ai/briefs/T-0028_implementation.md|T-0028 document]]
+- [[ai/results/T-0028_executor_report.md|T-0028 result]]
+- [[ai/followups/T-0028_followups.md|T-0028 followup]]

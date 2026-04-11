@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0048
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0048 Implementation Brief
 
 ## Goal
@@ -48,3 +55,11 @@ Expand the skill system from 3 skills to 8 skills with meaningful gameplay mecha
 - Mobile-responsive skill menu layout.
 - Animated skill unlock effects.
 - Balancing skill power levels.
+
+
+## Related Documents
+- [[ai/specs/T-0048_spec.md|T-0048 spec]]
+- [[ai/reviews/T-0048_gemini_review.md|T-0048 review]]
+- [[ai/results/T-0048_executor_report.md|T-0048 result]]
+- [[ai/followups/T-0048_followups.md|T-0048 followup]]
+- [[ai/pr/T-0048_pr_draft.md|T-0048 pr-draft]]

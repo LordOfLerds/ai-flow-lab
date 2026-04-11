@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0044
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0044 Gemini Review: Battle Pass and Progression System
 
 ## Review target
@@ -43,3 +50,11 @@ Spec for implementing a seasonal battle pass with 50 tiers, XP-based progression
 
 ## Overall assessment
 **Solid spec with progression-balance gaps.** Recommend proceeding after defining XP-per-tier formula, confirming challenge validation strategy, and clarifying seasonal archive behavior. Playtest tier progression pacing before launch.
+
+
+## Related Documents
+- [[ai/specs/T-0044_spec.md|T-0044 spec]]
+- [[ai/briefs/T-0044_implementation.md|T-0044 document]]
+- [[ai/results/T-0044_executor_report.md|T-0044 result]]
+- [[ai/followups/T-0044_followups.md|T-0044 followup]]
+- [[ai/pr/T-0044_pr_draft.md|T-0044 pr-draft]]

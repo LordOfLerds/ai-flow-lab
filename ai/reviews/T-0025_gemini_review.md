@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0025
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0025 Gemini Review
 
 ## Review target
@@ -57,3 +64,9 @@ Task T-0025 spec addressing missing start button visibility when accessing the g
 5. **Add concrete reproduction steps**: Specify exact steps to reproduce the issue (e.g., "Navigate to /game.html, observe title present but no buttons in overlay").
 
 6. **Clarify test requirements**: Define what existing tests should pass and what new verification is needed, rather than vague references to smoke tests.
+
+## Related Documents
+- [[ai/specs/T-0025_spec.md|T-0025 spec]]
+- [[ai/briefs/T-0025_implementation.md|T-0025 document]]
+- [[ai/results/T-0025_executor_report.md|T-0025 result]]
+- [[ai/followups/T-0025_followups.md|T-0025 followup]]

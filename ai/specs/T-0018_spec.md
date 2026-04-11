@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0018
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0018 Spec
 
 ## Task metadata
@@ -104,3 +111,10 @@ Konkret bedeutet das aus heutiger Sicht:
 - Gibt es Unterschiede in Asset-Pfaden oder Script-Ausführung zwischen `index.html` und `game.html`?
 - Gibt es Projekt-Dokumentation in `docs/`, die das gewünschte Verhalten der Start-UI und der gültigen Einstiegspfade definiert?
 - Falls `game.html` fehlt, soll es auf `index.html` verweisen, identischen Inhalt bereitstellen oder gar nicht unterstützt werden?
+
+## Related Documents
+- [[ai/reviews/T-0018_gemini_review.md|T-0018 review]]
+- [[ai/briefs/T-0018_implementation.md|T-0018 document]]
+- [[ai/results/T-0018_executor_report.md|T-0018 result]]
+- [[ai/followups/T-0018_followups.md|T-0018 followup]]
+- [[ai/pr/T-0018_pr_draft.md|T-0018 pr-draft]]

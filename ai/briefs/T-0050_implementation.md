@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0050
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0050 Implementation Brief
 
 ## Goal
@@ -54,3 +61,11 @@ Integrate Supabase client for real user authentication, cloud-persisted game pro
 - Real-time leaderboard updates (polling only).
 - Guest-to-account progress migration.
 - Display name customization (v2).
+
+
+## Related Documents
+- [[ai/specs/T-0050_spec.md|T-0050 spec]]
+- [[ai/reviews/T-0050_gemini_review.md|T-0050 review]]
+- [[ai/results/T-0050_executor_report.md|T-0050 result]]
+- [[ai/followups/T-0050_followups.md|T-0050 followup]]
+- [[ai/pr/T-0050_pr_draft.md|T-0050 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0021
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0021 Follow-ups
 
 ## Task outcome summary
@@ -65,3 +72,10 @@ Reason:
 - F-2 should ideally be scheduled after or alongside F-1 so cache keys can be version-aware.
 - I did not propose offline-support hardening or extraction-tool fallback work because that would expand scope beyond the executor’s minimal recommended next steps.
 - I did not propose additional smoke-test code changes because browser provisioning itself is now in place and no separate code defect was reported.
+
+## Related Documents
+- [[ai/specs/T-0021_spec.md|T-0021 spec]]
+- [[ai/reviews/T-0021_gemini_review.md|T-0021 review]]
+- [[ai/briefs/T-0021_implementation.md|T-0021 document]]
+- [[ai/results/T-0021_executor_report.md|T-0021 result]]
+- [[ai/pr/T-0021_pr_draft.md|T-0021 pr-draft]]

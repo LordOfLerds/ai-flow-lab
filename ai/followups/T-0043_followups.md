@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0043
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0043 Follow-ups
 
 ## Task outcome summary
@@ -23,3 +30,11 @@ None.
 - Level select → T-0042
 - Battle pass → T-0044
 - Docs → T-0045
+
+
+## Related Documents
+- [[ai/specs/T-0043_spec.md|T-0043 spec]]
+- [[ai/reviews/T-0043_gemini_review.md|T-0043 review]]
+- [[ai/briefs/T-0043_implementation.md|T-0043 document]]
+- [[ai/results/T-0043_executor_report.md|T-0043 result]]
+- [[ai/pr/T-0043_pr_draft.md|T-0043 pr-draft]]

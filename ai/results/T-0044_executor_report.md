@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0044
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0044 Executor Report
 
 ## Execution Report
@@ -46,3 +53,11 @@ The battle pass system is now fully functional with 20 tiers, XP earning from al
 
 ---
 Files written: index.html
+
+
+## Related Documents
+- [[ai/specs/T-0044_spec.md|T-0044 spec]]
+- [[ai/reviews/T-0044_gemini_review.md|T-0044 review]]
+- [[ai/briefs/T-0044_implementation.md|T-0044 document]]
+- [[ai/followups/T-0044_followups.md|T-0044 followup]]
+- [[ai/pr/T-0044_pr_draft.md|T-0044 pr-draft]]

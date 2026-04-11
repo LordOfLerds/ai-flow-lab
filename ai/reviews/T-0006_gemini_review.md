@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0006
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0006 Gemini Review
 
 ## Review target
@@ -70,3 +77,10 @@ Spec for implementing XP/leveling system, skill tree (double jump, dash, shield 
 
 8. **Specify menu state machine** - Add section "Menu State Machine": "States: START_MENU, CHARACTER_SELECT, SKILL_TREE, GAME_RUNNING, LEVEL_COMPLETE. Transitions: START_MENU → CHARACTER_SELECT → GAME_RUNNING → LEVEL_COMPLETE → CHARACTER_SELECT."
 
+
+
+## Related Documents
+- [[ai/specs/T-0006_spec.md|T-0006 spec]]
+- [[ai/briefs/T-0006_implementation.md|T-0006 document]]
+- [[ai/followups/T-0006_followups.md|T-0006 followup]]
+- [[ai/pr/T-0006_pr_draft.md|T-0006 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0027
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0027 Implementation Brief
 
 ## Goal
@@ -145,3 +152,11 @@ Modify only `index.html` (repo root). Add new rendering functions and update `re
 - Full pixel-art enemy sprites (follow-up)
 - Particle effects (follow-up)
 - Mobile/touch support (follow-up)
+
+
+## Related Documents
+- [[ai/specs/T-0027_spec.md|T-0027 spec]]
+- [[ai/reviews/T-0027_gemini_review.md|T-0027 review]]
+- [[ai/results/T-0027_executor_report.md|T-0027 result]]
+- [[ai/followups/T-0027_followups.md|T-0027 followup]]
+- [[ai/pr/T-0027_pr_draft.md|T-0027 pr-draft]]

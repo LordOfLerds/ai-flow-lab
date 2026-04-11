@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0020
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0020 Spec
 
 ## Task metadata
@@ -87,3 +94,10 @@ Because the exact Start control is not documented in the provided sources, the i
 - Should the smoke test navigate to `index.html` directly, or should it also validate the `game.html` redirect entry path?
 - Does `auth-state.js` introduce any async preconditions or session-dependent states that can alter initial Start UI visibility?
 - Are there project docs under `docs/` that further define startup invariants or preferred testing tools, and do they agree with current code?
+
+## Related Documents
+- [[ai/reviews/T-0020_gemini_review.md|T-0020 review]]
+- [[ai/briefs/T-0020_implementation.md|T-0020 document]]
+- [[ai/results/T-0020_executor_report.md|T-0020 result]]
+- [[ai/followups/T-0020_followups.md|T-0020 followup]]
+- [[ai/pr/T-0020_pr_draft.md|T-0020 pr-draft]]

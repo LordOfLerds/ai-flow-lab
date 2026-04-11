@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0004
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0004 Implementation Brief
 
 ## Goal
@@ -61,3 +68,10 @@ Add static obstacles (spikes), destructible platforms (crumbling), moving platfo
 - No dynamic platform creation/destruction (all platforms spawned at level start)
 - No enemy knockback (enemy dies, no momentum transfer to player except upward bounce)
 - No multi-hit enemies (all enemies die in one jump)
+
+
+## Related Documents
+- [[ai/specs/T-0004_spec.md|T-0004 spec]]
+- [[ai/reviews/T-0004_gemini_review.md|T-0004 review]]
+- [[ai/followups/T-0004_followups.md|T-0004 followup]]
+- [[ai/pr/T-0004_pr_draft.md|T-0004 pr-draft]]

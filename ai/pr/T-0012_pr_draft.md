@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0012
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0012] Add edge case handling for concurrent pipeline operations
 
 ## Summary
@@ -77,3 +84,11 @@ Task T-0012 successfully completed the implementation as specified. The changes 
 **Branch**: `bug/T-0012-add-edge-case-handling-for-concurrent-pipeline-operations` → `main`
 **Generated**: 2026-04-07T07:23:13.726Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0012_spec.md|T-0012 spec]]
+- [[ai/reviews/T-0012_gemini_review.md|T-0012 review]]
+- [[ai/briefs/T-0012_implementation.md|T-0012 document]]
+- [[ai/results/T-0012_result.md|T-0012 result]]
+- [[ai/followups/T-0012_followups.md|T-0012 followup]]

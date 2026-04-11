@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0018
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0018 Follow-ups
 
 ## Task outcome summary
@@ -71,3 +78,10 @@ Reason:
 - Do **not** spawn server routing work yet. The executor noted no server config exists in-repo, so `/game` support beyond `game.html` is not a safe autonomous next step without clearer deployment context.
 - F-3 is effectively a decision-shaped item; keep it pending until owner/maintainer confirms whether `automation/ui/game.html` is meant to be a real product surface or just auxiliary/demo content.
 - If F-2 is spawned, keep it tightly limited to entry-point documentation and avoid reopening the full domain mismatch already covered by T-0014.
+
+## Related Documents
+- [[ai/specs/T-0018_spec.md|T-0018 spec]]
+- [[ai/reviews/T-0018_gemini_review.md|T-0018 review]]
+- [[ai/briefs/T-0018_implementation.md|T-0018 document]]
+- [[ai/results/T-0018_executor_report.md|T-0018 result]]
+- [[ai/pr/T-0018_pr_draft.md|T-0018 pr-draft]]

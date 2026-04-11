@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0030
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0030 Gemini Review
 
 ## Review target
@@ -35,3 +42,10 @@
 3. **Null Check:** Add a guard clause for `gs.player` in `updateHUD` to prevent crashes: `if (!gs.player) return;`.
 4. **Clarify Primary HUD:** If the HTML HUD is the primary interface, the Canvas HUD should be explicitly labeled as "Debug" or "Fallback" and perhaps disabled by default to save draw calls.
 5. **Standardize Time:** Use a constant `CONFIG.FPS` or similar for the timer math instead of hardcoded `60`.
+
+## Related Documents
+- [[ai/specs/T-0030_spec.md|T-0030 spec]]
+- [[ai/briefs/T-0030_implementation.md|T-0030 document]]
+- [[ai/results/T-0030_executor_report.md|T-0030 result]]
+- [[ai/followups/T-0030_followups.md|T-0030 followup]]
+- [[ai/pr/T-0030_pr_draft.md|T-0030 pr-draft]]

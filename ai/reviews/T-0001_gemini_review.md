@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0001
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0001 Gemini Review
 
 ## Review target
@@ -92,3 +99,10 @@ T-0001 Spec: Set up HTML canvas, game loop, and pixel-art rendering engine
    - Game loop executes update/render cycle within budget (< 16.67ms per frame)
    - Camera position updates smoothly and reaches target position
    - Input state persists correctly across frames
+
+
+## Related Documents
+- [[ai/specs/T-0001_spec.md|T-0001 spec]]
+- [[ai/briefs/T-0001_implementation.md|T-0001 document]]
+- [[ai/followups/T-0001_followups.md|T-0001 followup]]
+- [[ai/pr/T-0001_pr_draft.md|T-0001 pr-draft]]

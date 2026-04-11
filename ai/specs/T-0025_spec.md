@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0025
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 T-0025 Spec
 
 Task metadata
@@ -101,3 +108,9 @@ Open questions
 	•	Wird #menu-content beim problematischen Aufruf gar nicht befüllt, zu spät befüllt, oder durch spätere Logik wieder geleert?
 	•	Hängen die sichtbaren Start-Buttons vom Auth-/Session-Zustand ab, obwohl sie für den initialen Spielstart sichtbar sein sollten?
 	•	Welche der bestehenden Smoke-Tests (T-0019, T-0020) decken den aktuellen Fehler bereits ab, und reproduzieren sie ihn zuverlässig?
+
+## Related Documents
+- [[ai/reviews/T-0025_gemini_review.md|T-0025 review]]
+- [[ai/briefs/T-0025_implementation.md|T-0025 document]]
+- [[ai/results/T-0025_executor_report.md|T-0025 result]]
+- [[ai/followups/T-0025_followups.md|T-0025 followup]]

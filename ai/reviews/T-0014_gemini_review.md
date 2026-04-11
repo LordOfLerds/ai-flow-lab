@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0014
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0014 Gemini Review
 
 ## Review target
@@ -38,3 +45,11 @@
     - Input handling (Keyboard/Mouse/Touch)
 - **ADR Constraint:** Add a constraint: "Do not create ADRs for standard implementations; only create ADRs if the code reveals a specific, non-trivial architectural choice (e.g., a custom physics engine vs. a library)."
 - **Identify File Creation:** Explicitly authorize the creation of `ai/current-state/drift-register.md` if it is missing and conflicts are found.
+
+## Related Documents
+- [[ai/specs/T-0014_spec.md|T-0014 spec]]
+- [[ai/briefs/T-0014_implementation.md|T-0014 document]]
+- [[ai/results/T-0014_executor_report.md|T-0014 result]]
+- [[ai/results/T-0014_result.md|T-0014 result]]
+- [[ai/followups/T-0014_followups.md|T-0014 followup]]
+- [[ai/pr/T-0014_pr_draft.md|T-0014 pr-draft]]

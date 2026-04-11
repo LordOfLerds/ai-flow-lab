@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0044
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0044] Battle Pass and Progression System
 
 ## Summary
@@ -70,3 +77,11 @@ T-0044 (Battle Pass and Progression System) was executed. The executor generated
 **Branch**: `feature/T-0044-battle-pass-and-progression-system` → `main`
 **Generated**: 2026-04-08T13:17:55.920Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0044_spec.md|T-0044 spec]]
+- [[ai/reviews/T-0044_gemini_review.md|T-0044 review]]
+- [[ai/briefs/T-0044_implementation.md|T-0044 document]]
+- [[ai/results/T-0044_executor_report.md|T-0044 result]]
+- [[ai/followups/T-0044_followups.md|T-0044 followup]]

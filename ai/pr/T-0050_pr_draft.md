@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0050
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0050] Add Supabase backend for user auth, persistent progress, and leaderboard
 
 ## Summary
@@ -65,3 +72,11 @@ issue
 **Branch**: `feature/T-0050` → `main`
 **Generated**: 2026-04-09T00:38:15.560Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0050_spec.md|T-0050 spec]]
+- [[ai/reviews/T-0050_gemini_review.md|T-0050 review]]
+- [[ai/briefs/T-0050_implementation.md|T-0050 document]]
+- [[ai/results/T-0050_executor_report.md|T-0050 result]]
+- [[ai/followups/T-0050_followups.md|T-0050 followup]]

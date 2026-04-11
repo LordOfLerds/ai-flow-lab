@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0046
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0046] Fix critical game bugs: exit collision, level complete screen, skin progression
 
 ## Summary
@@ -70,3 +77,11 @@ concerns
 **Branch**: `feature/T-0046` → `main`
 **Generated**: 2026-04-08T23:55:38.562Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0046_spec.md|T-0046 spec]]
+- [[ai/reviews/T-0046_gemini_review.md|T-0046 review]]
+- [[ai/briefs/T-0046_implementation.md|T-0046 document]]
+- [[ai/results/T-0046_executor_report.md|T-0046 result]]
+- [[ai/followups/T-0046_followups.md|T-0046 followup]]

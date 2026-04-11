@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0041
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0041] Login UI and Persistence
 
 ## Summary
@@ -64,3 +71,11 @@ T-0041 (Login UI and Persistence) was executed. The executor report describes im
 **Branch**: `feature/T-0041-login-ui-and-persistence` → `main`
 **Generated**: 2026-04-08T12:49:36.937Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0041_spec.md|T-0041 spec]]
+- [[ai/reviews/T-0041_gemini_review.md|T-0041 review]]
+- [[ai/briefs/T-0041_implementation.md|T-0041 document]]
+- [[ai/results/T-0041_executor_report.md|T-0041 result]]
+- [[ai/followups/T-0041_followups.md|T-0041 followup]]

@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0019
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0019 Follow-ups
 
 ## Task outcome summary
@@ -52,3 +59,10 @@ Reason:
 - Do not spawn follow-ups that expand into `/game` route coverage unless existing docs or infrastructure clearly support it; that would be new scope beyond T-0019.
 - Do not treat “real browser smoke” as urgent unless there is active churn in startup/runtime UI logic; current coverage already provides meaningful regression protection for shipped markup and redirect wiring.
 - No owner decision blocker is required based on the executor report alone; both follow-ups are safe, independent, and consistent with the existing task history.
+
+## Related Documents
+- [[ai/specs/T-0019_spec.md|T-0019 spec]]
+- [[ai/reviews/T-0019_gemini_review.md|T-0019 review]]
+- [[ai/briefs/T-0019_implementation.md|T-0019 document]]
+- [[ai/results/T-0019_executor_report.md|T-0019 result]]
+- [[ai/pr/T-0019_pr_draft.md|T-0019 pr-draft]]

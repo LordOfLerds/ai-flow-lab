@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0016
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0016 Gemini Review
 
 ## Review target
@@ -35,3 +42,10 @@ The review focuses on the `T-0016 Spec` which aims to implement a visible logged
 - **Require Form Reset:** Add an acceptance criterion that logging out must clear any "Password" or "Sensitive" fields in the mock auth form.
 - **UI Placement:** Specify that if a global header/nav exists (even if not shown in snippets), the session indicator should ideally be placed there for persistence across different views.
 - **Identity Mocking:** To resolve the "user identifier" uncertainty, specify using a placeholder like "Mock User" or the value from the "Username" field if available.
+
+## Related Documents
+- [[ai/specs/T-0016_spec.md|T-0016 spec]]
+- [[ai/briefs/T-0016_implementation.md|T-0016 document]]
+- [[ai/results/T-0016_executor_report.md|T-0016 result]]
+- [[ai/followups/T-0016_followups.md|T-0016 followup]]
+- [[ai/pr/T-0016_pr_draft.md|T-0016 pr-draft]]

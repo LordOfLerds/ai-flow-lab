@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0018
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0018] Start UI nicht mehr vorhanden wenn auf game oder game.html
 
 ## Summary
@@ -79,3 +86,11 @@ T-0018 restored Start-UI visibility for the reported access paths, but the execu
 **Branch**: `bug/T-0018-start-ui-nicht-mehr-vorhanden-wenn-auf-game-oder-game-html` → `main`
 **Generated**: 2026-04-07T20:18:10.182Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0018_spec.md|T-0018 spec]]
+- [[ai/reviews/T-0018_gemini_review.md|T-0018 review]]
+- [[ai/briefs/T-0018_implementation.md|T-0018 document]]
+- [[ai/results/T-0018_executor_report.md|T-0018 result]]
+- [[ai/followups/T-0018_followups.md|T-0018 followup]]

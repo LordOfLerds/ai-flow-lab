@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0040
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0040 Gemini Review
 
 ## Review target
@@ -53,3 +60,11 @@
 5. **Clarify theme data structure**: Define themes as objects with named properties (skyGradient, farObjects, midObjects, colors) so future themes can be added easily.
 
 Overall assessment: **Ambitious but well-structured spec.** The main concern is scope — 4 features in one task is aggressive. The executor should implement in order of priority: game over screen → parallax → particles → screen shake → menu transitions. Recommend proceeding with the scope caveat noted.
+
+
+## Related Documents
+- [[ai/specs/T-0040_spec.md|T-0040 spec]]
+- [[ai/briefs/T-0040_implementation.md|T-0040 document]]
+- [[ai/results/T-0040_executor_report.md|T-0040 result]]
+- [[ai/followups/T-0040_followups.md|T-0040 followup]]
+- [[ai/pr/T-0040_pr_draft.md|T-0040 pr-draft]]

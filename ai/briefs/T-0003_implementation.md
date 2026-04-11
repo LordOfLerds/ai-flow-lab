@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0003
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # Implementation Brief: T-0003 Level System
 
 ## Merged Requirements
@@ -438,3 +445,10 @@ const CONFIG = {
 - UI shows current level number
 - Off-screen tile culling for performance
 - Framerate-independent camera motion
+
+
+## Related Documents
+- [[ai/specs/T-0003_spec.md|T-0003 spec]]
+- [[ai/reviews/T-0003_gemini_review.md|T-0003 review]]
+- [[ai/followups/T-0003_followups.md|T-0003 followup]]
+- [[ai/pr/T-0003_pr_draft.md|T-0003 pr-draft]]

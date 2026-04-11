@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0004
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0004 Gemini Review
 
 ## Review target
@@ -72,3 +79,10 @@ Spec for adding obstacles (spikes, crumbling platforms, moving platforms) and en
 
 7. **Remove or clarify "8 concurrent entities" limit** - Specify: "Max 8 dynamic entities (enemies + moving platforms) per screen, excluding static spikes and crumbling platforms".
 
+
+
+## Related Documents
+- [[ai/specs/T-0004_spec.md|T-0004 spec]]
+- [[ai/briefs/T-0004_implementation.md|T-0004 document]]
+- [[ai/followups/T-0004_followups.md|T-0004 followup]]
+- [[ai/pr/T-0004_pr_draft.md|T-0004 pr-draft]]

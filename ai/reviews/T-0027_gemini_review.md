@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0027
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0027 Gemini Review
 
 ## Review target
@@ -34,3 +41,10 @@
 3. **Initialization:** Explicitly allow a one-time initialization block for the `stars` array within the `renderBackground` function if it hasn't been populated yet, to satisfy the constraint of not modifying existing init functions.
 4. **Deterministic Hash:** Define `N` for the grass blade logic (e.g., `N=4`).
 5. **Transparency Safety:** Add a requirement to use `ctx.save()` and `ctx.restore()` or ensure `ctx.globalAlpha` is reset after rendering the shield.
+
+## Related Documents
+- [[ai/specs/T-0027_spec.md|T-0027 spec]]
+- [[ai/briefs/T-0027_implementation.md|T-0027 document]]
+- [[ai/results/T-0027_executor_report.md|T-0027 result]]
+- [[ai/followups/T-0027_followups.md|T-0027 followup]]
+- [[ai/pr/T-0027_pr_draft.md|T-0027 pr-draft]]

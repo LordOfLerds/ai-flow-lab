@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0023
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0023 Spec
 
 ## Task metadata
@@ -68,3 +75,10 @@ The documentation update should remain descriptive and minimal, reflecting curre
 - Is `/game` officially supported in deployment environments, or is that only an implementation hint in the redirect script?
 - Should this compatibility redirect also be mentioned in any deployment or routing documentation beyond architecture docs?
 - If architecture docs are missing or outdated relative to code, should this task also record the discrepancy in `ai/current-state/drift-register.md`?
+
+## Related Documents
+- [[ai/reviews/T-0023_gemini_review.md|T-0023 review]]
+- [[ai/briefs/T-0023_implementation.md|T-0023 document]]
+- [[ai/results/T-0023_executor_report.md|T-0023 result]]
+- [[ai/followups/T-0023_followups.md|T-0023 followup]]
+- [[ai/pr/T-0023_pr_draft.md|T-0023 pr-draft]]

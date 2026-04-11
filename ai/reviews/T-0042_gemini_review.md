@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0042
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0042 Gemini Review: Level Select Screen and Multi-Level System
 
 ## Review target
@@ -39,3 +46,11 @@ Spec for implementing a scrollable level select screen with multi-level progress
 
 ## Overall assessment
 **Good spec with moderate gaps.** Unlock logic and theme transitions need clarification before implementation. Recommend proceeding after addressing star threshold rule, end-game scenario, and theme cleanup ownership.
+
+
+## Related Documents
+- [[ai/specs/T-0042_spec.md|T-0042 spec]]
+- [[ai/briefs/T-0042_implementation.md|T-0042 document]]
+- [[ai/results/T-0042_executor_report.md|T-0042 result]]
+- [[ai/followups/T-0042_followups.md|T-0042 followup]]
+- [[ai/pr/T-0042_pr_draft.md|T-0042 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0026
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0026 Critique Review
 
 ## Overall Assessment
@@ -18,3 +25,11 @@ The spec is well-structured and addresses the core requirement clearly.
 ## Suggested Improvements
 - Specify z-index for the pause overlay to ensure it appears above the game canvas
 - Clarify whether the pause state persists across game-over/restart cycles
+
+
+## Related Documents
+- [[ai/specs/T-0026_spec.md|T-0026 spec]]
+- [[ai/briefs/T-0026_implementation.md|T-0026 document]]
+- [[ai/results/T-0026_executor_report.md|T-0026 result]]
+- [[ai/followups/T-0026_followups.md|T-0026 followup]]
+- [[ai/pr/T-0026_pr_draft.md|T-0026 pr-draft]]

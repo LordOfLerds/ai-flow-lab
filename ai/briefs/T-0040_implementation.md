@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0040
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0040 Implementation Brief
 
 ## Goal
@@ -103,3 +110,11 @@ Hard switch at distance milestones (0-2000: forest, 2000-4000: city, then cycle)
 - Crossfade between themes
 - Mobile-specific touch optimizations
 - Save/load of visual preferences
+
+
+## Related Documents
+- [[ai/specs/T-0040_spec.md|T-0040 spec]]
+- [[ai/reviews/T-0040_gemini_review.md|T-0040 review]]
+- [[ai/results/T-0040_executor_report.md|T-0040 result]]
+- [[ai/followups/T-0040_followups.md|T-0040 followup]]
+- [[ai/pr/T-0040_pr_draft.md|T-0040 pr-draft]]

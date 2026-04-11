@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0025
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 T-0025 Implementation Brief
 
 Goal
@@ -103,3 +110,9 @@ Explicit non-goals
 	•	Do not add unrelated HUD, gameplay, or overlay enhancements.
 	•	Do not add new product rules about login requirements, /game support, or redirect permanence.
 	•	Do not perform a broad cleanup of entry-point architecture or documentation unless a real blocking inconsistency is found.
+
+## Related Documents
+- [[ai/specs/T-0025_spec.md|T-0025 spec]]
+- [[ai/reviews/T-0025_gemini_review.md|T-0025 review]]
+- [[ai/results/T-0025_executor_report.md|T-0025 result]]
+- [[ai/followups/T-0025_followups.md|T-0025 followup]]

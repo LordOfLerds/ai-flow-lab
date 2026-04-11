@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0030
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0030 Executor Result
 
 ## Task
@@ -530,3 +537,11 @@ init();
 1. HUD XP Wiring | feature-lane | Reconnect the hidden XP bar/text to `gs.xp` and leveling data so progression cues return when ready.
 2. HUD CSS Cleanup | docs-lane | Remove unused XP bar styles or update docs to avoid confusion about inactive elements.
 3. HUD Regression Test Harness | test-lane | Add a lightweight automated check (e.g., headless canvas snapshot or DOM assertions) to verify HUD updates without manual playthroughs.
+
+
+## Related Documents
+- [[ai/specs/T-0030_spec.md|T-0030 spec]]
+- [[ai/reviews/T-0030_gemini_review.md|T-0030 review]]
+- [[ai/briefs/T-0030_implementation.md|T-0030 document]]
+- [[ai/followups/T-0030_followups.md|T-0030 followup]]
+- [[ai/pr/T-0030_pr_draft.md|T-0030 pr-draft]]

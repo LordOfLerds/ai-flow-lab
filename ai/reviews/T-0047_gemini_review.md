@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0047
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # Review: T-0047 — Expand to 100 levels
 
 ## Overall Assessment: APPROVE with minor suggestions
@@ -18,3 +25,11 @@ The spec is solid and well-structured. The 10-biome structure with progressive d
 
 ## Blocking Issues: None
 The spec is implementable as-is. The above are nice-to-haves.
+
+
+## Related Documents
+- [[ai/specs/T-0047_spec.md|T-0047 spec]]
+- [[ai/briefs/T-0047_implementation.md|T-0047 document]]
+- [[ai/results/T-0047_executor_report.md|T-0047 result]]
+- [[ai/followups/T-0047_followups.md|T-0047 followup]]
+- [[ai/pr/T-0047_pr_draft.md|T-0047 pr-draft]]

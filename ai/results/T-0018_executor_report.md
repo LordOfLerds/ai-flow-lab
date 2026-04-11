@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0018
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0018 Executor Result
 
 ## Task
@@ -604,3 +611,11 @@ Records conflicts between documented truth and tested code.
 - **T-0021**: Decide whether `automation/ui/game.html` should have full game functionality or remain as demo - **feature-lane**
 - **T-0022**: Add server configuration for clean URL routing (if needed for production deployment) - **feature-lane**
 - **T-0023**: Resolve DRIFT-002 domain mismatch between docs and actual game implementation - **docs-lane**
+
+
+## Related Documents
+- [[ai/specs/T-0018_spec.md|T-0018 spec]]
+- [[ai/reviews/T-0018_gemini_review.md|T-0018 review]]
+- [[ai/briefs/T-0018_implementation.md|T-0018 document]]
+- [[ai/followups/T-0018_followups.md|T-0018 followup]]
+- [[ai/pr/T-0018_pr_draft.md|T-0018 pr-draft]]

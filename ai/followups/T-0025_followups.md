@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0025
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 T-0025 Follow-ups
 
 Task outcome summary
@@ -69,3 +76,9 @@ Notes for planner
 	•	F-2 is also worth spawning soon because the drift register should not continue to state that this issue is resolved if the bug is still reproducible.
 	•	Do not spawn a broad build-process investigation yet; first determine whether the remaining bug is actually a mock-state override from T-0017.
 	•	T-0019 and T-0020 already cover related Start UI testing, so any new test work should remain a narrow enhancement, not a replacement.
+
+## Related Documents
+- [[ai/specs/T-0025_spec.md|T-0025 spec]]
+- [[ai/reviews/T-0025_gemini_review.md|T-0025 review]]
+- [[ai/briefs/T-0025_implementation.md|T-0025 document]]
+- [[ai/results/T-0025_executor_report.md|T-0025 result]]

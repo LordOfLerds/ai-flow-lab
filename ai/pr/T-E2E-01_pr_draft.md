@@ -1,3 +1,9 @@
+---
+type: pr-draft
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-E2E-01] E2E Test: Add version info to README
 
 ## Summary

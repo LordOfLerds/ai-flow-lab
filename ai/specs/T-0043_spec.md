@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0043
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0043 Spec
 
 ## Task metadata
@@ -217,3 +224,11 @@ For **each item in a category**, display:
 7. **Shop UI overlay strategy** — Should shop render as a modal overlay (current approach via #overlay), or as a separate canvas + DOM hybrid? Recommend overlay for consistency with existing MENU/SKIN_SELECT phases.
 
 8. **Search/filter** — Should the shop support search/filter by price, status, name? Recommend for future enhancement; start with tabs only.
+
+
+## Related Documents
+- [[ai/reviews/T-0043_gemini_review.md|T-0043 review]]
+- [[ai/briefs/T-0043_implementation.md|T-0043 document]]
+- [[ai/results/T-0043_executor_report.md|T-0043 result]]
+- [[ai/followups/T-0043_followups.md|T-0043 followup]]
+- [[ai/pr/T-0043_pr_draft.md|T-0043 pr-draft]]

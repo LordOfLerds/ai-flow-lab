@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0035
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0035 Gemini Review
 
 ## Review target
@@ -73,3 +80,8 @@ The spec targets restoration of a skin system that was partially deleted in the 
 6. **Clarify Phase Integration**: Verify that the `SKIN_SELECT` phase mentioned in INVARIANTS.md is properly implemented in the current phase management system before relying on it.
 
 7. **Add Rollback Plan**: Include explicit rollback criteria if the restoration scope expands beyond skin-specific changes into broader menu or rendering system modifications.
+
+## Related Documents
+- [[ai/specs/T-0035_spec.md|T-0035 spec]]
+- [[ai/briefs/T-0035_implementation.md|T-0035 document]]
+- [[ai/results/T-0035_executor_report.md|T-0035 result]]

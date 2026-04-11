@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0050
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0050 Spec
 
 ## Task metadata
@@ -164,3 +171,11 @@ If Supabase is unreachable:
 ## Open questions
 - Should we use Supabase realtime for live leaderboard updates?
 - Should guest progress be migrated to account on signup?
+
+
+## Related Documents
+- [[ai/reviews/T-0050_gemini_review.md|T-0050 review]]
+- [[ai/briefs/T-0050_implementation.md|T-0050 document]]
+- [[ai/results/T-0050_executor_report.md|T-0050 result]]
+- [[ai/followups/T-0050_followups.md|T-0050 followup]]
+- [[ai/pr/T-0050_pr_draft.md|T-0050 pr-draft]]

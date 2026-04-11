@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0046
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0046 Gemini Review
 
 ## Review target
@@ -53,3 +60,10 @@ Spec T-0046 addresses 4 critical game bugs: exit collision not saving progress, 
 5. **Include testing requirements**: Add acceptance criteria for testing current behavior, verifying fixes, and regression testing.
 
 6. **Specify data migration**: If changing SKINS structure, include migration strategy for existing save data.
+
+## Related Documents
+- [[ai/specs/T-0046_spec.md|T-0046 spec]]
+- [[ai/briefs/T-0046_implementation.md|T-0046 document]]
+- [[ai/results/T-0046_executor_report.md|T-0046 result]]
+- [[ai/followups/T-0046_followups.md|T-0046 followup]]
+- [[ai/pr/T-0046_pr_draft.md|T-0046 pr-draft]]

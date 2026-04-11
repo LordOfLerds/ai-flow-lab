@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0035
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 T-0035 Spec
 
 Task metadata
@@ -131,3 +138,8 @@ Open questions
 	•	What are the documented unlock rules for skins, if any, and are they still supposed to be enforced in the menu UI?
 	•	Should selected skin persist across sessions, or only across a single runtime session, according to docs?
 	•	Does “drawPlayer() skin variant rendering” correspond to the current renderPlayer() / makePlayerSprite() path, or is there another intended rendering function still present elsewhere in the repo?
+
+## Related Documents
+- [[ai/reviews/T-0035_gemini_review.md|T-0035 review]]
+- [[ai/briefs/T-0035_implementation.md|T-0035 document]]
+- [[ai/results/T-0035_executor_report.md|T-0035 result]]

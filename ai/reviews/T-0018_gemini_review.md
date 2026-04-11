@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0018
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0018 Gemini Review
 
 ## Review target
@@ -66,3 +73,10 @@ Several problematic assumptions are embedded in the spec:
 5. **Add rollback plan**: Define how to revert changes if the fix breaks existing functionality
 
 6. **Clarify decision authority**: Specify who decides whether `game`/`game.html` should be supported entry points if investigation reveals they don't currently exist
+
+## Related Documents
+- [[ai/specs/T-0018_spec.md|T-0018 spec]]
+- [[ai/briefs/T-0018_implementation.md|T-0018 document]]
+- [[ai/results/T-0018_executor_report.md|T-0018 result]]
+- [[ai/followups/T-0018_followups.md|T-0018 followup]]
+- [[ai/pr/T-0018_pr_draft.md|T-0018 pr-draft]]

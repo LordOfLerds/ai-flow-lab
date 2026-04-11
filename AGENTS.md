@@ -1,3 +1,9 @@
+---
+type: agents
+created: 2026-04-10
+tags: [ai-flow-lab, agents]
+---
+
 # AGENTS.md
 
 ## Agent Roles

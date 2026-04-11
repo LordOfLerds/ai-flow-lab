@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0024
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 T-0024 Follow-ups
 
 Task outcome summary
@@ -45,3 +52,10 @@ Notes for planner
 	•	Treat T-0024 as a successful validation/no-op task, not a failed execution.
 	•	The executor’s suggested “documentation completeness audit” is too broad to spawn as-is and would risk overlapping with T-0014; only the narrower stale-reference audit in F-1 is potentially worth doing later.
 	•	No owner decision blocker is required to proceed with the broader plan.
+
+## Related Documents
+- [[ai/specs/T-0024_spec.md|T-0024 spec]]
+- [[ai/reviews/T-0024_gemini_review.md|T-0024 review]]
+- [[ai/briefs/T-0024_implementation.md|T-0024 document]]
+- [[ai/results/T-0024_executor_report.md|T-0024 result]]
+- [[ai/pr/T-0024_pr_draft.md|T-0024 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0008
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0008 Gemini Review
 
 ## Review target
@@ -42,3 +49,11 @@ No specific tests are called out for this documentation change:
 ## Summary
 
 The spec is solid and well-scoped. The corrections are minor clarifications around edge cases and assumptions. Approve with recommended corrections noted for implementation.
+
+
+## Related Documents
+- [[ai/specs/T-0008_spec.md|T-0008 spec]]
+- [[ai/briefs/T-0008_implementation.md|T-0008 document]]
+- [[ai/results/T-0008_result.md|T-0008 result]]
+- [[ai/followups/T-0008_followups.md|T-0008 followup]]
+- [[ai/pr/T-0008_pr_draft.md|T-0008 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0040
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0040] Enhanced Game Over Screen and Visual Polish
 
 ## Summary
@@ -62,3 +69,11 @@ T-0040 (Enhanced Game Over Screen and Visual Polish) was executed. The executor 
 **Branch**: `feature/T-0040-enhanced-game-over-screen-and-visual-polish` → `main`
 **Generated**: 2026-04-08T12:59:22.686Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0040_spec.md|T-0040 spec]]
+- [[ai/reviews/T-0040_gemini_review.md|T-0040 review]]
+- [[ai/briefs/T-0040_implementation.md|T-0040 document]]
+- [[ai/results/T-0040_executor_report.md|T-0040 result]]
+- [[ai/followups/T-0040_followups.md|T-0040 followup]]

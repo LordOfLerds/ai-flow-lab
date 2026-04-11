@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0002
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0002: Player Character Architecture Spec
 
 ## Overview
@@ -124,3 +131,10 @@ Each frame:
 - `PLAYER_ACCELERATION: 0.5`
 - `PLAYER_DECELERATION: 0.4`
 - `COYOTE_TIME: 4`
+
+
+## Related Documents
+- [[ai/reviews/T-0002_gemini_review.md|T-0002 review]]
+- [[ai/briefs/T-0002_implementation.md|T-0002 document]]
+- [[ai/followups/T-0002_followups.md|T-0002 followup]]
+- [[ai/pr/T-0002_pr_draft.md|T-0002 pr-draft]]

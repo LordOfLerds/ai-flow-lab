@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0007
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0007 Implementation Brief
 
 ## Goal
@@ -77,3 +84,10 @@ Implement complete UI and polish: HUD (score, coins, XP, level, power-ups, skill
 - No rebindable controls (fixed keyboard layout)
 - No game options (e.g., graphics quality)
 - No analytics or telemetry
+
+
+## Related Documents
+- [[ai/specs/T-0007_spec.md|T-0007 spec]]
+- [[ai/reviews/T-0007_gemini_review.md|T-0007 review]]
+- [[ai/followups/T-0007_followups.md|T-0007 followup]]
+- [[ai/pr/T-0007_pr_draft.md|T-0007 pr-draft]]

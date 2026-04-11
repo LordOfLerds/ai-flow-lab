@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0043
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0043 Gemini Review: Coin Shop and Cosmetics Store
 
 ## Review target
@@ -42,3 +49,11 @@ Spec for implementing a cosmetics shop (skins, trails, effects) purchasable with
 
 ## Overall assessment
 **Good spec with purchase-flow ambiguities.** Recommend proceeding after clarifying deduction timing, insufficient-funds UX, owned-item filtering, and confirming persistence hooks are ready.
+
+
+## Related Documents
+- [[ai/specs/T-0043_spec.md|T-0043 spec]]
+- [[ai/briefs/T-0043_implementation.md|T-0043 document]]
+- [[ai/results/T-0043_executor_report.md|T-0043 result]]
+- [[ai/followups/T-0043_followups.md|T-0043 followup]]
+- [[ai/pr/T-0043_pr_draft.md|T-0043 pr-draft]]

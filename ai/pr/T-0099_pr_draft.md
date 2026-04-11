@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0099
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0099] CLI-mode integration test
 
 ## Summary

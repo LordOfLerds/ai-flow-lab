@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0016
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0016] Add logout control and visible logged-in indicator for the mock auth state
 
 ## Summary
@@ -84,3 +91,11 @@ Implemented outcome:
 **Branch**: `feature/T-0016-add-logout-control-and-visible-logged-in-indicator-for-the-mock-auth-state` → `main`
 **Generated**: 2026-04-07T19:53:46.777Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0016_spec.md|T-0016 spec]]
+- [[ai/reviews/T-0016_gemini_review.md|T-0016 review]]
+- [[ai/briefs/T-0016_implementation.md|T-0016 document]]
+- [[ai/results/T-0016_executor_report.md|T-0016 result]]
+- [[ai/followups/T-0016_followups.md|T-0016 followup]]

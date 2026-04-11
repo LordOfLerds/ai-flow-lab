@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0046
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # Spec: T-0046 — Fix critical game bugs
 
 ## Overview
@@ -88,3 +95,11 @@ Update SKINS array with `price` and `currency` fields. In shop, show "Buy for X 
 - [ ] Skins have meaningful unlock requirements (level + coins/gems)
 - [ ] Skills show correct level requirements in menu
 - [ ] All 4 bugs verified fixed in gameplay
+
+
+## Related Documents
+- [[ai/reviews/T-0046_gemini_review.md|T-0046 review]]
+- [[ai/briefs/T-0046_implementation.md|T-0046 document]]
+- [[ai/results/T-0046_executor_report.md|T-0046 result]]
+- [[ai/followups/T-0046_followups.md|T-0046 followup]]
+- [[ai/pr/T-0046_pr_draft.md|T-0046 pr-draft]]

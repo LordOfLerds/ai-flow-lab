@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0029
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0029 Follow-ups
 
 ## Task outcome summary
@@ -47,3 +54,11 @@ T-0029 implemented enemy AI movement and player-enemy collision for Pixel Runner
 - The recurring index.html destruction by the Codex executor is a significant risk. Consider adding a pre-execution file backup or line count guard to the pipeline.
 - Enemy count is low (2 in test levels). Level generation randomness means some levels may have 0 enemies. Consider ensuring minimum enemy count in generation.
 - The `gs.entities` array is filtered every 60 frames to remove dead enemies, keeping memory clean.
+
+
+## Related Documents
+- [[ai/specs/T-0029_spec.md|T-0029 spec]]
+- [[ai/reviews/T-0029_gemini_review.md|T-0029 review]]
+- [[ai/briefs/T-0029_implementation.md|T-0029 document]]
+- [[ai/results/T-0029_executor_report.md|T-0029 result]]
+- [[ai/pr/T-0029_pr_draft.md|T-0029 pr-draft]]

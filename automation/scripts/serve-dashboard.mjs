@@ -9,10 +9,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let automationRoot = path.dirname(__dirname);
 
-// The UI and scripts directories are ALWAYS from the server's own automation root.
-// This ensures project switches don't load stale dashboard or script copies from the target project.
+// The UI directory is ALWAYS from the server's own automation root (where serve-dashboard.mjs lives).
+// This ensures project switches don't load a stale/different dashboard from the target project.
 const _serverUIDir = path.join(automationRoot, "ui");
-const _serverScriptsDir = __dirname; // Always run server's scripts, never project's stale copies
+// Pipeline scripts ALWAYS run from the server's own scripts dir (ai-flow-lab), not the target project.
+// Target project provides state/config/env, but the scripts themselves live here.
+const _serverScriptsDir = path.join(path.dirname(__dirname), "scripts");
 
 // Non-blocking exec wrapper — prevents server from freezing during long step executions
 function execAsync(cmd, opts = {}) {
@@ -73,8 +75,9 @@ function captureProjectContext() {
 }
 
 // Helper: build child process env from captured context
+// Always injects REPO_ROOT + AUTOMATION_ROOT so scripts find the right state/config
 function buildChildEnv(ctx) {
-  return { ...process.env, ...ctx.env };
+  return { ...process.env, ...ctx.env, REPO_ROOT: ctx.repoRoot, AUTOMATION_ROOT: ctx.automationRoot };
 }
 
 // Load .env from automation root (where the .env file lives)
@@ -595,7 +598,7 @@ cascade_limits:
       console.log(`API: Triggering run-goal-first-task for ${goalId}, first task: ${firstTaskId}`);
 
       try {
-        execSync(`node ${_serverScriptsDir}/run-goal-first-task.mjs ${goalId} ${firstTaskId}`, {
+        execSync(`node scripts/run-goal-first-task.mjs ${goalId} ${firstTaskId}`, {
           cwd: automationRoot,
           stdio: "pipe"
         });
@@ -622,7 +625,7 @@ cascade_limits:
       console.log(`API: Triggering run-task for ${taskId}`);
 
       try {
-        execSync(`node ${_serverScriptsDir}/run-task.mjs ${taskId}`, {
+        execSync(`node scripts/run-task.mjs ${taskId}`, {
           cwd: automationRoot,
           stdio: "pipe"
         });
@@ -674,7 +677,6 @@ cascade_limits:
         selected_option: selectedOption,
         rationale: rationale || `Resolved from proposal ${proposalId}`,
         scope: proposal.blocking_scope,
-        source_type: proposal.type || 'manual',
         implications: "",
         linked_tasks: [proposal.source_task_id].filter(Boolean),
         linked_goals: [proposal.source_goal_id].filter(Boolean),
@@ -701,14 +703,7 @@ cascade_limits:
         if (task && task.state === "BLOCKED_ON_DECISION" && task.open_decisions?.includes(proposalId)) {
           task.open_decisions = task.open_decisions.filter(d => d !== proposalId);
           if (task.open_decisions.length === 0) {
-            // Clarification re-run: reset to pre-step state so cascade re-runs the blocked step
-            if (task.blocked_at_step) {
-              const preStepState = { 'architect': 'NEW', 'synthesize': 'CRITIQUED' };
-              task.state = preStepState[task.blocked_at_step] || 'READY_AFTER_DECISION';
-              delete task.blocked_at_step;
-            } else {
-              task.state = "READY_AFTER_DECISION";
-            }
+            task.state = "READY_AFTER_DECISION";
             task.runtime_status = "UNBLOCKED";
             delete task.open_decisions;
           }
@@ -735,60 +730,6 @@ cascade_limits:
     } catch (e) {
       respondError(res, 500, `Error: ${e.message}`);
     }
-  },
-
-  "POST /api/decisions/:id/comment": async (req, res, params) => {
-    try {
-      const body = await parseJsonBody(req);
-      const dpId = params.id;
-      const dpDir = path.join(getStateDir(), "decision_proposals");
-      const dpFile = path.join(dpDir, `${dpId}.json`);
-      if (!fs.existsSync(dpFile)) { respondError(res, 404, "Decision proposal not found"); return; }
-      const dp = readJSON(dpFile);
-      if (!dp.comments) dp.comments = [];
-      const comment = { author: body.author || 'user', text: body.text || '', created_at: new Date().toISOString() };
-      dp.comments.push(comment);
-      dp.updated_at = new Date().toISOString();
-      fs.writeFileSync(dpFile, JSON.stringify(dp, null, 2));
-      respondJSON(res, 200, { success: true, comment });
-    } catch (e) { respondError(res, 500, e.message); }
-  },
-
-  "POST /api/decisions/:id/attach": async (req, res, params) => {
-    try {
-      const dpId = params.id;
-      const dpDir = path.join(getStateDir(), "decision_proposals");
-      const dpFile = path.join(dpDir, `${dpId}.json`);
-      if (!fs.existsSync(dpFile)) { respondError(res, 404, "Decision proposal not found"); return; }
-
-      // Read raw body as file upload (multipart not needed — single file via binary body)
-      const contentType = req.headers['content-type'] || '';
-      const filename = decodeURIComponent(req.headers['x-filename'] || `attachment-${Date.now()}`);
-      const chunks = [];
-      for await (const chunk of req) chunks.push(chunk);
-      const fileBuffer = Buffer.concat(chunks);
-
-      const attachDir = path.join(getStateDir(), "decision_attachments", dpId);
-      fs.mkdirSync(attachDir, { recursive: true });
-      const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath = path.join(attachDir, safeName);
-      fs.writeFileSync(filePath, fileBuffer);
-
-      // Update DP JSON
-      const dp = readJSON(dpFile);
-      if (!dp.attachments) dp.attachments = [];
-      dp.attachments.push({ filename: safeName, path: path.relative(getStateDir(), filePath), size: fileBuffer.length, created_at: new Date().toISOString() });
-      dp.updated_at = new Date().toISOString();
-      fs.writeFileSync(dpFile, JSON.stringify(dp, null, 2));
-
-      respondJSON(res, 200, { success: true, filename: safeName, size: fileBuffer.length });
-    } catch (e) { respondError(res, 500, e.message); }
-  },
-
-  "GET /api/decisions/:id/attachment/:filename": (req, res, params) => {
-    const filePath = path.join(getStateDir(), "decision_attachments", params.id, params.filename);
-    if (!fs.existsSync(filePath)) { respondError(res, 404, "File not found"); return; }
-    respondFile(res, filePath);
   },
 
   "GET /api/document": (req, res) => {
@@ -896,7 +837,7 @@ cascade_limits:
         return;
       }
       const result = execSync(
-        `node ${_serverScriptsDir}/new-task.mjs "${taskId}" "${laneType || 'feature-lane'}" "${title}" "${executor || 'codex'}"`,
+        `node scripts/new-task.mjs "${taskId}" "${laneType || 'feature-lane'}" "${title}" "${executor || 'codex'}"`,
         { cwd: automationRoot, stdio: "pipe" }
       ).toString();
       // Patch in description and parentGoalId if provided
@@ -996,7 +937,7 @@ cascade_limits:
 
       // Run async — don't block
 
-      exec(`node ${_serverScriptsDir}/init-project.mjs ${args}`, { cwd: automationRoot }, (err, stdout, stderr) => {
+      exec(`node scripts/init-project.mjs ${args}`, { cwd: automationRoot }, (err, stdout, stderr) => {
         if (err) console.error(`init-project ${mode} failed:`, stderr);
         else console.log(`init-project ${mode} completed:`, stdout.substring(0, 200));
       });
@@ -1014,7 +955,7 @@ cascade_limits:
       if (!fs.existsSync(absPath)) { respondError(res, 404, "Path not found: " + absPath); return; }
 
 
-      const output = execSync(`node ${_serverScriptsDir}/analyze-codebase.mjs "${absPath}"`, {
+      const output = execSync(`node scripts/analyze-codebase.mjs "${absPath}"`, {
         cwd: automationRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024
       });
       respondJSON(res, 200, JSON.parse(output));
@@ -1240,7 +1181,7 @@ cascade_limits:
           const s = scriptMap[stepName];
           if (!s) { resolve({ ok: false, error: `No script for ${stepName}` }); return; }
           console.log(`[PIPELINE] Running ${stepName} for ${taskId}...`);
-          exec(`node ${_serverScriptsDir}/${s} ${taskId}`, { cwd: _stepAutomationRoot, timeout: 900000, env: buildChildEnv(_stepCtx) }, (err, stdout, stderr) => {
+          exec(`node scripts/${s} ${taskId}`, { cwd: path.dirname(_serverScriptsDir), timeout: 900000, env: buildChildEnv(_stepCtx) }, (err, stdout, stderr) => {
             if (err) {
               console.error(`[PIPELINE] ${stepName} for ${taskId} FAILED:`, stderr);
               resolve({ ok: false, step: stepName, error: stderr || err.message });
@@ -1356,26 +1297,6 @@ cascade_limits:
     } catch (e) { respondError(res, 500, e.message); }
   },
 
-  "POST /api/goals/:goalid/chat": async (req, res, params) => {
-    try {
-      const body = await parseJsonBody(req);
-      const goalId = params.goalid;
-      const goalFile = path.join(getStateDir(), "goals", `${goalId}.json`);
-      if (!fs.existsSync(goalFile)) { respondError(res, 404, "Goal not found"); return; }
-      const goal = readJSON(goalFile);
-      if (!goal.chat_history) goal.chat_history = [];
-      goal.chat_history.push({
-        role: body.role || 'user',
-        content: body.content || '',
-        isPrompt: body.isPrompt || false,
-        time: body.time || new Date().toISOString()
-      });
-      goal.updated_at = new Date().toISOString();
-      fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2));
-      respondJSON(res, 200, { success: true });
-    } catch (e) { respondError(res, 500, e.message); }
-  },
-
   "POST /api/run/step": async (req, res) => {
     // Run a full pipeline step: plan-goal, or run-task with a specific step
     try {
@@ -1383,16 +1304,16 @@ cascade_limits:
       const { goalId, taskId, step } = body;
       let cmd = "";
       if (step === "plan-goal" && goalId) {
-        cmd = `node ${_serverScriptsDir}/plan-goal-api.mjs ${goalId}`;
+        cmd = `node scripts/plan-goal-api.mjs ${goalId}`;
       } else if (taskId && step) {
         const scriptMap = {
-          'architect': `node ${_serverScriptsDir}/architect-task-api.mjs ${taskId}`,
-          'critique': `node ${_serverScriptsDir}/critique-task-api.mjs ${taskId}`,
-          'synthesize': `node ${_serverScriptsDir}/synthesize-task-api.mjs ${taskId}`,
-          'execute': `node ${_serverScriptsDir}/execute-task-api.mjs ${taskId}`,
-          'merge': `node ${_serverScriptsDir}/merge-task.mjs ${taskId}`,
-          'propose-followups': `node ${_serverScriptsDir}/propose-followups-api.mjs ${taskId}`,
-          'pr-draft': `node ${_serverScriptsDir}/generate-pr-draft.mjs ${taskId}`,
+          'architect': `node scripts/architect-task-api.mjs ${taskId}`,
+          'critique': `node scripts/critique-task-api.mjs ${taskId}`,
+          'synthesize': `node scripts/synthesize-task-api.mjs ${taskId}`,
+          'execute': `node scripts/execute-task-api.mjs ${taskId}`,
+          'merge': `node scripts/merge-task.mjs ${taskId}`,
+          'propose-followups': `node scripts/propose-followups-api.mjs ${taskId}`,
+          'pr-draft': `node scripts/generate-pr-draft.mjs ${taskId}`,
         };
         cmd = scriptMap[step];
       }
@@ -1481,91 +1402,100 @@ cascade_limits:
       const { goalId, maxDepth = 3 } = body;
       if (!goalId) { respondError(res, 400, "Missing goalId"); return; }
 
-      respondJSON(res, 202, { success: true, message: `Goal cascade started for ${goalId}` });
-
       // Capture project context at goal-cascade start — safe from project switches
       const _goalCtx = captureProjectContext();
       const _goalAutomationRoot = _goalCtx.automationRoot;
       const _goalRepoRoot = _goalCtx.repoRoot;
       const _goalStateDir = _goalCtx.stateDir;
 
+      // Guard: reject if a cascade is already running for this goal
+      const _goalFile0 = path.join(_goalStateDir, "goals", `${goalId}.json`);
+      const _goal0 = readJSON(_goalFile0);
+      if (_goal0 && _goal0.state === 'IN_PROGRESS') {
+        // Check if any task is actually running
+        const _tasksDir0 = path.join(_goalStateDir, "tasks");
+        const _runningTasks = listFilesInDir(_tasksDir0, /^T-\d+\.json$/)
+          .map(f => readJSON(path.join(_tasksDir0, f)))
+          .filter(t => t && t.parent_goal_id === goalId && t.runtime_status === 'running');
+        if (_runningTasks.length > 0) {
+          respondJSON(res, 409, { success: false, message: `Goal ${goalId} cascade already running (${_runningTasks.map(t=>t.task_id).join(', ')} active). Wait for it to finish or stop it first.` });
+          return;
+        }
+      }
+
+      respondJSON(res, 202, { success: true, message: `Goal cascade started for ${goalId}` });
+
       (async () => {
         try {
-          console.log(`[CASCADE] Goal ${goalId}: planning...`);
-
-          // Step 1: Plan the goal (decompose into proposals)
-          try {
-            execSync(`node ${_serverScriptsDir}/plan-goal-api.mjs ${goalId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', timeout: 900000, env: buildChildEnv(_goalCtx) });
-            console.log(`[CASCADE] Goal ${goalId}: planning complete`);
-          } catch (planErr) {
-            console.error(`[CASCADE] Goal plan failed:`, planErr.message?.substring(0,200));
-            return;
-          }
-
-          // Auto-git-commit goal plan
-          try {
-            execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: plan ${goalId}"`, { cwd: _goalRepoRoot, stdio: 'pipe', timeout: 10000 });
-          } catch (_) {}
-
-          // Step 2: Find all spawnable proposals for this goal
-          const proposalsDir = path.join(_goalStateDir, "proposals");
-          const goalProposals = listFilesInDir(proposalsDir, /\.json$/)
-            .map(f => readJSON(path.join(proposalsDir, f)))
-            .filter(p => p && (p.parent_goal_id === goalId || (p.proposal_id && p.proposal_id.startsWith(goalId))));
-
-          console.log(`[CASCADE] Goal ${goalId}: found ${goalProposals.length} proposals`);
-
-          // Step 3: Spawn all proposals as tasks
-          const spawnedTaskIds = [];
-          for (const proposal of goalProposals) {
-            const newId = nextTaskId();
-            try {
-              execSync(`node ${_serverScriptsDir}/spawn-from-goal-proposal.mjs ${proposal.proposal_id} ${newId}`, { cwd: _goalAutomationRoot, stdio: 'pipe', env: buildChildEnv(_goalCtx) });
-              // Link task to goal
-              const taskFile = path.join(_goalStateDir, "tasks", `${newId}.json`);
-              const task = readJSON(taskFile);
-              if (task) {
-                task.parent_goal_id = goalId;
-                fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
-              }
-              spawnedTaskIds.push(newId);
-              console.log(`[CASCADE] Spawned ${newId} from ${proposal.proposal_id}: "${proposal.title}"`);
-            } catch (spawnErr) {
-              console.error(`[CASCADE] Failed to spawn ${proposal.proposal_id}:`, spawnErr.message?.substring(0,100));
-            }
-          }
-
-          // Auto-git-commit spawned tasks
-          try {
-            execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: spawn ${spawnedTaskIds.length} tasks for ${goalId}"`, { cwd: _goalRepoRoot, stdio: 'pipe', timeout: 10000 });
-          } catch (_) {}
-
-          // Update goal state
-          const goalFile = path.join(_goalStateDir, "goals", `${goalId}.json`);
-          const goal = readJSON(goalFile);
-          if (goal) { goal.state = "IN_PROGRESS"; goal.updated_at = new Date().toISOString(); fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2)); }
-
-          // Step 4: Run cascading pipeline on each spawned task (sequentially to avoid resource overload)
-          for (const tid of spawnedTaskIds) {
-            await cascadeRunTask(tid, maxDepth, 0);
-          }
-
-          // Update goal state to DONE if all tasks completed
-          const allTasks = spawnedTaskIds.map(id => readJSON(path.join(getStateDir(), "tasks", `${id}.json`)));
-          const allDone = allTasks.every(t => t && (t.state === 'PR_DRAFTED' || t.state === 'MERGED'));
-          if (allDone && goal) {
-            goal.state = "DONE";
-            goal.updated_at = new Date().toISOString();
-            fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2));
-          }
-
-          console.log(`[CASCADE] Goal ${goalId}: cascade complete. ${spawnedTaskIds.length} tasks processed.`);
+          await runGoalCascade(goalId, maxDepth, _goalCtx);
         } catch (e) {
           console.error(`[CASCADE] Goal cascade fatal:`, e.message);
         }
       })();
 
     } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/cascade/run-all-goals": async (req, res) => {
+    try {
+      const body = await parseJsonBody(req);
+      const { maxDepth = 3 } = body || {};
+
+      const ctx = captureProjectContext();
+      const goalsDir = path.join(ctx.stateDir, "goals");
+      const allGoals = listFilesInDir(goalsDir, /^G-\d+\.json$/)
+        .map(f => readJSON(path.join(goalsDir, f)))
+        .filter(g => g && g.state !== 'DELETED' && g.state !== 'DONE')
+        .sort((a, b) => a.goal_id.localeCompare(b.goal_id));
+
+      if (allGoals.length === 0) {
+        respondJSON(res, 200, { success: true, message: "No pending goals to run." });
+        return;
+      }
+
+      // Force-reset stale cascade counter — any orphaned cascade from a cancelled
+      // task or crashed poll loop should not block the entire goal sequence.
+      if (_runningCascades > 0) {
+        console.log(`[CASCADE-ALL] Resetting stale cascade counter (was ${_runningCascades}) before starting goal sequence`);
+        _runningCascades = 0;
+      }
+
+      respondJSON(res, 202, { success: true, message: `Running ${allGoals.length} goals sequentially: ${allGoals.map(g => g.goal_id).join(', ')}` });
+
+      (async () => {
+        console.log(`[CASCADE-ALL] Starting ${allGoals.length} goals: ${allGoals.map(g => g.goal_id).join(', ')}`);
+        for (const goal of allGoals) {
+          console.log(`[CASCADE-ALL] === Goal ${goal.goal_id}: "${goal.title}" ===`);
+          try {
+            // Wait for cascades started by THIS run-all-goals loop to finish.
+            // Timeout after 60s to avoid deadlock from orphaned counters.
+            let waitCount = 0;
+            while (_runningCascades > 0) {
+              waitCount++;
+              if (waitCount > 12) {
+                console.warn(`[CASCADE-ALL] Force-clearing stale cascade counter (${_runningCascades}) after 60s wait — likely orphaned from cancelled task`);
+                _runningCascades = 0;
+                break;
+              }
+              console.log(`[CASCADE-ALL] Waiting for ${_runningCascades} running cascade(s) to finish before ${goal.goal_id}... (${waitCount}/12)`);
+              await new Promise(r => setTimeout(r, 5000));
+            }
+            await runGoalCascade(goal.goal_id, maxDepth, captureProjectContext());
+          } catch (e) {
+            console.error(`[CASCADE-ALL] Goal ${goal.goal_id} failed:`, e.message);
+          }
+        }
+        console.log(`[CASCADE-ALL] All goals processed.`);
+      })();
+
+    } catch (e) { respondError(res, 500, e.message); }
+  },
+
+  "POST /api/cascade/reset-counter": (req, res) => {
+    const was = _runningCascades;
+    _runningCascades = 0;
+    console.log(`[CASCADE] Counter force-reset from ${was} to 0`);
+    respondJSON(res, 200, { success: true, message: `Cascade counter reset from ${was} to 0` });
   },
 
   // ===== SETTINGS =====
@@ -1606,7 +1536,7 @@ cascade_limits:
 
   "GET /api/cascade/status": (req, res) => {
     const tasksDir = path.join(getStateDir(), "tasks");
-    const tasks = listFilesInDir(tasksDir, /^T-\d+\.json$/).map(f => readJSON(path.join(tasksDir, f))).filter(Boolean);
+    const tasks = listFilesInDir(tasksDir, /^T-\d+\.json$/).map(f => readJSON(path.join(tasksDir, f))).filter(t => t && t.state !== 'DELETED');
     const running = tasks.filter(t => t.runtime_status === 'running');
     const failed = tasks.filter(t => t.runtime_status === 'FAILED');
     const queued = tasks.filter(t => t.state === 'NEW');
@@ -1691,8 +1621,8 @@ cascade_limits:
 
       // Use the existing spawn script
       try {
-        execSync(`node ${_serverScriptsDir}/spawn-followup-task.mjs ${proposalId} ${newId}`, {
-          cwd: automationRoot,
+        execSync(`node scripts/spawn-followup-task.mjs ${proposalId} ${newId}`, {
+          cwd: path.dirname(_serverScriptsDir),
           stdio: 'pipe',
           timeout: 15000
         });
@@ -1936,105 +1866,13 @@ Apply the fix now.`;
       }
 
       if (action === 'accept') {
-        // Accept changes — auto-continue pipeline from propose-followups
+        // Accept changes — continue to merge
         task.state = 'IMPLEMENTED';
-        task.runtime_status = 'running';
+        task.runtime_status = 'IDLE';
         task.guardrail_result.user_decision = 'accepted';
-        task.current_step = 'propose-followups';
         task.updated_at = new Date().toISOString();
         fs.writeFileSync(taskFile, JSON.stringify(task, null, 2));
-        respondJSON(res, 200, { ok: true, taskId, action, message: 'Changes accepted. Pipeline continuing from propose-followups.' });
-
-        // Fire-and-forget: continue pipeline from propose-followups → pr-draft → merge
-        const _acceptCtx = captureProjectContext();
-        const _acceptAutomationRoot = _acceptCtx.automationRoot;
-        const _acceptStateDir = _acceptCtx.stateDir;
-        (async () => {
-          const remainingSteps = ['propose-followups', 'pr-draft', 'merge'];
-          const scriptMap = {
-            'propose-followups': 'propose-followups-api.mjs',
-            'pr-draft': 'generate-pr-draft.mjs',
-            'merge': 'merge-task.mjs'
-          };
-          const stateAfterStep = {
-            'propose-followups': 'FOLLOWUPS_PROPOSED',
-            'pr-draft': 'PR_DRAFTED',
-            'merge': 'MERGED'
-          };
-
-          for (const stepName of remainingSteps) {
-            console.log(`[GUARDRAIL-ACCEPT] ${taskId}: ${stepName}...`);
-            try {
-              const tfc = readJSON(taskFile);
-              if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
-            } catch (_) {}
-            try {
-              await execAsync(`node ${_serverScriptsDir}/${scriptMap[stepName]} ${taskId}`, { cwd: _acceptAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_acceptCtx) });
-              const tf = readJSON(taskFile);
-              if (tf && stateAfterStep[stepName]) {
-                tf.state = stateAfterStep[stepName]; tf.current_step = stepName;
-                tf.last_error = null; tf.failed_step = null;
-                tf.updated_at = new Date().toISOString();
-                fs.writeFileSync(taskFile, JSON.stringify(tf, null, 2));
-              }
-            } catch (stepErr) {
-              const errMsg = stepErr.stderr || stepErr.stdout || stepErr.message || String(stepErr);
-              console.error(`[GUARDRAIL-ACCEPT] ${taskId}: ${stepName} FAILED:`, errMsg.substring(0, 500));
-              const tf = readJSON(taskFile);
-              if (tf) {
-                tf.runtime_status = 'FAILED';
-                tf.failed_step = stepName;
-                tf.last_error = { step: stepName, message: errMsg.substring(0, 2000), timestamp: new Date().toISOString() };
-                tf.updated_at = new Date().toISOString();
-                fs.writeFileSync(taskFile, JSON.stringify(tf, null, 2));
-              }
-              return; // Stop on failure
-            }
-          }
-
-          // Pipeline complete — set IDLE
-          const tfDone = readJSON(taskFile);
-          if (tfDone) {
-            tfDone.runtime_status = 'IDLE';
-            tfDone.updated_at = new Date().toISOString();
-            fs.writeFileSync(taskFile, JSON.stringify(tfDone, null, 2));
-          }
-          console.log(`[GUARDRAIL-ACCEPT] ${taskId}: pipeline complete → MERGED`);
-
-          // Spawn follow-up tasks if any proposals exist
-          try {
-            const proposalsDir = path.join(_acceptStateDir, "proposals");
-            if (fs.existsSync(proposalsDir)) {
-              const proposals = fs.readdirSync(proposalsDir).filter(f => f.startsWith(`${taskId}-F-`) && f.endsWith('.json'));
-              for (const pf of proposals) {
-                const prop = readJSON(path.join(proposalsDir, pf));
-                if (prop && prop.approved !== false) {
-                  const tasksDir2 = path.join(_acceptStateDir, "tasks");
-                  const existing = fs.readdirSync(tasksDir2).filter(f => f.endsWith('.json')).some(f => {
-                    const t = readJSON(path.join(tasksDir2, f));
-                    return t && t.followup_source_proposal_id === prop.proposal_id;
-                  });
-                  if (!existing) {
-                    const newId = `T-${String(fs.readdirSync(tasksDir2).filter(f=>f.match(/^T-\d+\.json$/)).length + 1).padStart(4,'0')}`;
-                    const newTask = {
-                      task_id: newId, title: prop.title, repo: prop.repo || tfDone?.repo,
-                      lane_type: prop.lane_type || 'feature-lane', executor: prop.executor || 'codex',
-                      parent_task_id: taskId, origin: 'architect-followup',
-                      state: 'NEW', runtime_status: 'IDLE',
-                      created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-                      followup_source_proposal_id: prop.proposal_id,
-                      planner_notes: prop.planner_notes || {}
-                    };
-                    fs.writeFileSync(path.join(tasksDir2, `${newId}.json`), JSON.stringify(newTask, null, 2));
-                    console.log(`[GUARDRAIL-ACCEPT] Spawned follow-up ${newId} from ${prop.proposal_id}`);
-                  }
-                }
-              }
-            }
-          } catch (spawnErr) {
-            console.error(`[GUARDRAIL-ACCEPT] Follow-up spawn error:`, spawnErr.message);
-          }
-        })().catch(err => console.error(`[GUARDRAIL-ACCEPT] Unhandled:`, err.message));
+        respondJSON(res, 200, { ok: true, taskId, action, message: 'Changes accepted. Task ready for merge — retry to continue pipeline.' });
       } else if (action === 'restore') {
         // Restore snapshot and fail the task
         const snapshotFile = task.snapshot_path
@@ -2074,7 +1912,7 @@ Apply the fix now.`;
 
         // Fire-and-forget: run cowork-test.mjs in background (captured context)
         const _testCtx = captureProjectContext();
-        execAsync(`node ${_serverScriptsDir}/cowork-test.mjs ${taskId}`, { cwd: _testCtx.automationRoot, timeout: 300000, maxBuffer: 10 * 1024 * 1024 })
+        execAsync(`node scripts/cowork-test.mjs ${taskId}`, { cwd: path.dirname(_serverScriptsDir), timeout: 300000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_testCtx) })
           .then(() => {
             console.log(`[GUARDRAIL-DECISION] Cowork test completed for ${taskId}`);
             const tfDone = readJSON(taskFile);
@@ -2212,7 +2050,7 @@ Apply the fix now.`;
             if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
           } catch (_) {}
           try {
-            await execAsync(`node ${_serverScriptsDir}/${scriptMap[stepName]} ${taskId}`, { cwd: _retryAutomationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_retryCtx) });
+            await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: path.dirname(_serverScriptsDir), timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(_retryCtx) });
             const tf = readJSON(taskFile);
             if (tf && stateAfterStep[stepName]) {
               tf.state = stateAfterStep[stepName]; tf.current_step = stepName;
@@ -2235,13 +2073,12 @@ Apply the fix now.`;
                   fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
                   return; // Stop retry cascade — user must decide
                 } else if (guardrail.level === 'yellow') {
-                  console.log(`[RETRY] ${taskId}: ⚠️  YELLOW — pausing for user decision`);
-                  tfg.state = 'BLOCKED_ON_DECISION';
+                  console.log(`[RETRY] ${taskId}: ⚠️  YELLOW — routing to Cowork test`);
+                  tfg.state = 'COWORK_TESTING';
                   tfg.runtime_status = 'IDLE';
-                  tfg.current_step = 'guardrail-review';
                   tfg.updated_at = new Date().toISOString();
                   fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
-                  return; // Stop retry cascade — user must decide (same as RED)
+                  // Continue to merge after yellow (Cowork test is async)
                 }
               }
             }
@@ -2299,8 +2136,8 @@ Apply the fix now.`;
               for (const proposal of spawnable) {
                 const newId = nextTaskId();
                 try {
-                  execSync(`node ${_serverScriptsDir}/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, {
-                    cwd: _retryAutomationRoot, stdio: 'pipe', timeout: 15000
+                  execSync(`node scripts/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, {
+                    cwd: path.dirname(_serverScriptsDir), stdio: 'pipe', timeout: 15000, env: buildChildEnv(_retryCtx)
                   });
                   console.log(`[RETRY] Spawned follow-up ${newId} from ${proposal.proposal_id}`);
                 } catch (spawnErr) {
@@ -2543,9 +2380,8 @@ Apply the fix now.`;
   },
 
   "POST /api/providers/routing": async (req, res) => {
-    const body = await readBody(req);
-    let data;
-    try { data = JSON.parse(body); } catch { return respondError(res, 400, "Invalid JSON"); }
+    const data = await parseJsonBody(req);
+    if (!data) return respondError(res, 400, "Invalid JSON");
 
     const { step, primary, fallbacks = [] } = data;
     if (!step || !primary) return respondError(res, 400, "step and primary required");
@@ -2624,6 +2460,150 @@ function mergeTaskBranch(taskId, _repoRootOverride) {
     console.warn(`[GIT] Merge failed for ${taskId}:`, e.message?.substring(0, 150));
     return { ok: false, error: e.message?.substring(0, 150) };
   }
+}
+
+// ===== GOAL CASCADE ENGINE =====
+
+async function runGoalCascade(goalId, maxDepth, projectCtx) {
+  const _goalStateDir = projectCtx.stateDir;
+  const _goalRepoRoot = projectCtx.repoRoot;
+
+  // Check for pre-existing tasks linked to this goal
+  const tasksDir = path.join(_goalStateDir, "tasks");
+  const preExistingTasks = listFilesInDir(tasksDir, /^T-\d+\.json$/)
+    .map(f => readJSON(path.join(tasksDir, f)))
+    .filter(t => t && t.parent_goal_id === goalId && t.state !== 'DELETED');
+
+  let taskIdsToRun = [];
+
+  if (preExistingTasks.length > 0) {
+    console.log(`[CASCADE] Goal ${goalId}: found ${preExistingTasks.length} pre-existing tasks, skipping plan phase`);
+    taskIdsToRun = preExistingTasks
+      .sort((a, b) => a.task_id.localeCompare(b.task_id))
+      .map(t => t.task_id);
+  } else {
+    console.log(`[CASCADE] Goal ${goalId}: planning...`);
+    try {
+      execSync(`node scripts/plan-goal-api.mjs ${goalId}`, { cwd: path.dirname(_serverScriptsDir), stdio: 'pipe', timeout: 900000, env: buildChildEnv(projectCtx) });
+      console.log(`[CASCADE] Goal ${goalId}: planning complete`);
+    } catch (planErr) {
+      console.error(`[CASCADE] Goal plan failed:`, planErr.message?.substring(0,200));
+      return;
+    }
+    try {
+      execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: plan ${goalId}"`, { cwd: _goalRepoRoot, stdio: 'pipe', timeout: 10000 });
+    } catch (_) {}
+
+    const _proposalsDir = path.join(_goalStateDir, "proposals");
+    const goalProposals = listFilesInDir(_proposalsDir, /\.json$/)
+      .map(f => readJSON(path.join(_proposalsDir, f)))
+      .filter(p => p && (p.parent_goal_id === goalId || (p.proposal_id && p.proposal_id.startsWith(goalId))));
+
+    console.log(`[CASCADE] Goal ${goalId}: found ${goalProposals.length} proposals`);
+
+    for (const proposal of goalProposals) {
+      const newId = nextTaskId();
+      try {
+        execSync(`node scripts/spawn-from-goal-proposal.mjs ${proposal.proposal_id} ${newId}`, { cwd: path.dirname(_serverScriptsDir), stdio: 'pipe', env: buildChildEnv(projectCtx) });
+        const taskFile = path.join(_goalStateDir, "tasks", `${newId}.json`);
+        const task = readJSON(taskFile);
+        if (task) { task.parent_goal_id = goalId; fs.writeFileSync(taskFile, JSON.stringify(task, null, 2)); }
+        taskIdsToRun.push(newId);
+        console.log(`[CASCADE] Spawned ${newId} from ${proposal.proposal_id}: "${proposal.title}"`);
+      } catch (spawnErr) {
+        console.error(`[CASCADE] Failed to spawn ${proposal.proposal_id}:`, spawnErr.message?.substring(0,100));
+      }
+    }
+    try {
+      execSync(`git add -A && git diff --cached --quiet || git commit -m "goal: spawn ${taskIdsToRun.length} tasks for ${goalId}"`, { cwd: _goalRepoRoot, stdio: 'pipe', timeout: 10000 });
+    } catch (_) {}
+  }
+
+  // Update goal state to IN_PROGRESS
+  const goalFile = path.join(_goalStateDir, "goals", `${goalId}.json`);
+  const goal = readJSON(goalFile);
+  if (goal) { goal.state = "IN_PROGRESS"; goal.updated_at = new Date().toISOString(); fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2)); }
+
+  // Run cascading pipeline on each task sequentially
+  const DONE_STATES = new Set(['PR_DRAFTED', 'MERGED']);
+  const _goalScriptCwd = path.dirname(_serverScriptsDir);
+  const proposalsDir = path.join(_goalStateDir, "proposals");
+
+  console.log(`[CASCADE] Goal ${goalId}: processing ${taskIdsToRun.length} tasks...`);
+
+  for (const tid of taskIdsToRun) {
+    const t = readJSON(path.join(tasksDir, `${tid}.json`));
+    if (!t) continue;
+
+    if (t.runtime_status === 'running') {
+      console.log(`[CASCADE] Goal ${goalId}: skipping ${tid} — already running`);
+      continue;
+    }
+
+    if (DONE_STATES.has(t.state)) {
+      // Task done — but check for orphaned (unspawned) follow-up proposals
+      const orphanedProposals = listFilesInDir(proposalsDir, /\.json$/)
+        .map(f => readJSON(path.join(proposalsDir, f)))
+        .filter(p => p && p.parent_task_id === tid && p.should_spawn_now === true && !p.spawned_task_id);
+
+      if (orphanedProposals.length > 0) {
+        console.log(`[CASCADE] Goal ${goalId}: ${tid} done but has ${orphanedProposals.length} unspawned follow-ups`);
+        const existingTasks = listFilesInDir(tasksDir, /^T-\d+\.json$/)
+          .map(f => readJSON(path.join(tasksDir, f)))
+          .filter(Boolean);
+
+        for (const proposal of orphanedProposals) {
+          if (proposal.spawned_task_id) continue;
+          const dupResult = isDuplicate(
+            proposal.title,
+            proposal.smallest_safe_scope || proposal.rationale || '',
+            proposal.written_files || [],
+            existingTasks
+          );
+          if (dupResult) {
+            console.log(`[CASCADE] Goal ${goalId}: skipping "${proposal.title}" — duplicate of ${dupResult.taskId}`);
+            continue;
+          }
+          const newId = nextTaskId();
+          try {
+            execSync(`node scripts/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, { cwd: _goalScriptCwd, stdio: 'pipe', env: buildChildEnv(projectCtx) });
+            const newTaskFile = path.join(tasksDir, `${newId}.json`);
+            const newTask = readJSON(newTaskFile);
+            if (newTask) { newTask.parent_goal_id = goalId; fs.writeFileSync(newTaskFile, JSON.stringify(newTask, null, 2)); }
+            try {
+              const pf = path.join(proposalsDir, `${proposal.proposal_id}.json`);
+              const pd = readJSON(pf);
+              if (pd) { pd.spawned_task_id = newId; pd.spawned_at = new Date().toISOString(); fs.writeFileSync(pf, JSON.stringify(pd, null, 2)); }
+            } catch (_) {}
+            existingTasks.push({ task_id: newId, title: proposal.title });
+            console.log(`[CASCADE] Goal ${goalId}: spawned follow-up ${newId} from ${proposal.proposal_id} (parent: ${tid})`);
+            await cascadeRunTask(newId, maxDepth, 0);
+          } catch (spawnErr) {
+            console.error(`[CASCADE] Goal ${goalId}: spawn failed for ${proposal.proposal_id}:`, spawnErr.message?.substring(0, 100));
+          }
+        }
+      } else {
+        console.log(`[CASCADE] Goal ${goalId}: skipping ${tid} — already ${t.state}, no orphaned follow-ups`);
+      }
+      continue;
+    }
+
+    // Normal task — run full pipeline
+    await cascadeRunTask(tid, maxDepth, 0);
+  }
+
+  // Update goal state to DONE if ALL goal tasks completed
+  const allGoalTasks = listFilesInDir(tasksDir, /^T-\d+\.json$/)
+    .map(f => readJSON(path.join(tasksDir, f)))
+    .filter(t => t && t.parent_goal_id === goalId && t.state !== 'DELETED');
+  const allDone = allGoalTasks.length > 0 && allGoalTasks.every(t => DONE_STATES.has(t.state));
+  if (allDone && goal) {
+    goal.state = "DONE";
+    goal.updated_at = new Date().toISOString();
+    fs.writeFileSync(goalFile, JSON.stringify(goal, null, 2));
+  }
+
+  console.log(`[CASCADE] Goal ${goalId}: cascade complete. ${taskIdsToRun.length} tasks processed.`);
 }
 
 // ===== CASCADE HELPERS =====
@@ -2718,7 +2698,7 @@ function nextTaskId() {
 async function callGeminiDirect(prompt) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || !apiKey.trim()) throw new Error("No GEMINI_API_KEY available");
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-preview-04-17";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.3, maxOutputTokens: 4096 } });
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body });
@@ -3020,38 +3000,6 @@ function loadCascadeConfig() {
 }
 
 // ===== DEDUP: Title similarity =====
-// ===== HELPER: Parse clarification questions from LLM markdown output =====
-function parseClarifications(markdown) {
-  if (!markdown) return [];
-  // Check if there's a "## Clarification Needed" section at all
-  if (!/##\s+Clarification Needed/i.test(markdown)) return [];
-
-  const blocks = [...markdown.matchAll(/###\s+(CQ-\d+)\s*\r?\n([\s\S]*?)(?=\r?\n###\s+CQ-\d+|\r?\n##\s|$)/g)];
-  return blocks.map((m) => {
-    const body = m[2];
-    function field(name) {
-      const patterns = [
-        new RegExp(`-\\s+${name}:\\s*(.*)`, 'i'),
-        new RegExp(`\\*\\*${name}\\*\\*:\\s*(.*)`, 'i'),
-        new RegExp(`${name}:\\s*(.*)`, 'i')
-      ];
-      for (const r of patterns) {
-        const mm = body.match(r);
-        if (mm && mm[1].trim()) return mm[1].trim().replace(/^\*+\s*/, '').replace(/\*+$/, '');
-      }
-      return '';
-    }
-    const question = field('question');
-    if (!question) return null; // Skip malformed blocks
-    return {
-      id: m[1],
-      question,
-      why_needed: field('why_needed'),
-      blocking: field('blocking') !== 'false'
-    };
-  }).filter(Boolean);
-}
-
 function wordTokens(str) {
   return (str || "").toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(Boolean);
 }
@@ -3122,8 +3070,19 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
   const _stateDir = cascadeCtx.projectCtx.stateDir;
   const _automationRoot = cascadeCtx.projectCtx.automationRoot;
   const _repoRoot = cascadeCtx.projectCtx.repoRoot;
+  // Scripts always run from the server's automation dir (ai-flow-lab), CWD sets script resolution.
+  // AUTOMATION_ROOT/REPO_ROOT env vars point scripts to the target project's state/config.
+  const _scriptCwd = path.dirname(_serverScriptsDir);
 
+  // Guard: prevent double-run of the same task
   const taskFile = path.join(_stateDir, "tasks", `${taskId}.json`);
+  const _tfGuard = readJSON(taskFile);
+  if (_tfGuard && _tfGuard.runtime_status === 'running') {
+    console.log(`[CASCADE] ${taskId}: SKIPPED — already running (runtime_status=running)`);
+    if (isRootCall) _runningCascades = Math.max(0, _runningCascades - 1);
+    return;
+  }
+
   const steps = ['architect', 'critique', 'synthesize', 'execute', 'propose-followups', 'pr-draft', 'merge'];
   const scriptMap = {
     'architect': 'architect-task-api.mjs',
@@ -3144,6 +3103,8 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
     'merge': 'MERGED'
   };
 
+  let failedStep = null;
+
   try { // try/finally ensures _runningCascades always decrements
 
   // Create git branch for this task before pipeline starts
@@ -3154,8 +3115,6 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
     const tf0 = readJSON(taskFile);
     if (tf0) { tf0.runtime_status = "running"; tf0.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tf0, null, 2)); }
   } catch (_) {}
-
-  let failedStep = null;
 
   // Skip already-completed steps based on current task state
   // (e.g. if state=SYNTHESIZED, skip architect/critique/synthesize and start at execute)
@@ -3183,7 +3142,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
       if (tfc) { tfc.current_step = stepName; tfc.updated_at = new Date().toISOString(); fs.writeFileSync(taskFile, JSON.stringify(tfc, null, 2)); }
     } catch (_) {}
     try {
-      await execAsync(`node ${_serverScriptsDir}/${scriptMap[stepName]} ${taskId}`, { cwd: _automationRoot, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(cascadeCtx.projectCtx) });
+      await execAsync(`node scripts/${scriptMap[stepName]} ${taskId}`, { cwd: _scriptCwd, timeout: 1800000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(cascadeCtx.projectCtx) });
       const tf = readJSON(taskFile);
       if (tf && stateAfterStep[stepName]) {
         tf.state = stateAfterStep[stepName];
@@ -3199,57 +3158,6 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
         const commitMsg = `[${taskId}] ${stepName}: ${tf2?.title || taskId}`;
         await execAsync(`git add -A && git diff --cached --quiet || git commit -m "${commitMsg.replace(/"/g,'\\"')}"`, { cwd: _repoRoot, timeout: 10000 });
       } catch (_) {}
-
-      // ===== CLARIFICATION CHECK (after architect/synthesize) =====
-      if (stepName === 'architect' || stepName === 'synthesize') {
-        const tfClar = readJSON(taskFile);
-        const outputRelPath = stepName === 'architect' ? tfClar?.spec_path : tfClar?.brief_path;
-        if (outputRelPath) {
-          try {
-            const outputAbs = path.join(_repoRoot, outputRelPath);
-            const outputContent = fs.existsSync(outputAbs) ? fs.readFileSync(outputAbs, 'utf8') : '';
-            const clarifications = parseClarifications(outputContent);
-            if (clarifications.length > 0) {
-              console.log(`[CASCADE] ${taskId}: ${stepName} has ${clarifications.length} clarification(s) — blocking for user input`);
-              const dpIds = [];
-              const dpDir = path.join(_stateDir, 'decision_proposals');
-              fs.mkdirSync(dpDir, { recursive: true });
-              for (let ci = 0; ci < clarifications.length; ci++) {
-                const cq = clarifications[ci];
-                const dpId = `DP-CQ-${taskId}-${stepName}-${ci + 1}-${Date.now()}`;
-                const dp = {
-                  decision_proposal_id: dpId,
-                  type: 'clarification',
-                  source_task_id: taskId,
-                  source_goal_id: tfClar.parent_goal_id || '',
-                  blocked_step: stepName,
-                  topic: cq.question,
-                  rationale: cq.why_needed || `Clarification needed during ${stepName} step`,
-                  blocking_scope: 'task',
-                  options: [],
-                  recommended_default: '',
-                  urgency: 'high',
-                  status: 'open',
-                  created_at: new Date().toISOString()
-                };
-                fs.writeFileSync(path.join(dpDir, `${dpId}.json`), JSON.stringify(dp, null, 2));
-                dpIds.push(dpId);
-                console.log(`[CASCADE] ${taskId}: Created clarification DP ${dpId}: ${cq.question.substring(0, 80)}`);
-              }
-              tfClar.state = 'BLOCKED_ON_DECISION';
-              tfClar.runtime_status = 'IDLE';
-              tfClar.current_step = `${stepName}-clarification`;
-              tfClar.blocked_at_step = stepName;
-              tfClar.open_decisions = dpIds;
-              tfClar.updated_at = new Date().toISOString();
-              fs.writeFileSync(taskFile, JSON.stringify(tfClar, null, 2));
-              break; // Stop cascade — user must answer
-            }
-          } catch (clarErr) {
-            console.error(`[CASCADE] ${taskId}: Clarification parsing error:`, clarErr.message);
-          }
-        }
-      }
 
       // ===== GUARDRAIL ROUTING (after execute step) =====
       if (stepName === 'execute') {
@@ -3269,7 +3177,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
 
             // Create Decision Proposal
             try {
-              const proposalsDir = path.join(_stateDir, "decision_proposals");
+              const proposalsDir = path.join(_stateDir, "proposals");
               fs.mkdirSync(proposalsDir, { recursive: true });
               const dpId = `DP-GR-${taskId}-${Date.now()}`;
               const dp = {
@@ -3298,50 +3206,40 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
           }
 
           if (guardrail.level === 'yellow') {
-            // YELLOW: Pause for user decision (same as RED but with different options)
-            // User can: Accept (continue), Run Cowork Test, or Restore snapshot.
-            // Previously this auto-ran cowork-test.mjs, but that wastes API budget
-            // when the user isn't watching and can't review the results.
-            console.log(`[CASCADE] ${taskId}: ⚠️ YELLOW — pausing for user decision (Cowork test available)`);
-            tfg.state = 'BLOCKED_ON_DECISION';
-            tfg.runtime_status = 'IDLE';
-            tfg.current_step = 'guardrail-review';
+            // YELLOW: Run Cowork test
+            console.log(`[CASCADE] ${taskId}: ⚠️ YELLOW — running Cowork test`);
+            tfg.state = 'COWORK_TESTING';
+            tfg.current_step = 'cowork-test';
             tfg.updated_at = new Date().toISOString();
             fs.writeFileSync(taskFile, JSON.stringify(tfg, null, 2));
 
-            // Create Decision Proposal so user sees it in the dashboard
             try {
-              const proposalsDir = path.join(getStateDir(), "decision_proposals");
-              fs.mkdirSync(proposalsDir, { recursive: true });
-              const existingDPs = fs.readdirSync(proposalsDir).filter(f => /^DP-\d+\.json$/.test(f));
-              const dpNum = existingDPs.length > 0 ? Math.max(...existingDPs.map(f => parseInt(f.match(/DP-(\d+)/)[1]))) + 1 : 1;
-              const dpId = `DP-${String(dpNum).padStart(4, '0')}`;
-              const dp = {
-                decision_proposal_id: dpId,
-                source_task_id: taskId,
-                source_goal_id: tfg.parent_goal_id || '',
-                topic: `Guardrail YELLOW: ${guardrail.issues.map(i => i.reason).join('; ').substring(0, 200)}`,
-                rationale: `Execute step completed but guardrail detected minor issues. Review and decide how to proceed.`,
-                blocking_scope: taskId,
-                task_id: taskId,
-                severity: 'yellow',
-                issues: guardrail.issues,
-                options: [
-                  { id: 'accept', label: 'Accept Changes', action: 'continue_to_merge' },
-                  { id: 'test', label: 'Run Cowork Test', action: 'run_cowork_test' },
-                  { id: 'restore', label: 'Restore Snapshot', action: 'restore_and_fail' }
-                ],
-                status: 'open',
-                created_at: new Date().toISOString()
-              };
-              fs.writeFileSync(path.join(proposalsDir, `${dpId}.json`), JSON.stringify(dp, null, 2));
-              console.log(`[CASCADE] ${taskId}: Created Decision Proposal ${dpId} for YELLOW guardrail`);
-            } catch (dpErr) {
-              console.error(`[CASCADE] Failed to create Decision Proposal for YELLOW:`, dpErr.message);
+              await execAsync(`node scripts/cowork-test.mjs ${taskId}`, { cwd: _scriptCwd, timeout: 300000, maxBuffer: 10 * 1024 * 1024, env: buildChildEnv(cascadeCtx.projectCtx) });
+              // cowork-test.mjs sets task state to TESTED or TEST_FAILED
+              const tfAfterTest = readJSON(taskFile);
+              if (tfAfterTest && tfAfterTest.state === 'TEST_FAILED') {
+                console.log(`[CASCADE] ${taskId}: Cowork test FAILED — stopping cascade`);
+                tfAfterTest.runtime_status = 'FAILED';
+                tfAfterTest.updated_at = new Date().toISOString();
+                fs.writeFileSync(taskFile, JSON.stringify(tfAfterTest, null, 2));
+                failedStep = 'cowork-test';
+                break;
+              }
+              console.log(`[CASCADE] ${taskId}: Cowork test PASSED — continuing to merge`);
+            } catch (testErr) {
+              console.error(`[CASCADE] ${taskId}: Cowork test execution error:`, testErr.message?.substring(0, 500));
+              const tfErr = readJSON(taskFile);
+              if (tfErr) {
+                tfErr.state = 'TEST_FAILED';
+                tfErr.failed_step = 'cowork-test';
+                tfErr.runtime_status = 'FAILED';
+                tfErr.last_error = { step: 'cowork-test', message: testErr.message?.substring(0, 2000), timestamp: new Date().toISOString() };
+                tfErr.updated_at = new Date().toISOString();
+                fs.writeFileSync(taskFile, JSON.stringify(tfErr, null, 2));
+              }
+              failedStep = 'cowork-test';
+              break;
             }
-
-            // Stop cascade — user must decide
-            break;
           }
         }
       }
@@ -3414,7 +3312,7 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
     const proposalsDir = path.join(_stateDir, "proposals");
     const allProposals = listFilesInDir(proposalsDir, /\.json$/)
       .map(f => readJSON(path.join(proposalsDir, f)))
-      .filter(p => p && p.parent_task_id === taskId && p.should_spawn_now === true);
+      .filter(p => p && p.parent_task_id === taskId && p.should_spawn_now === true && !p.spawned_task_id);
 
     if (allProposals.length === 0) return;
 
@@ -3462,8 +3360,14 @@ async function cascadeRunTask(taskId, maxDepth, currentDepth, cascadeCtx = null)
       const newId = nextTaskId();
       cascadeCtx.tasksSpawned++;
       try {
-        execSync(`node ${_serverScriptsDir}/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, { cwd: _automationRoot, stdio: 'pipe' });
+        execSync(`node scripts/spawn-followup-task.mjs ${proposal.proposal_id} ${newId}`, { cwd: _scriptCwd, stdio: 'pipe', env: buildChildEnv(cascadeCtx.projectCtx) });
         console.log(`[CASCADE] Spawned follow-up ${newId} from ${proposal.proposal_id}`);
+        // Tag proposal as spawned (dedup guard for re-runs)
+        try {
+          const proposalFile = path.join(proposalsDir, `${proposal.proposal_id}.json`);
+          const pf = readJSON(proposalFile);
+          if (pf) { pf.spawned_task_id = newId; pf.spawned_at = new Date().toISOString(); fs.writeFileSync(proposalFile, JSON.stringify(pf, null, 2)); }
+        } catch (_) {}
         // Add to existingTasks so subsequent dedup checks see it
         existingTasks.push({ task_id: newId, title: proposal.title });
         await cascadeRunTask(newId, cascadeCtx.maxDepth, currentDepth + 1, cascadeCtx);
@@ -3599,7 +3503,6 @@ const STATE_TO_NEXT_STEP = {
   'COWORK_TESTING': 'propose-followups', // resume after test → followups
   'TEST_FAILED': 'execute',             // retry from execute
   'BLOCKED_ON_DECISION': null,          // blocked — no auto-advance
-  'READY_AFTER_DECISION': 'propose-followups', // resume after guardrail decision
   'FOLLOWUPS_PROPOSED': 'pr-draft',
   'PR_DRAFTED': 'merge',               // merge is now last step
   'MERGED': null                        // pipeline complete

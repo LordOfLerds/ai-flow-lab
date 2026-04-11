@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0008
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0008] Score goes higher while player not moving
 
 ## Summary
@@ -81,3 +88,11 @@ Task T-0008 successfully completed the implementation as specified. The changes 
 **Branch**: `bug/T-0008-score-goes-higher-while-player-not-moving` → `main`
 **Generated**: 2026-04-07T06:46:03.870Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0008_spec.md|T-0008 spec]]
+- [[ai/reviews/T-0008_gemini_review.md|T-0008 review]]
+- [[ai/briefs/T-0008_implementation.md|T-0008 document]]
+- [[ai/results/T-0008_result.md|T-0008 result]]
+- [[ai/followups/T-0008_followups.md|T-0008 followup]]

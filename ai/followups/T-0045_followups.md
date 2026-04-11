@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0045
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 T-0045 Follow-ups
 
 Task outcome summary
@@ -80,3 +87,10 @@ F-1
 Notes for planner
 
 T-0045 appears successfully completed and does not need a corrective follow-up for the docs themselves. The strongest immediate follow-up is runtime hardening around auth module availability, because that is a real implementation risk surfaced by the docs audit. After that, the best small follow-up is persistence key normalization, followed by user-facing docs so the documentation layers stay aligned.
+
+## Related Documents
+- [[ai/specs/T-0045_spec.md|T-0045 spec]]
+- [[ai/reviews/T-0045_gemini_review.md|T-0045 review]]
+- [[ai/briefs/T-0045_implementation.md|T-0045 document]]
+- [[ai/results/T-0045_executor_report.md|T-0045 result]]
+- [[ai/pr/T-0045_pr_draft.md|T-0045 pr-draft]]

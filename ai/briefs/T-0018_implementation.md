@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0018
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0018 Implementation Brief
 
 ## Goal
@@ -114,3 +121,10 @@ Das ist die bewusst minimale Auflösung der Spec-Unsicherheit und der Gemini-Kri
 - Keine Änderung des Game-Flows jenseits der Vor-Spielstart-Sichtbarkeit
 - Kein stillschweigendes Anlegen neuer Dateien oder Routen nur um die Bugmeldung formal zu erfüllen
 - Keine serverseitige Infrastrukturarbeit außerhalb bereits vorhandener Repo-Konfigurationen
+
+## Related Documents
+- [[ai/specs/T-0018_spec.md|T-0018 spec]]
+- [[ai/reviews/T-0018_gemini_review.md|T-0018 review]]
+- [[ai/results/T-0018_executor_report.md|T-0018 result]]
+- [[ai/followups/T-0018_followups.md|T-0018 followup]]
+- [[ai/pr/T-0018_pr_draft.md|T-0018 pr-draft]]

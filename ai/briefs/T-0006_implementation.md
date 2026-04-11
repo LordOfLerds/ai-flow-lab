@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0006
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0006 Implementation Brief
 
 ## Goal
@@ -69,3 +76,10 @@ Implement XP/leveling (cumulative thresholds: 100, 250, 500, 1000, 2000), skill 
 - No sound for menu interactions (reserved for T-0007 audio)
 - No analytics or telemetry for progression tracking
 - No cross-platform progression (single device localStorage only)
+
+
+## Related Documents
+- [[ai/specs/T-0006_spec.md|T-0006 spec]]
+- [[ai/reviews/T-0006_gemini_review.md|T-0006 review]]
+- [[ai/followups/T-0006_followups.md|T-0006 followup]]
+- [[ai/pr/T-0006_pr_draft.md|T-0006 pr-draft]]

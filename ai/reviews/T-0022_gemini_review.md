@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0022
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0022 Gemini Review
 
 ## Review target
@@ -30,3 +37,10 @@
 - **Address Drift Register:** Explicitly require that if a framework is found in the code but is undocumented, the Executor must record this in `ai/current-state/drift-register.md` as per the "Drift rule" in `AGENTS.md`.
 - **Define Fallback Behavior:** Instruct the Executor on what to do if no smoke test exists. (e.g., "If no smoke test is found, the deliverable should be a proposal for the discovery mechanism to be used by a future test").
 - **System Dependencies:** Add a requirement to document any non-JS/non-binary system dependencies (OS libraries) needed for headless execution.
+
+## Related Documents
+- [[ai/specs/T-0022_spec.md|T-0022 spec]]
+- [[ai/briefs/T-0022_implementation.md|T-0022 document]]
+- [[ai/results/T-0022_executor_report.md|T-0022 result]]
+- [[ai/followups/T-0022_followups.md|T-0022 followup]]
+- [[ai/pr/T-0022_pr_draft.md|T-0022 pr-draft]]

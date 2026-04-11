@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0023
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0023 Implementation Brief
 
 ## Goal
@@ -74,3 +81,10 @@ Additional policy decisions:
 - No guarantee documentation for `/game`, query-string preservation, SEO behavior, or deep-link handling.
 - No attempt to classify `game.html` as deprecated, legacy, distributor-specific, or permanent unless already stated in source-of-truth docs.
 - No broad cleanup of architecture docs beyond the targeted clarification.
+
+## Related Documents
+- [[ai/specs/T-0023_spec.md|T-0023 spec]]
+- [[ai/reviews/T-0023_gemini_review.md|T-0023 review]]
+- [[ai/results/T-0023_executor_report.md|T-0023 result]]
+- [[ai/followups/T-0023_followups.md|T-0023 followup]]
+- [[ai/pr/T-0023_pr_draft.md|T-0023 pr-draft]]

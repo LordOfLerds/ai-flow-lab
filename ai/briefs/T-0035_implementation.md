@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0035
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 T-0035 Implementation Brief
 
 Goal
@@ -119,3 +126,8 @@ Explicit non-goals
 	•	Do not migrate skin logic into new files or a new architecture unless absolutely necessary.
 	•	Do not modify unrelated gameplay systems except where needed to preserve already-existing skin bonuses.
 	•	Do not perform a broad cleanup of render or menu code outside the skin restoration path.
+
+## Related Documents
+- [[ai/specs/T-0035_spec.md|T-0035 spec]]
+- [[ai/reviews/T-0035_gemini_review.md|T-0035 review]]
+- [[ai/results/T-0035_executor_report.md|T-0035 result]]

@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0009
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0009 Follow-ups
 
 ## Task outcome summary
@@ -50,3 +57,11 @@ F-1 should spawn immediately as it addresses a known gap in the implementation. 
 ## Notes for planner
 
 This task completed one clean slice of the larger goal. The follow-up F-1 extends it with robustness improvements. The decision blocker DB-1 is low urgency and should not block F-1 from proceeding with the recommended default approach.
+
+
+## Related Documents
+- [[ai/specs/T-0009_spec.md|T-0009 spec]]
+- [[ai/reviews/T-0009_gemini_review.md|T-0009 review]]
+- [[ai/briefs/T-0009_implementation.md|T-0009 document]]
+- [[ai/results/T-0009_result.md|T-0009 result]]
+- [[ai/pr/T-0009_pr_draft.md|T-0009 pr-draft]]

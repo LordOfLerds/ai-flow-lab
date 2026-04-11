@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0047
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0047 Executor Report
 
 ## Execution Report
@@ -37,3 +44,11 @@
 
 ---
 Files written: index.html
+
+
+## Related Documents
+- [[ai/specs/T-0047_spec.md|T-0047 spec]]
+- [[ai/reviews/T-0047_gemini_review.md|T-0047 review]]
+- [[ai/briefs/T-0047_implementation.md|T-0047 document]]
+- [[ai/followups/T-0047_followups.md|T-0047 followup]]
+- [[ai/pr/T-0047_pr_draft.md|T-0047 pr-draft]]

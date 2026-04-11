@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0032
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0032 Follow-ups
 
 ## Task outcome summary
@@ -37,3 +44,11 @@ T-0032 added a file safety guardrail to the executor pipeline in `execute-task-a
 - The executor guardrail is now active for all future executor runs. If it triggers, the report will document the detection and restoration.
 - The server needs to be restarted for the updated execute-task-api.mjs to take effect on future runs.
 - Consider running a quick manual test of the guardrail by temporarily modifying the threshold.
+
+
+## Related Documents
+- [[ai/specs/T-0032_spec.md|T-0032 spec]]
+- [[ai/reviews/T-0032_gemini_review.md|T-0032 review]]
+- [[ai/briefs/T-0032_implementation.md|T-0032 document]]
+- [[ai/results/T-0032_executor_report.md|T-0032 result]]
+- [[ai/pr/T-0032_pr_draft.md|T-0032 pr-draft]]

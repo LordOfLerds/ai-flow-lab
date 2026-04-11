@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0016
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0016 Follow-ups
 
 ## Task outcome summary
@@ -66,3 +73,10 @@ Reason:
 - Do not spawn any follow-up for browser-based smoke coverage of the new auth UI unless T-0015 is confirmed incomplete, because that area is already handled by T-0015.
 - If capacity is limited, F-2 can wait; F-1 has the stronger usability impact.
 - If no immediate UX polish is desired beyond the accepted scope of T-0016, it is also reasonable to stop here and declare no mandatory follow-up.
+
+## Related Documents
+- [[ai/specs/T-0016_spec.md|T-0016 spec]]
+- [[ai/reviews/T-0016_gemini_review.md|T-0016 review]]
+- [[ai/briefs/T-0016_implementation.md|T-0016 document]]
+- [[ai/results/T-0016_executor_report.md|T-0016 result]]
+- [[ai/pr/T-0016_pr_draft.md|T-0016 pr-draft]]

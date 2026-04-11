@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0015
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0015 Gemini Review
 
 ## Review target
@@ -60,3 +67,8 @@ Specification for browser-based smoke tests to validate the mock authentication 
 8. **Expand Error Handling Tests**: Add specific criteria for testing JavaScript error scenarios and recovery behavior
 9. **Define Test Environment Setup**: Specify how tests should load and initialize the game environment (direct DOM manipulation, iframe, etc.)
 10. **Clarify Manual Verification Integration**: Decide whether the 11-point manual checklist should be automated as part of this task or remain manual
+
+## Related Documents
+- [[ai/specs/T-0015_spec.md|T-0015 spec]]
+- [[ai/briefs/T-0015_implementation.md|T-0015 document]]
+- [[ai/results/T-0015_executor_report.md|T-0015 result]]

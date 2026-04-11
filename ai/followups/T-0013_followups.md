@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0013
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0013 Follow-ups
 
 ## Task outcome summary
@@ -71,3 +78,10 @@ Reason:
 - Do **not** spawn a real-auth implementation task yet; current repo truth and T-0013 brief support only mock/local auth.
 - The executor suggested extracting auth logic from `index.html`, but that is a maintainability refactor rather than the smallest next safe step; defer unless further auth/UI growth makes it necessary.
 - No immediate owner decision is strictly required for the next safe implementation step.
+
+## Related Documents
+- [[ai/specs/T-0013_spec.md|T-0013 spec]]
+- [[ai/reviews/T-0013_gemini_review.md|T-0013 review]]
+- [[ai/briefs/T-0013_implementation.md|T-0013 document]]
+- [[ai/results/T-0013_executor_report.md|T-0013 result]]
+- [[ai/pr/T-0013_pr_draft.md|T-0013 pr-draft]]

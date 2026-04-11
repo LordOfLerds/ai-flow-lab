@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0005
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0005 Implementation Brief
 
 ## Goal
@@ -65,3 +72,10 @@ Implement collectible coins (+10 XP), gems (+50 XP), and three power-up types (s
 - No sound effects on collection (deferred to T-0007)
 - No visual effects during magnet pull (coins just move silently)
 - No pathfinding for magnet coins (straight line only)
+
+
+## Related Documents
+- [[ai/specs/T-0005_spec.md|T-0005 spec]]
+- [[ai/reviews/T-0005_gemini_review.md|T-0005 review]]
+- [[ai/followups/T-0005_followups.md|T-0005 followup]]
+- [[ai/pr/T-0005_pr_draft.md|T-0005 pr-draft]]

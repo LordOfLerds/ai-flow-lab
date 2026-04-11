@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0021
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0021 Executor Result
 
 ## Task
@@ -439,3 +446,11 @@ function runVitest(args, chromePath) {
 ### Suggested follow-ups
 1. Pin a specific `CFT_RELEASE` in `.github/workflows/ci.yml` once the desired Chrome build is chosen to ensure cross-run determinism (`test-lane`).
 2. Extend CI to cache `starter-test/.cache/chrome` between runs (e.g., GitHub Actions cache) to avoid re-downloading Chrome every time (`test-lane`).
+
+
+## Related Documents
+- [[ai/specs/T-0021_spec.md|T-0021 spec]]
+- [[ai/reviews/T-0021_gemini_review.md|T-0021 review]]
+- [[ai/briefs/T-0021_implementation.md|T-0021 document]]
+- [[ai/followups/T-0021_followups.md|T-0021 followup]]
+- [[ai/pr/T-0021_pr_draft.md|T-0021 pr-draft]]

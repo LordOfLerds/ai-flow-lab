@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0006
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0006] Build XP, leveling, skills, and skins system
 
 ## Summary
@@ -59,3 +66,10 @@ T-0006 successfully implemented XP, leveling, skills, and character skins system
 **Branch**: `feature/T-0006-build-xp-leveling-skills-and-skins-system` → `main`
 **Generated**: 2026-04-07T05:47:06.503Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0006_spec.md|T-0006 spec]]
+- [[ai/reviews/T-0006_gemini_review.md|T-0006 review]]
+- [[ai/briefs/T-0006_implementation.md|T-0006 document]]
+- [[ai/followups/T-0006_followups.md|T-0006 followup]]

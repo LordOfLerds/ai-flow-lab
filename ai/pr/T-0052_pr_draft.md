@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0052
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0052] Add pause menu with resume/restart/quit options
 
 ## Summary
@@ -78,3 +85,11 @@ The executor reports that the pause feature already existed in the runtime and s
 **Branch**: `feature/T-0052` → `main`
 **Generated**: 2026-04-09T09:21:16.992Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0052_spec.md|T-0052 spec]]
+- [[ai/reviews/T-0052_gemini_review.md|T-0052 review]]
+- [[ai/briefs/T-0052_implementation.md|T-0052 document]]
+- [[ai/results/T-0052_executor_report.md|T-0052 result]]
+- [[ai/followups/T-0052_followups.md|T-0052 followup]]

@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0031
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0031 Spec
 
 ## Task metadata
@@ -174,3 +181,11 @@ for (const mp of gs.level.movingPlatforms) {
 1. Should the player maintain horizontal momentum when jumping off a moving horizontal platform? **Recommendation:** No — current physics already handle this since player.vx is independent of platform movement.
 2. Should moving platforms affect enemies? **Recommendation:** No — out of scope. Enemies don't interact with moving platforms.
 3. Should there be a visual indicator that a platform is moving (e.g., arrows)? **Recommendation:** No — the sinusoidal motion is already visible.
+
+
+## Related Documents
+- [[ai/reviews/T-0031_gemini_review.md|T-0031 review]]
+- [[ai/briefs/T-0031_implementation.md|T-0031 document]]
+- [[ai/results/T-0031_executor_report.md|T-0031 result]]
+- [[ai/followups/T-0031_followups.md|T-0031 followup]]
+- [[ai/pr/T-0031_pr_draft.md|T-0031 pr-draft]]

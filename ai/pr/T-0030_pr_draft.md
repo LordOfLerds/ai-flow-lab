@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0030
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0030] Build on-canvas HUD with score, coins, level, and health display
 
 ## Summary
@@ -73,3 +80,11 @@ T-0030 implemented the HUD system for Pixel Runner. The HTML HUD now displays re
 **Branch**: `feature/T-0030-build-on-canvas-hud-with-score-coins-level-and-health-display` → `main`
 **Generated**: 2026-04-07T23:57:52.326Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0030_spec.md|T-0030 spec]]
+- [[ai/reviews/T-0030_gemini_review.md|T-0030 review]]
+- [[ai/briefs/T-0030_implementation.md|T-0030 document]]
+- [[ai/results/T-0030_executor_report.md|T-0030 result]]
+- [[ai/followups/T-0030_followups.md|T-0030 followup]]

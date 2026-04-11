@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0014
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0014 Follow-ups
 
 ## Task outcome summary
@@ -80,3 +87,11 @@ Until this fundamental domain question is resolved, proceeding with game-specifi
 - Single-file architecture limits complexity of safe follow-ups until domain decision is resolved
 - Game implementation appears feature-complete and functional based on documentation analysis
 - Consider that resolving DRIFT-002 in favor of the game opens up a clear development path for persistence, testing, and incremental improvements
+
+## Related Documents
+- [[ai/specs/T-0014_spec.md|T-0014 spec]]
+- [[ai/reviews/T-0014_gemini_review.md|T-0014 review]]
+- [[ai/briefs/T-0014_implementation.md|T-0014 document]]
+- [[ai/results/T-0014_executor_report.md|T-0014 result]]
+- [[ai/results/T-0014_result.md|T-0014 result]]
+- [[ai/pr/T-0014_pr_draft.md|T-0014 pr-draft]]

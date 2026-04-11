@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0003
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0003: Level System Architecture Spec
 
 ## Overview
@@ -197,3 +204,10 @@ Each frame:
 - `MAX_GAP_SIZE_LEVEL0: 4`
 - `MAX_GAP_SIZE_LEVEL1: 5`
 - `MAX_GAP_SIZE_LEVEL2: 6`
+
+
+## Related Documents
+- [[ai/reviews/T-0003_gemini_review.md|T-0003 review]]
+- [[ai/briefs/T-0003_implementation.md|T-0003 document]]
+- [[ai/followups/T-0003_followups.md|T-0003 followup]]
+- [[ai/pr/T-0003_pr_draft.md|T-0003 pr-draft]]

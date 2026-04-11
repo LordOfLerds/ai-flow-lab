@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0016
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0016 Executor Result
 
 ## Task
@@ -372,3 +379,11 @@ describe('mock auth session state', () => {
 ### Suggested follow-ups
 1. Add an in-play pause overlay exposing the session chip + logout path so players don’t need to finish a run before signing out (lane_type: feature-lane).
 2. Mirror the logged-in indicator somewhere in the HUD to keep session state visible even while the overlay is hidden (lane_type: feature-lane).
+
+
+## Related Documents
+- [[ai/specs/T-0016_spec.md|T-0016 spec]]
+- [[ai/reviews/T-0016_gemini_review.md|T-0016 review]]
+- [[ai/briefs/T-0016_implementation.md|T-0016 document]]
+- [[ai/followups/T-0016_followups.md|T-0016 followup]]
+- [[ai/pr/T-0016_pr_draft.md|T-0016 pr-draft]]

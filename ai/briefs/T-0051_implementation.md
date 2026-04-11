@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0051
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0051 Implementation Brief
 
 ## Goal
@@ -52,3 +59,11 @@ Add 6 polish features: level complete celebration screen, in-game progress bar, 
 - Best-time-per-level tracking.
 - Animated XP bar in level complete screen.
 - Mobile-specific particle count tuning.
+
+
+## Related Documents
+- [[ai/specs/T-0051_spec.md|T-0051 spec]]
+- [[ai/reviews/T-0051_gemini_review.md|T-0051 review]]
+- [[ai/results/T-0051_executor_report.md|T-0051 result]]
+- [[ai/followups/T-0051_followups.md|T-0051 followup]]
+- [[ai/pr/T-0051_pr_draft.md|T-0051 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0045
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0045 Spec
 
 ## Task metadata
@@ -215,3 +222,11 @@ Secondary references (read-only):
 9. **Cosmetic System Integration**: Does the shop sell cosmetics (skins, themes, emotes) or gameplay progression items (XP boosters, level skips)? How does this interact with skill unlocks and level progression?
 
 10. **Error Handling Strategy**: If localStorage fails (quota exceeded, corruption), does the game degrade gracefully (local-only, no persistence) or fail completely? What is the recovery strategy?
+
+
+## Related Documents
+- [[ai/reviews/T-0045_gemini_review.md|T-0045 review]]
+- [[ai/briefs/T-0045_implementation.md|T-0045 document]]
+- [[ai/results/T-0045_executor_report.md|T-0045 result]]
+- [[ai/followups/T-0045_followups.md|T-0045 followup]]
+- [[ai/pr/T-0045_pr_draft.md|T-0045 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0029
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0029 Implementation Brief
 
 ## Goal
@@ -200,3 +207,11 @@ if (frameCount % 60 === 0) {
 - Ranged enemy attacks
 - Enemy pathfinding
 - Sound effects on stomp/hit
+
+
+## Related Documents
+- [[ai/specs/T-0029_spec.md|T-0029 spec]]
+- [[ai/reviews/T-0029_gemini_review.md|T-0029 review]]
+- [[ai/results/T-0029_executor_report.md|T-0029 result]]
+- [[ai/followups/T-0029_followups.md|T-0029 followup]]
+- [[ai/pr/T-0029_pr_draft.md|T-0029 pr-draft]]

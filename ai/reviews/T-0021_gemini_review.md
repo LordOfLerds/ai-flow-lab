@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0021
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0021 Gemini Review
 
 ## Review target
@@ -34,3 +41,10 @@
 - **Define Strategy Type:** Clarify if the "provisioning" should be handled by the package manager (e.g., `npm install` fetching Chromium via Puppeteer), a CI action (e.g., `setup-chrome` action), or a standalone setup script.
 - **Include Dependency Check:** Add an acceptance criterion that the provisioning step must verify the binary is actually executable in the target environment (e.g., checking for missing `.so` files).
 - **Address Architecture:** Specify that the provisioning mechanism must be cross-platform or at least detect the runner's OS/architecture.
+
+## Related Documents
+- [[ai/specs/T-0021_spec.md|T-0021 spec]]
+- [[ai/briefs/T-0021_implementation.md|T-0021 document]]
+- [[ai/results/T-0021_executor_report.md|T-0021 result]]
+- [[ai/followups/T-0021_followups.md|T-0021 followup]]
+- [[ai/pr/T-0021_pr_draft.md|T-0021 pr-draft]]

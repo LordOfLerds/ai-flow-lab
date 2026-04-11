@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0013
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0013 Gemini Review
 
 ## Review target
@@ -37,3 +44,10 @@ The spec `ai/specs/T-0013_spec.md` for the "User Login" feature.
 *   **Mock Implementation Path:** Since the backend is missing, the spec should instruct the executor to implement a **Mock Authentication Service** and a **Login UI** in `index.html` to allow the front-end task to complete without a literal backend.
 *   **Address Missing Docs:** Add a specific sub-task or requirement to initialize `docs/DOMAIN_MODEL.md` and `docs/ARCHITECTURE.md` if they are missing, as they are cited as the primary source of truth.
 *   **Clarify State Change:** Explicitly define what the "Success" state looks like in the context of the game (e.g., "The game starts only after successful login").
+
+## Related Documents
+- [[ai/specs/T-0013_spec.md|T-0013 spec]]
+- [[ai/briefs/T-0013_implementation.md|T-0013 document]]
+- [[ai/results/T-0013_executor_report.md|T-0013 result]]
+- [[ai/followups/T-0013_followups.md|T-0013 followup]]
+- [[ai/pr/T-0013_pr_draft.md|T-0013 pr-draft]]

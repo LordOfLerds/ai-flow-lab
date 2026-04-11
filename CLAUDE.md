@@ -1,3 +1,9 @@
+---
+type: claude-config
+created: 2026-04-10
+tags: [ai-flow-lab, claude-config]
+---
+
 # CLAUDE.md
 
 ## Role

@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0028
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0028 Follow-ups
 
 ## Task outcome summary
@@ -48,3 +55,11 @@ T-0028 implemented complete player physics, movement, and collision detection fo
 - The physics code is well-structured with separate collision helpers, making it straightforward to add enemy collision on top.
 - The `checkSpikeCollision` pattern (check points at player edges) can be adapted for enemy overlap detection.
 - Moving platform collision (F-3) requires refactoring `renderMovingPlatforms` to separate position calculation from rendering — consider this scope when planning.
+
+
+## Related Documents
+- [[ai/specs/T-0028_spec.md|T-0028 spec]]
+- [[ai/reviews/T-0028_gemini_review.md|T-0028 review]]
+- [[ai/briefs/T-0028_implementation.md|T-0028 document]]
+- [[ai/results/T-0028_executor_report.md|T-0028 result]]
+- [[ai/pr/T-0028_pr_draft.md|T-0028 pr-draft]]

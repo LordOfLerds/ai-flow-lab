@@ -433,6 +433,15 @@
                         <div>3. Open <code style="background:var(--bg-input);padding:2px 6px;border-radius:3px;">localhost:3847</code> (or the configured PORT)</div>
                     </div>
                 </div>
+                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">ChatGPT Browser Worker</h2>
+                <div class="card" id="chatgpt-worker-status" style="padding:14px;">
+                    <div style="font-size:11px;color:var(--text-muted);">Loading worker status...</div>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Automates ChatGPT prompt delivery in APP mode. First start opens a browser for login.</div>
+                <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">Obsidian Vault</h2>
+                <div class="card" id="obsidian-section" style="padding:14px;">
+                    <div style="font-size:11px;color:var(--text-muted);">Loading...</div>
+                </div>
                 <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">Data Sources</h2>
                 <div class="card" id="data-sources"></div>
                 <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;margin-top:28px;">AI Routing</h2>
@@ -523,6 +532,60 @@
     <div class="slide-over-footer" id="task-panel-footer"></div>
 </div>
 
+<!-- SMART IMPORT MODAL (Claude+ChatGPT Tandem) -->
+<div class="modal-overlay" id="onboard-smart-modal">
+    <div class="modal" style="max-width:680px;">
+        <button class="modal-close" onclick="closeModal('onboard-smart-modal')">&#10005;</button>
+        <div class="modal-title">&#129302; Smart Import (Claude+ChatGPT Tandem)</div>
+        <div class="modal-subtitle">Claude analyzes your codebase first, generates draft docs + targeted questions, then ChatGPT fills in the business/domain knowledge Claude can't infer from code.</div>
+
+        <!-- Step 1: Project Path -->
+        <div id="smart-step1">
+            <div class="form-group"><label class="form-label">Project Path</label><input type="text" class="form-input" id="smart-import-path" placeholder="/Users/you/projects/my-app"><div class="form-hint">Absolute path to the existing project root.</div></div>
+            <div id="smart-status" style="display:none;padding:10px;margin-bottom:12px;border-radius:6px;font-size:12px;"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="smartImportAnalyze()">&#129302; Start Claude Analysis</button>
+        </div>
+
+        <!-- Step 2: Claude Analysis Result + ChatGPT Prompt -->
+        <div id="smart-step2" style="display:none;">
+            <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:12px;margin-bottom:14px;">
+                <div style="font-size:11px;font-weight:700;color:#22c55e;text-transform:uppercase;margin-bottom:6px;">Claude Analysis Complete</div>
+                <div id="smart-code-summary" style="font-size:12px;color:var(--text-secondary);line-height:1.5;"></div>
+            </div>
+            <div style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:6px;padding:14px;margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span class="form-label" style="margin:0;">Step 2: Copy this prompt to ChatGPT</span>
+                    <button class="btn btn-secondary btn-sm" onclick="copySmartPrompt()">&#128203; Copy</button>
+                </div>
+                <div id="smart-prompt-preview" class="mono" style="font-size:10px;color:var(--text-secondary);max-height:150px;overflow-y:auto;white-space:pre-wrap;line-height:1.4;"></div>
+            </div>
+        </div>
+
+        <!-- Step 3: Paste ChatGPT Response -->
+        <div id="smart-step3" style="display:none;">
+            <div class="form-group"><label class="form-label">Step 3: Paste ChatGPT's Response</label><textarea class="form-textarea" id="smart-import-response" style="min-height:200px;font-size:12px;" placeholder="Paste the full ChatGPT response here..."></textarea></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="smartImportApply()">&#10003; Apply & Create Project Docs</button>
+        </div>
+
+        <!-- Step 4: Goal Extraction (optional) -->
+        <div id="smart-step4" style="display:none;">
+            <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:12px;margin-bottom:14px;">
+                <div style="font-size:11px;font-weight:700;color:#22c55e;text-transform:uppercase;margin-bottom:4px;">Docs Created Successfully!</div>
+                <div style="font-size:12px;color:var(--text-secondary);">Your project documentation has been generated.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Optional: Extract Goals from ChatGPT Chat</label>
+                <div class="form-hint">If you discussed features/goals in your ChatGPT conversation, paste that conversation here to auto-create goals and tasks.</div>
+                <textarea class="form-textarea" id="smart-extract-chat" style="min-height:150px;font-size:12px;" placeholder="Paste ChatGPT conversation about goals/features...&#10;&#10;Use this format:&#10;## GOAL: Title&#10;Description&#10;### TASKS:&#10;- Task title | feature-lane | Description"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="smartExtractGoals()">&#127919; Extract Goals</button>
+                <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('onboard-smart-modal');loadState();">&#10003; Done — Skip Goals</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- NEW PROJECT MODAL -->
 <div class="modal-overlay" id="onboard-new-modal">
     <div class="modal">
@@ -563,6 +626,7 @@ const fmtDate = d => { const x = new Date(d), diff = Date.now() - x; return diff
 function toast(msg, type='info') { const c=$('toast-container'), t=document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=`<span>${{success:'\u2713',error:'\u2717',warning:'\u26A0',info:'\u2139'}[type]||'\u2139'}</span><span>${msg}</span>`; c.appendChild(t); setTimeout(()=>t.remove(),3000); }
 function parseMd(md) {
     if(!md)return'';
+    md = String(md);
     // 1. Extract fenced code blocks before escaping
     const codeBlocks = [];
     let safe = md.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
@@ -1018,7 +1082,7 @@ function renderTaskCard(task) {
             ${isBlockedTask&&!isClarificationBlocked?'<span class="badge badge-error" style="font-size:10px;">⏸ Needs Decision</span>':''}
             ${isUnblockedTask?'<span class="badge badge-success" style="font-size:10px;">&#10003; Answered</span>':''}
             ${isRunningTask?`<button class="btn btn-sm" onclick="event.stopPropagation();cancelTask('${task.task_id}')" style="margin-left:auto;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:10px;padding:3px 10px;">✕ Cancel</button>`:''}
-            ${isFailedTask?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();retryTask('${task.task_id}')" style="margin-left:auto;">↻ Retry</button>`:''}
+            ${isFailedTask?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();diagnoseAndRetry('${task.task_id}')" style="margin-left:auto;">🔍 Diagnose & Retry</button>`:''}
             ${isUnblockedTask&&!isRunningTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" style="margin-left:auto;">▶ Resume</button>`:''}
             ${isNewTask&&!isFailedTask&&!isUnblockedTask?`<button class="btn btn-success btn-sm" onclick="event.stopPropagation();startCascade('${task.task_id}')" style="margin-left:auto;">▶ Start</button>`:''}
             ${!isNewTask&&!isRunningTask&&!isFailedTask&&!isUnblockedTask?`<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openTaskPanel('${task.task_id}')" style="margin-left:auto;">Details</button>`:''}
@@ -1366,8 +1430,10 @@ function openTaskPanel(taskId) {
                     <div style="font-size:11px;color:var(--text-secondary);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);padding:8px 10px;border-radius:4px;margin-top:4px;line-height:1.5;white-space:pre-wrap;">${escHtml(task.last_error.diagnosis)}</div>
                 </details>` : ''}
                 <div id="fix-area-panel-${taskId}" style="margin-top:6px;"></div>
+                ${task.retry_count ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Retry attempts: ${task.retry_count}/3</div>` : ''}
                 <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-                    <button class="btn btn-danger btn-sm" onclick="retryTask('${taskId}')" style="font-size:10px;padding:4px 10px;">↻ Retry from ${task.failed_step||'failed step'}</button>
+                    <button class="btn btn-danger btn-sm" onclick="diagnoseAndRetry('${taskId}')" style="font-size:10px;padding:4px 10px;">🔍 Diagnose & Retry</button>
+                    <button class="btn btn-danger btn-sm" onclick="retryTask('${taskId}')" style="font-size:10px;padding:4px 10px;background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">↻ Retry from ${task.failed_step||'failed step'}</button>
                     <button class="btn btn-sm" onclick="diagnoseTask('${taskId}')" style="font-size:10px;padding:4px 10px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">🔍 Re-diagnose</button>
                     <button class="btn btn-sm" onclick="generateFix('${taskId}')" style="font-size:10px;padding:4px 10px;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);">🔧 Generate Fix</button>
                 </div>
@@ -1414,7 +1480,7 @@ function openTaskPanel(taskId) {
     $('task-panel-footer').innerHTML = `
         <button class="btn btn-secondary" onclick="closeTaskPanel()">Close</button>
         <button class="btn btn-danger btn-sm" onclick="deleteTask('${taskId}')">&#128465; Delete</button>
-        ${isFailed ? `<button class="btn btn-danger" onclick="retryTask('${taskId}')">↻ Retry from ${task.failed_step||'failed step'}</button>` : ''}
+        ${isFailed ? `<button class="btn btn-danger" onclick="diagnoseAndRetry('${taskId}')">🔍 Diagnose & Retry</button>` : ''}
         ${isNew && !isFailed ? `<button class="btn btn-success" onclick="startCascade('${taskId}')">&#9654; Start Cascade</button>` : ''}
         ${isRunning ? `<button class="btn btn-warning btn-sm" disabled>&#9881; AI Processing...</button>` : ''}
         ${canAdvance && !isNew && !isFailed ? `<button class="btn btn-primary" ${hasRequiredDocs?'':'disabled style="opacity:0.5;cursor:not-allowed;" title="Missing required documents for this state"'} onclick="${hasRequiredDocs?`advanceTask('${taskId}','${nextState}');closeTaskPanel();`:''}">${hasRequiredDocs?'':'&#128274; '}Advance to ${nextState} &rarr;</button>` : ''}
@@ -1610,13 +1676,26 @@ function renderGoalWorkspace(goalId) {
         <!-- RIGHT: Goal sidebar (tasks, actions) -->
         <div style="display:flex;flex-direction:column;gap:14px;">
             <div class="card" style="padding:14px;">
-                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Actions</div>
+                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Workflow</div>
                 <div style="display:flex;flex-direction:column;gap:6px;">
-                    <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="openTaskModalForGoal('${goalId}')">&#10133; Add Task Manually</button>
-                    <button class="btn btn-success btn-sm" style="width:100%;justify-content:center;font-weight:700;" onclick="startGoalCascade('${goalId}')">&#127793; Run Cascade (Auto-spawn &amp; Execute All)</button>
-                    <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="goalSetState('${goalId}','PLANNED')">&#128203; Set Planned</button>
-                    <button class="btn btn-success btn-sm" style="width:100%;justify-content:center;" onclick="goalSetState('${goalId}','IN_PROGRESS')">&#9654; Set In Progress</button>
-                    <button class="btn btn-warning btn-sm" style="width:100%;justify-content:center;" onclick="goalSetState('${goalId}','DONE')">&#10003; Mark Done</button>
+                    ${chatHistory.length === 0 ? `
+                        <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;font-weight:700;" onclick="goalChatDecompose('${goalId}')">&#10024; Decompose Goal into Tasks</button>
+                        <div style="font-size:10px;color:var(--text-muted);text-align:center;">Start here — break this goal into actionable tasks</div>
+                    ` : tasks.length === 0 ? `
+                        <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;font-weight:700;" onclick="goalConvertToTasks('${goalId}')">&#128640; Create Tasks from Chat</button>
+                        <div style="font-size:10px;color:var(--text-muted);text-align:center;">Review the plan above, then create tasks</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;" onclick="goalChatPlan('${goalId}')">&#128203; Plan</button>
+                            <button class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;" onclick="goalChatRefine('${goalId}')">&#128295; Refine</button>
+                        </div>
+                    ` : `
+                        <button class="btn btn-success btn-sm" style="width:100%;justify-content:center;font-weight:700;" onclick="startGoalCascade('${goalId}')">&#127793; Run Cascade</button>
+                        <div style="font-size:10px;color:var(--text-muted);text-align:center;">Execute all tasks through the pipeline</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;" onclick="openTaskModalForGoal('${goalId}')">&#10133; Add Task</button>
+                            <button class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;" onclick="goalConvertToTasks('${goalId}')">&#128640; More from Chat</button>
+                        </div>
+                    `}
                 </div>
             </div>
 
@@ -1631,10 +1710,13 @@ function renderGoalWorkspace(goalId) {
                 `).join('') : '<div style="font-size:11px;color:var(--text-muted);">No tasks yet — use Decompose to create them.</div>'}
             </div>
 
-            <div class="card" style="padding:14px;">
-                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Convert Chat to Tasks</div>
-                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">When you're happy with the goal plan, convert the chat output into concrete tasks.</div>
-                <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="goalConvertToTasks('${goalId}')">&#128640; Create Tasks from Chat</button>
+            <div class="card" style="padding:10px 14px;">
+                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:6px;">State</div>
+                <div style="display:flex;gap:4px;">
+                    <button class="btn btn-sm ${goal.state==='PLANNED'?'btn-primary':'btn-secondary'}" style="flex:1;justify-content:center;font-size:10px;" onclick="goalSetState('${goalId}','PLANNED')">Planned</button>
+                    <button class="btn btn-sm ${goal.state==='IN_PROGRESS'?'btn-warning':'btn-secondary'}" style="flex:1;justify-content:center;font-size:10px;" onclick="goalSetState('${goalId}','IN_PROGRESS')">Active</button>
+                    <button class="btn btn-sm ${goal.state==='DONE'?'btn-success':'btn-secondary'}" style="flex:1;justify-content:center;font-size:10px;" onclick="goalSetState('${goalId}','DONE')">Done</button>
+                </div>
             </div>
         </div>
     </div>`;
@@ -1814,9 +1896,10 @@ async function goalConvertToTasks(goalId) {
     }
 
     let created = 0;
-    for (const tc of taskCandidates) {
-        const num = nextTaskNum();
-        const taskId = `T-${num}`;
+    const baseNum = parseInt(nextTaskNum(), 10);
+    for (let i = 0; i < taskCandidates.length; i++) {
+        const tc = taskCandidates[i];
+        const taskId = `T-${String(baseNum + i).padStart(4, '0')}`;
         const typeNorm = tc.type.toLowerCase().replace(/[-_\s]+lane$/,'').replace(/[-_\s]/g,'');
         const laneType = (['feature','bug','docs','test','refactor','chore','slice','analysis','danger'].includes(typeNorm) ? typeNorm : 'feature') + '-lane';
         const fullDesc = tc.deps ? `${tc.desc}\n\nDependencies: ${tc.deps}` : tc.desc;
@@ -2276,14 +2359,118 @@ async function renderBranches() {
         </div>
     </div>`;
 
-    // Two-tab interface
+    // ===== SVG TREE VISUALIZATION =====
+    function buildSvgTree() {
+        const NODE_W = 140, NODE_H = 36, H_GAP = 24, V_GAP = 50;
+        const svgNodes = [];
+        const svgEdges = [];
+        let maxX = 0, maxY = 0;
+
+        // Flatten into positioned nodes using depth-first layout
+        let xCursor = 0;
+
+        function layoutNode(id, label, color, state, depth, parentPos) {
+            const children = childMap[id] || [];
+            if (children.length === 0) {
+                const x = xCursor * (NODE_W + H_GAP) + 20;
+                const y = depth * (NODE_H + V_GAP) + 20;
+                xCursor++;
+                svgNodes.push({ id, label, color, state, x, y });
+                if (parentPos) svgEdges.push({ x1: parentPos.x + NODE_W/2, y1: parentPos.y + NODE_H, x2: x + NODE_W/2, y2: y });
+                maxX = Math.max(maxX, x + NODE_W + 20); maxY = Math.max(maxY, y + NODE_H + 20);
+                return { x, y };
+            }
+            const childPositions = children
+                .sort((a,b) => (a.task_id||'').localeCompare(b.task_id||''))
+                .map(c => {
+                    const tc = typeColors[(c.lane_type||'').replace('-lane','')]||'#94a3b8';
+                    const sc = {'MERGED':'#22c55e','PR_DRAFTED':'#22c55e','IMPLEMENTING':'#f59e0b','FAILED':'#ef4444'}[c.runtime_status==='FAILED'?'FAILED':c.state]||'#64748b';
+                    return layoutNode(c.task_id, c.task_id, tc, c.runtime_status==='FAILED'?'FAILED':c.state, depth + 1, null);
+                });
+            const leftX = childPositions[0].x;
+            const rightX = childPositions[childPositions.length - 1].x;
+            const x = (leftX + rightX) / 2;
+            const y = depth * (NODE_H + V_GAP) + 20;
+            svgNodes.push({ id, label, color, state, x, y });
+            if (parentPos) svgEdges.push({ x1: parentPos.x + NODE_W/2, y1: parentPos.y + NODE_H, x2: x + NODE_W/2, y2: y });
+            // Connect to children
+            childPositions.forEach(cp => {
+                svgEdges.push({ x1: x + NODE_W/2, y1: y + NODE_H, x2: cp.x + NODE_W/2, y2: cp.y });
+            });
+            maxX = Math.max(maxX, x + NODE_W + 20); maxY = Math.max(maxY, y + NODE_H + 20);
+            return { x, y };
+        }
+
+        // Layout each goal group
+        goalsList.forEach(g => {
+            const gTasks = goalTaskMap[g.goal_id] || [];
+            if (!gTasks.length) return;
+            const goalX = xCursor * (NODE_W + H_GAP) + 20;
+            const goalY = 20;
+            const goalPos = { x: goalX, y: goalY };
+            // Layout children first to find center
+            const childPositions = [];
+            gTasks.sort((a,b) => (a.task_id||'').localeCompare(b.task_id||'')).forEach(t => {
+                const tc = typeColors[(t.lane_type||'').replace('-lane','')]||'#94a3b8';
+                const pos = layoutNode(t.task_id, t.task_id, tc, t.runtime_status==='FAILED'?'FAILED':t.state, 1, null);
+                childPositions.push(pos);
+            });
+            // Center goal node above children
+            const gx = childPositions.length ? (childPositions[0].x + childPositions[childPositions.length-1].x) / 2 : goalX;
+            svgNodes.push({ id: g.goal_id, label: g.goal_id, color: '#6366f1', state: g.state, x: gx, y: goalY, isGoal: true });
+            childPositions.forEach(cp => {
+                svgEdges.push({ x1: gx + NODE_W/2, y1: goalY + NODE_H, x2: cp.x + NODE_W/2, y2: cp.y });
+            });
+            maxX = Math.max(maxX, gx + NODE_W + 20); maxY = Math.max(maxY, goalY + NODE_H + 20);
+        });
+
+        // Layout standalone root tasks
+        rootTasks.sort((a,b) => (a.task_id||'').localeCompare(b.task_id||'')).forEach(t => {
+            const tc = typeColors[(t.lane_type||'').replace('-lane','')]||'#94a3b8';
+            layoutNode(t.task_id, t.task_id, tc, t.runtime_status==='FAILED'?'FAILED':t.state, 0, null);
+        });
+
+        if (!svgNodes.length) return '<div style="color:var(--text-muted);text-align:center;padding:40px;">No tasks to visualize</div>';
+
+        const stColors = {'MERGED':'#22c55e','DONE':'#22c55e','PR_DRAFTED':'#22c55e','IN_PROGRESS':'#f59e0b','IMPLEMENTING':'#f59e0b','FAILED':'#ef4444','NEW':'#64748b','PLANNED':'#3b82f6'};
+        let edgeSvg = svgEdges.map(e => {
+            const midY = e.y1 + (e.y2 - e.y1) * 0.5;
+            return `<path d="M${e.x1},${e.y1} C${e.x1},${midY} ${e.x2},${midY} ${e.x2},${e.y2}" stroke="var(--text-muted)" stroke-width="1.5" fill="none" opacity="0.3"/>`;
+        }).join('');
+        let nodeSvg = svgNodes.map(n => {
+            const sc = stColors[n.state]||'#64748b';
+            const title = taskMap[n.id] ? escSvg(taskMap[n.id].title||'') : '';
+            const typeKey = taskMap[n.id] ? (taskMap[n.id].lane_type||'').replace('-lane','') : '';
+            const fill = n.isGoal ? '#6366f1' : n.color;
+            const stateLabel = n.state || 'NEW';
+            const clickAction = n.isGoal ? `openGoalWorkspace('${n.id}')` : `openTaskPanel('${n.id}')`;
+            return `<g class="tree-node" style="cursor:pointer;" onclick="${clickAction}">
+                <rect x="${n.x}" y="${n.y}" width="${NODE_W}" height="${NODE_H}" rx="6" fill="${fill}11" stroke="${fill}" stroke-width="1.5"/>
+                <circle cx="${n.x+12}" cy="${n.y+NODE_H/2}" r="4" fill="${sc}"/>
+                <text x="${n.x+20}" y="${n.y+14}" style="font-size:11px;font-weight:700;fill:var(--text-primary);font-family:'JetBrains Mono',monospace;">${n.label}</text>
+                <text x="${n.x+20}" y="${n.y+28}" style="font-size:9px;fill:${sc};font-weight:600;">${stateLabel}${typeKey?' · '+typeKey:''}</text>
+                <title>${n.id}: ${title}</title>
+            </g>`;
+        }).join('');
+
+        return `<div style="overflow:auto;max-height:600px;"><svg width="${maxX}" height="${maxY}" xmlns="http://www.w3.org/2000/svg" style="min-width:${maxX}px;">
+            <g class="edges">${edgeSvg}</g>
+            <g class="nodes">${nodeSvg}</g>
+        </svg></div>`;
+    }
+    const svgTreeHtml = buildSvgTree();
+
+    // Three-tab interface
     const activeTab = APP._activeBranchTab || 'git-history';
+    const tabStyle = (name) => `flex:1;padding:12px;border:none;background:transparent;color:${activeTab===name?'var(--accent)':'var(--text-secondary)'};font-weight:600;font-size:12px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid ${activeTab===name?'var(--accent)':'transparent'};transition:all 150ms;`;
     const tabHtml = `<div style="display:flex;gap:1px;border-bottom:1px solid var(--border-color);margin-bottom:16px;">
-        <button class="tab-btn ${activeTab==='git-history'?'active':''}" data-tab="git-history" onclick="switchBranchTab('git-history')" style="flex:1;padding:12px;border:none;background:transparent;color:${activeTab==='git-history'?'var(--accent)':'var(--text-secondary)'};font-weight:600;font-size:12px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid ${activeTab==='git-history'?'var(--accent)':'transparent'};transition:all 150ms;">📊 Git History</button>
-        <button class="tab-btn ${activeTab==='task-tree'?'active':''}" data-tab="task-tree" onclick="switchBranchTab('task-tree')" style="flex:1;padding:12px;border:none;background:transparent;color:${activeTab==='task-tree'?'var(--accent)':'var(--text-secondary)'};font-weight:600;font-size:12px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid ${activeTab==='task-tree'?'var(--accent)':'transparent'};transition:all 150ms;">🌳 Task Tree</button>
+        <button class="tab-btn ${activeTab==='git-history'?'active':''}" data-tab="git-history" onclick="switchBranchTab('git-history')" style="${tabStyle('git-history')}">Git History</button>
+        <button class="tab-btn ${activeTab==='task-tree'?'active':''}" data-tab="task-tree" onclick="switchBranchTab('task-tree')" style="${tabStyle('task-tree')}">Task Tree</button>
+        <button class="tab-btn ${activeTab==='svg-tree'?'active':''}" data-tab="svg-tree" onclick="switchBranchTab('svg-tree')" style="${tabStyle('svg-tree')}">Branch Map</button>
     </div>
     <div id="git-history-tab" style="display:${activeTab==='git-history'?'block':'none'};">${gitHistoryHtml}</div>
-    <div id="task-tree-tab" style="display:${activeTab==='task-tree'?'block':'none'};">${taskTreeHtml}</div>`;
+    <div id="task-tree-tab" style="display:${activeTab==='task-tree'?'block':'none'};">${taskTreeHtml}</div>
+    <div id="svg-tree-tab" style="display:${activeTab==='svg-tree'?'block':'none'};">${svgTreeHtml}</div>`;
 
     $('branches-content').innerHTML = tabHtml;
     // Restore selected task detail after re-render
@@ -2434,6 +2621,27 @@ async function guardrailDecision(taskId, action) {
         }
     } catch (e) {
         toast('Decision request failed: ' + e.message, 'error');
+    }
+}
+
+async function diagnoseAndRetry(taskId) {
+    if (!confirm('Diagnose & retry ' + taskId + '? This will run diagnosis first, then retry from the failed step.')) return;
+    toast('Diagnosing ' + taskId + ' before retry...', 'info');
+    try {
+        const dr = await fetch('/api/tasks/' + taskId + '/diagnose', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const dd = await dr.json();
+        if (!dd.ok) { toast('Diagnosis failed: ' + (dd.error||'unknown'), 'error'); return; }
+        toast('Diagnosis complete. Retrying ' + taskId + '...', 'info');
+        const rr = await fetch('/api/tasks/' + taskId + '/retry', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+        const rd = await rr.json();
+        if (rd.ok) {
+            toast(taskId + ' diagnose & retry started!', 'success');
+            loadState();
+        } else {
+            toast('Retry failed: ' + (rd.error||'unknown'), 'error');
+        }
+    } catch (e) {
+        toast('Diagnose & retry failed: ' + e.message, 'error');
     }
 }
 
@@ -3003,11 +3211,151 @@ async function renderSettings() {
     $('project-info').innerHTML=`<div style="display:flex;flex-direction:column;gap:12px;">
         <div><div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Name</div><div style="font-weight:600;">${APP.project?.name||'?'}</div></div>
         <div><div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Root</div><div class="mono" style="font-size:12px;color:var(--text-secondary);">${APP.project?.root||'-'}</div></div>
+        <div style="margin-top:8px;border-top:1px solid var(--border-color);padding-top:10px;">
+            <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">ChatGPT Chat URL</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+                <input id="settings-chatgpt-url" type="url" class="form-input" style="flex:1;font-size:12px;padding:6px 10px;" placeholder="https://chatgpt.com/c/..." value="${APP.project?.chatgpt_chat_url||''}">
+                <button class="btn btn-primary btn-sm" onclick="saveChatGPTUrl()">Save</button>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Link a specific ChatGPT conversation to this project</div>
+        </div>
     </div>`;
+
+    // ChatGPT Worker status
+    const workerEl = $('chatgpt-worker-status');
+    if (workerEl) {
+        try {
+            const ws = await APP.fetch('/api/chatgpt-worker/status');
+            workerEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${ws?.running?'var(--success)':'var(--text-muted)'};"></span>
+                <span style="font-size:12px;">${ws?.running?'Running (PID '+ws.pid+')':'Stopped'}</span>
+                <span style="flex:1;"></span>
+                ${ws?.running
+                    ? '<button class="btn btn-warning btn-sm" onclick="stopChatGPTWorker()">Stop Worker</button>'
+                    : '<button class="btn btn-success btn-sm" onclick="startChatGPTWorker()">Start Worker</button>'}
+                <button class="btn btn-secondary btn-sm" onclick="toggleWorkerLog()">Log</button>
+            </div>
+            <div id="worker-log-viewer" style="display:none;margin-top:8px;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px;max-height:200px;overflow-y:auto;">
+                <div style="font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;white-space:pre-wrap;line-height:1.5;" id="worker-log-content">Loading...</div>
+            </div>`;
+        } catch(_) {
+            workerEl.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Could not check worker status</div>';
+        }
+    }
+
     $('data-sources').innerHTML=['Specs','Reviews','Briefs','Results','Decisions','PR Drafts'].map(n=>{
         const k=n.toLowerCase().replace(' ','_');const has=(APP.docs?.[k]||[]).length>0;
         return`<div style="display:flex;align-items:center;gap:6px;padding:4px 0;"><span style="color:${has?'var(--success)':'var(--text-muted)'};">${has?'\u2713':'\u25CB'}</span><span style="color:${has?'var(--success)':'var(--text-muted)'};">${n}</span></div>`;
     }).join('');
+
+    // Obsidian section
+    const obsEl = $('obsidian-section');
+    if (obsEl) {
+        const vaultPath = APP.project?.root || '';
+        const obsInitialized = vaultPath && (await fetch('/api/document?path=.obsidian/app.json').then(r=>r.ok&&r.json().then(d=>!!d?.content)).catch(()=>false));
+        obsEl.innerHTML = `<div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${obsInitialized?'var(--success)':'var(--text-muted)'};flex-shrink:0;"></span>
+                <span style="font-size:12px;color:var(--text-secondary);">${obsInitialized?'Vault initialized':'Not yet initialized'}</span>
+            </div>
+            <div style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span style="font-size:13px;font-weight:700;color:var(--accent);min-width:20px;">1.</span>
+                    <div style="flex:1;">
+                        <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Vault vorbereiten</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Erstellt <code style="background:rgba(0,0,0,0.2);padding:1px 4px;border-radius:3px;">.obsidian/</code> Config + YAML Frontmatter in allen Docs</div>
+                        <button class="btn btn-primary btn-sm" onclick="initObsidianVault()">&#128211; Initialize Vault</button>
+                    </div>
+                </div>
+                <div style="border-top:1px solid var(--border-color);"></div>
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span style="font-size:13px;font-weight:700;color:var(--accent);min-width:20px;">2.</span>
+                    <div style="flex:1;">
+                        <div style="font-size:12px;font-weight:600;margin-bottom:4px;">In Obsidian öffnen <span style="font-size:10px;font-weight:400;color:var(--text-muted);">(einmalig)</span></div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Obsidian App → <strong>Open another vault</strong> → <strong>Open folder as vault</strong> → diesen Ordner wählen:</div>
+                        ${vaultPath ? `<div class="mono" style="font-size:10px;background:rgba(0,0,0,0.25);padding:5px 8px;border-radius:4px;margin-bottom:6px;word-break:break-all;color:var(--text-secondary);">${vaultPath}</div>` : ''}
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn btn-secondary btn-sm" onclick="copyObsidianPath()">&#128203; Pfad kopieren</button>
+                            <button class="btn btn-secondary btn-sm" onclick="revealInFinder()">&#128193; Im Finder zeigen</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="border-top:1px solid var(--border-color);"></div>
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                    <span style="font-size:13px;font-weight:700;color:var(--text-muted);min-width:20px;">3.</span>
+                    <div style="flex:1;">
+                        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Fertig — Obsidian merkt sich den Vault</div>
+                        <div style="font-size:11px;color:var(--text-muted);">Beim nächsten Öffnen erscheint der Vault direkt in der Vault-Liste.</div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+}
+
+async function saveChatGPTUrl() {
+    const url = $('settings-chatgpt-url')?.value?.trim() || '';
+    try {
+        await fetch('/api/project/config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'chatgpt_chat_url',value:url})});
+        APP.project.chatgpt_chat_url = url;
+        toast('ChatGPT URL saved', 'success');
+    } catch(e) { toast('Failed to save: ' + e.message, 'error'); }
+}
+
+async function startChatGPTWorker() {
+    try {
+        await fetch('/api/chatgpt-worker/start', {method:'POST'});
+        toast('ChatGPT Worker starting...', 'success');
+        setTimeout(() => renderSettings(), 2000);
+    } catch(e) { toast('Failed to start worker: ' + e.message, 'error'); }
+}
+
+async function stopChatGPTWorker() {
+    try {
+        await fetch('/api/chatgpt-worker/stop', {method:'POST'});
+        toast('ChatGPT Worker stopped', 'success');
+        setTimeout(() => renderSettings(), 500);
+    } catch(e) { toast('Failed to stop worker: ' + e.message, 'error'); }
+}
+
+async function toggleWorkerLog() {
+    const el = $('worker-log-viewer');
+    if (!el) return;
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+        try {
+            const r = await fetch('/api/chatgpt-worker/log');
+            const d = await r.json();
+            $('worker-log-content').textContent = (d.lines || []).join('\n') || '(empty log)';
+        } catch (_) { $('worker-log-content').textContent = '(failed to load log)'; }
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+async function revealInFinder() {
+    try {
+        await fetch('/api/reveal-in-finder', { method: 'POST' });
+    } catch (e) { toast('Fehler: ' + e.message, 'error'); }
+}
+
+function copyObsidianPath() {
+    const p = APP.project?.root || '';
+    if (!p) { toast('No project path found', 'warning'); return; }
+    navigator.clipboard.writeText(p).then(() => toast('Vault path copied!', 'success')).catch(() => toast('Copy failed', 'error'));
+}
+
+async function initObsidianVault() {
+    toast('Initializing Obsidian vault...', 'info');
+    try {
+        const r = await fetch('/api/project/obsidian-init', { method: 'POST' });
+        const d = await r.json();
+        if (d.ok) {
+            toast('Obsidian vault initialized! Open your project folder as a vault in Obsidian.', 'success');
+        } else {
+            toast('Failed: ' + (d.error||'unknown'), 'error');
+        }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
 // ===== ID GENERATION =====
@@ -3307,6 +3655,112 @@ async function toggleWorkerLog() {
     box.style.display = 'block';
 }
 
+// ===== SMART IMPORT =====
+let _smartImportPrompt = '';
+
+async function smartImportAnalyze() {
+    const importPath = $('smart-import-path').value.trim();
+    if (!importPath) { toast('Enter a project path', 'warning'); return; }
+    setOnboardStatus('smart-status', 'Claude is analyzing the codebase... (1-3 min)', 'info');
+    try {
+        const res = await fetch('/api/project/smart-import', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectPath: importPath, step: 'analyze' })
+        });
+        const data = await res.json();
+        if (!data.ok) { setOnboardStatus('smart-status', data.error || 'Failed', 'error'); return; }
+        // Poll for completion
+        toast('Claude analysis started — polling for results...', 'info');
+        const poll = setInterval(async () => {
+            try {
+                const sr = await fetch('/api/project/smart-import/status');
+                const sd = await sr.json();
+                if (sd.status === 'complete') {
+                    clearInterval(poll);
+                    setOnboardStatus('smart-status', '', 'success');
+                    $('smart-status').style.display = 'none';
+                    // Generate ChatGPT prompt
+                    await smartImportGeneratePrompt(importPath);
+                }
+            } catch (_) {}
+        }, 5000);
+    } catch (e) {
+        setOnboardStatus('smart-status', 'Error: ' + e.message, 'error');
+    }
+}
+
+async function smartImportGeneratePrompt(importPath) {
+    try {
+        const res = await fetch('/api/project/smart-import', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectPath: importPath, step: 'prompt' })
+        });
+        const data = await res.json();
+        if (!data.ok) { toast('Prompt generation failed: ' + (data.error||''), 'error'); return; }
+        _smartImportPrompt = data.prompt || '';
+        // Show step 2 + 3
+        $('smart-step1').style.display = 'none';
+        $('smart-step2').style.display = 'block';
+        $('smart-step3').style.display = 'block';
+        $('smart-code-summary').textContent = data.codeSummary || 'Analysis complete.';
+        $('smart-prompt-preview').textContent = _smartImportPrompt.substring(0, 2000) + (_smartImportPrompt.length > 2000 ? '\n...(truncated preview)' : '');
+        toast('ChatGPT prompt ready — copy and paste it!', 'success');
+    } catch (e) {
+        toast('Error generating prompt: ' + e.message, 'error');
+    }
+}
+
+function copySmartPrompt() {
+    navigator.clipboard.writeText(_smartImportPrompt).then(() => toast('Prompt copied!', 'success')).catch(() => toast('Copy failed', 'error'));
+}
+
+async function smartImportApply() {
+    const response = $('smart-import-response').value.trim();
+    const importPath = $('smart-import-path').value.trim();
+    if (!response) { toast('Paste the ChatGPT response first', 'warning'); return; }
+    toast('Applying ChatGPT response...', 'info');
+    try {
+        const res = await fetch('/api/project/smart-import', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectPath: importPath, step: 'apply', response })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            toast('Project docs created!', 'success');
+            $('smart-step2').style.display = 'none';
+            $('smart-step3').style.display = 'none';
+            $('smart-step4').style.display = 'block';
+            await APP.load();
+        } else {
+            toast('Apply failed: ' + (data.error||''), 'error');
+        }
+    } catch (e) {
+        toast('Error: ' + e.message, 'error');
+    }
+}
+
+async function smartExtractGoals() {
+    const chatText = $('smart-extract-chat').value.trim();
+    if (!chatText) { toast('Paste the ChatGPT conversation about goals', 'warning'); return; }
+    toast('Extracting goals...', 'info');
+    try {
+        const res = await fetch('/api/project/extract-goals', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatText, projectPath: $('smart-import-path').value.trim() })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            toast('Goals extracted!', 'success');
+            await APP.load();
+            setTimeout(() => { closeModal('onboard-smart-modal'); navigateTo('goals'); render(); }, 1000);
+        } else {
+            toast('Extraction failed: ' + (data.error||''), 'error');
+        }
+    } catch (e) {
+        toast('Error: ' + e.message, 'error');
+    }
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', async()=>{
     await APP.load();
@@ -3357,9 +3811,40 @@ document.addEventListener('DOMContentLoaded', async()=>{
         if (g && g.closest('svg')) showBranchDetail(g.getAttribute('data-hash'));
     });
     navigateTo(location.hash.substring(1)||'dashboard');
+
+    // Request browser notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+
+    // Track last seen event count for notifications
+    APP._lastEventCount = 0;
+    APP._pendingActions = 0;
+
     APP.timer=setInterval(async()=>{
         await APP.refresh();
         safeRender();
+        // Check for new events → browser notification + tab badge
+        try {
+            const evResp = await APP.fetch('/api/events');
+            const events = evResp?.events || [];
+            if (events.length > APP._lastEventCount && APP._lastEventCount > 0) {
+                const newEvents = events.slice(APP._lastEventCount);
+                for (const ev of newEvents) {
+                    if (['cascade_error','task_failed','decision_needed'].includes(ev.type)) {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification(ev.type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()), { body: ev.message, icon: '/favicon.ico' });
+                        }
+                    }
+                }
+            }
+            APP._lastEventCount = events.length;
+            // Count pending actions (open DPs + failed tasks)
+            const openDPs = (APP.state?.decision_proposals||[]).filter(d=>d.status==='open').length;
+            const failedTasks = (APP.state?.tasks||[]).filter(t=>t.runtime_status==='FAILED').length;
+            APP._pendingActions = openDPs + failedTasks;
+            document.title = APP._pendingActions > 0 ? `(${APP._pendingActions}) AI Flow Lab` : 'AI Flow Lab';
+        } catch(_){}
     },5000);
 });
 window.addEventListener('beforeunload',()=>{if(APP.timer)clearInterval(APP.timer);});

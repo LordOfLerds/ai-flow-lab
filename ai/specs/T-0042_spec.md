@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0042
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0042 Spec
 
 ## Task metadata
@@ -169,3 +176,11 @@ Save/load level progress in `localStorage`:
    - **Current spec says**: Each level play session is independent; XP/skills earned during a level persist across level changes
    - **Alternative**: Reset player level to 1 per level; make each level a "run"
    - **Recommended answer**: XP and player progression are global/persistent across all levels. Switching levels does NOT reset player level, skins, or skills. Only per-run score resets. This preserves the existing progression system and allows skill growth to compound across multiple level attempts.
+
+
+## Related Documents
+- [[ai/reviews/T-0042_gemini_review.md|T-0042 review]]
+- [[ai/briefs/T-0042_implementation.md|T-0042 document]]
+- [[ai/results/T-0042_executor_report.md|T-0042 result]]
+- [[ai/followups/T-0042_followups.md|T-0042 followup]]
+- [[ai/pr/T-0042_pr_draft.md|T-0042 pr-draft]]

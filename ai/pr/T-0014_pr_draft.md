@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0014
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0014] Alle Docs für das Jump and Run nachziehen
 
 ## Summary
@@ -76,3 +83,12 @@ T-0014 successfully updated all core documentation files to reflect the actual j
 **Branch**: `docs/T-0014-alle-docs-f-r-das-jump-and-run-nachziehen` → `main`
 **Generated**: 2026-04-07T09:17:38.653Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0014_spec.md|T-0014 spec]]
+- [[ai/reviews/T-0014_gemini_review.md|T-0014 review]]
+- [[ai/briefs/T-0014_implementation.md|T-0014 document]]
+- [[ai/results/T-0014_executor_report.md|T-0014 result]]
+- [[ai/results/T-0014_result.md|T-0014 result]]
+- [[ai/followups/T-0014_followups.md|T-0014 followup]]

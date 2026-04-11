@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0020
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0020 Gemini Review
 
 ## Review target
@@ -32,3 +39,10 @@
 - **Define Test Environment**: Explicitly state whether the test should run against a spawned local server or direct file access.
 - **Drift Register Requirement**: Since the primary docs are missing, mandate that the executor creates `ai/current-state/drift-register.md` immediately if the observed code behavior (like the redirect or the menu population) isn't documented anywhere else.
 - **Mocking Auth**: Add a constraint to determine if `auth-state.js` needs to be mocked to ensure the "Start UI" appears deterministically regardless of actual network/session status.
+
+## Related Documents
+- [[ai/specs/T-0020_spec.md|T-0020 spec]]
+- [[ai/briefs/T-0020_implementation.md|T-0020 document]]
+- [[ai/results/T-0020_executor_report.md|T-0020 result]]
+- [[ai/followups/T-0020_followups.md|T-0020 followup]]
+- [[ai/pr/T-0020_pr_draft.md|T-0020 pr-draft]]

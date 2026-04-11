@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0040
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0040 Executor Report
 
 ## Execution Report
@@ -65,3 +72,11 @@ All features are now complete and ready for testing. The game maintains 60fps pe
 
 ---
 Files written: index.html
+
+
+## Related Documents
+- [[ai/specs/T-0040_spec.md|T-0040 spec]]
+- [[ai/reviews/T-0040_gemini_review.md|T-0040 review]]
+- [[ai/briefs/T-0040_implementation.md|T-0040 document]]
+- [[ai/followups/T-0040_followups.md|T-0040 followup]]
+- [[ai/pr/T-0040_pr_draft.md|T-0040 pr-draft]]

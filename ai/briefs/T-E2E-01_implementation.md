@@ -1,3 +1,9 @@
+---
+type: brief
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-E2E-01 Implementation Brief
 
 ## Goal

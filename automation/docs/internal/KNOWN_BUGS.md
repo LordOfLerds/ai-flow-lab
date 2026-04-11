@@ -1,8 +1,79 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Known Bugs & Issues
 
 **Last updated:** 2026-04-08
 
 ## Open
+
+### BUG-017: Gemini 2.0 models deprecated — causes critique step to hang
+- **Severity:** High
+- **Symptom:** Critique step hangs indefinitely or returns errors. No response from Gemini API.
+- **Root cause:** `gemini-2.0-flash` and `gemini-2.0-flash-lite` were retired by Google ("eingestellt") as of early 2026. API calls to these models return errors or timeout silently.
+- **Discovery:** T-0001 critique step stuck after `.env` was changed from `gemini-2.5-flash` (429 quota exhaustion) to `gemini-2.0-flash` (deprecated). The deprecated model endpoint does not return a clear deprecation error — it simply fails silently.
+- **Fix:** Changed `GEMINI_MODEL` in both `.env` files to `gemini-2.5-flash-lite`:
+  - `ai-flow-lab/automation/.env` — base config (loaded at server start)
+  - `aurena-wbs-ai-flow/automation/.env` — project config (loaded on project switch)
+- **Prevention:** Only use models listed as "Stabil" (stable) on the Google AI models page. Current stable models: `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.5-pro`.
+- **Status:** FIXED (2026-04-09)
+
+### BUG-018: Corrupted decision proposals (DP-0001, DP-0002) crash server JSON parser
+- **Severity:** Medium
+- **Symptom:** Server console spams `Error reading .../DP-0002.json: Unexpected token '/', "/sessions/"... is not valid JSON` on every poll cycle. Can cause cascade retry loops to crash.
+- **Root cause:** Some process wrote the sandbox file path (`/sessions/gracious-eloquent-sagan/...`) as file content instead of actual JSON.
+- **Fix:** Replaced both files with valid JSON objects (`{ "status": "resolved" }`).
+- **Prevention:** `serve-dashboard.mjs` should wrap DP file reads in try/catch and skip malformed files instead of crashing.
+- **Status:** FIXED (2026-04-09)
+
+### BUG-019: snapshotSourceFiles() only scans top-level directory — FIXED (FIX-045)
+- **Severity:** Critical
+- **File:** `automation/scripts/execute-task-api.mjs` (snapshotSourceFiles function)
+- **Symptom:** Execute step completes, files are written to disk by Codex/Claude CLI, but guardrail reports `written_files: []` and "0 files changed on disk". YELLOW guardrail triggers unnecessarily. Cowork Test runs on phantom "no changes" scenario.
+- **Root cause:** `snapshotSourceFiles()` used `fs.readdirSync(dir)` which only reads the **top-level directory** — no recursion into subdirectories. In monorepo projects with `apps/`, `packages/`, `src/` etc., **zero source files** were captured in the pre-execution snapshot. Post-execution snapshot was equally empty, so the diff found nothing.
+- **Impact:** Affected ALL projects with nested directory structures (i.e. every real project). Only flat single-directory projects worked correctly.
+- **Discovery:** T-0001 on aurena-wbs project: Codex CLI ran for 285s, wrote 5 files (1 modified + 4 new), but `written_files: []` and guardrail was YELLOW. Git status confirmed files exist.
+- **Fix (FIX-045):** Rewrote `snapshotSourceFiles()` with recursive `walkDir()`:
+  - Recursively walks up to 12 levels deep
+  - Skips `node_modules`, `.git`, `.next`, `dist`, `build`, etc.
+  - Supports `.ts`, `.tsx`, `.jsx`, `.mts` (not just `.js`, `.ts`)
+  - Safety cap of 2000 files to prevent scanning enormous repos
+  - Uses `fs.readdirSync(dir, { withFileTypes: true })` for efficient directory traversal
+- **Status:** FIXED (2026-04-09)
+
+### BUG-021: process.cwd() in 25 pipeline scripts breaks multi-project state — FIXED (FIX-048)
+- **Severity:** Critical
+- **Symptom:** Follow-up proposals, task state, decisions, and other artifacts written to ai-flow-lab's state directory instead of the target project. Cascade thinks no proposals exist → no follow-ups spawned. Affects ALL multi-project pipelines.
+- **Root cause:** 25 pipeline scripts used `const automationRoot = process.cwd()` to derive state paths. When the server runs scripts with `cwd: ai-flow-lab/automation` (for script resolution), `process.cwd()` returns ai-flow-lab's path instead of the target project. The `_llm-utils.mjs` utility already exported `automationRoot()` (reads `AUTOMATION_ROOT` env var) and `repoRoot()` (reads `REPO_ROOT` env var) but most scripts didn't use them.
+- **Discovery:** T-0008 on aurena-k-list ran through entire pipeline (spec→review→brief→execute→followups→pr_draft), but proposals landed in ai-flow-lab/automation/state/proposals/ instead of aurena-k-list/automation/state/proposals/. Follow-ups were never spawned.
+- **Fix (FIX-048):** Replaced `process.cwd()` with `automationRoot()` / `repoRoot()` imports in all 25 scripts:
+  - propose-followups-api.mjs, synthesize-task-api.mjs, architect-task-api.mjs, plan-goal-api.mjs
+  - chatgpt-browser-worker.mjs, smart-import.mjs, synthesize-task.mjs, start-goal.mjs
+  - spawn-from-goal-proposal.mjs, spawn-followup-task.mjs, set-state.mjs, set-goal-state.mjs
+  - run-goal-first-task.mjs, finalize-task.mjs, critique-task.mjs, close-task.mjs
+  - check-artifacts.mjs, capture-decision.mjs, bootstrap-worktree.mjs, architect-task.mjs
+  - run-task.mjs, run-e2e-test.mjs, prepare-worktree.mjs, new-task.mjs, init-project.mjs
+- **Status:** FIXED (2026-04-10)
+
+### BUG-022: Goal cascade allows double-start — tasks run in parallel — FIXED (FIX-049)
+- **Severity:** High
+- **Symptom:** Clicking "Run Cascade" on a goal while a cascade is already running starts a second parallel cascade. Tasks get corrupted state (e.g. T-0008 reverted from PR_DRAFTED to CRITIQUED by the second run).
+- **Root cause:** `POST /api/cascade/run-goal` had no guard against re-entry. No check for `goal.state === 'IN_PROGRESS'` or running tasks.
+- **Discovery:** T-0008 ran completely through the first cascade (all artifacts exist), but user clicked Run Cascade again. Second run overwrote T-0008's state back to CRITIQUED and started synthesize step again.
+- **Fix (FIX-049):** Three guards added to serve-dashboard.mjs:
+  1. Goal-level guard: reject HTTP 409 if goal is IN_PROGRESS and tasks have runtime_status=running
+  2. Task-skip in goal loop: filter out PR_DRAFTED/MERGED and running tasks before cascade
+  3. Task-level guard in cascadeRunTask: skip if runtime_status=running
+- **Status:** FIXED (2026-04-10)
+
+### BUG-023: Cascade status endpoint shows DELETED tasks
+- **Severity:** Low
+- **Symptom:** Dashboard "running" indicator shows old deleted tasks (T-0001-T-0007) because status endpoint doesn't filter by state.
+- **Fix:** Added `state !== 'DELETED'` filter to `GET /api/cascade/status` endpoint.
+- **Status:** FIXED (2026-04-10)
 
 ### BUG-005: No concurrency limit for parallel cascades
 - **Severity:** Medium
@@ -294,6 +365,21 @@
 - **Feature:** Uses `.task-counter` file with `.task-counter.lock` (O_EXCL exclusive create) for atomic ID assignment. Scans both active and archived task directories to prevent ID reuse. Stale lock detection (5s timeout). Falls back to original scan-based logic if lock fails.
 - **Resolves:** BUG-013
 
+## Fixed (2026-04-09) — Snapshot & Guardrail Fixes
+
+### FIX-045: Recursive snapshot for monorepo projects
+- **File:** `automation/scripts/execute-task-api.mjs` (snapshotSourceFiles function)
+- **Feature:** Complete rewrite of `snapshotSourceFiles()` from flat `readdirSync` to recursive `walkDir()`. Now correctly captures source files in nested directories (`apps/`, `packages/`, `src/`, etc.). Supports TypeScript extensions (`.tsx`, `.jsx`, `.mts`). Safety limits: max depth 12, max files 2000, max file size 1 MB, min 10 lines. Skips `node_modules`, `.git`, `.next`, `dist`, `build`, `.turbo`, `coverage`, `automation/state/`, `automation/test-fixtures/`, `.ai-flow-lab/`.
+- **Resolves:** BUG-019
+- **Impact:** Guardrail and snapshot-diff now work correctly for monorepo projects. Both Codex CLI and Claude CLI tool-mode benefit from this fix — any files they write in nested directories are now detected.
+
+### FIX-046: YELLOW guardrail now pauses for user decision instead of auto-running Cowork Test
+- **Files:** `automation/scripts/serve-dashboard.mjs` (cascade engine + retry flow, 2 locations)
+- **Change:** Previously, YELLOW guardrail automatically launched `cowork-test.mjs` as fire-and-forget in the cascade flow. This wasted API budget when the user wasn't watching the dashboard, and the test results were often irrelevant (especially when YELLOW was caused by snapshot bugs like BUG-019).
+- **New behavior:** YELLOW now behaves like RED — pipeline pauses at `BLOCKED_ON_DECISION`, creates a Decision Proposal with three options (Accept / Run Cowork Test / Restore Snapshot), and waits for user input. The user explicitly clicks "Run Cowork Test" if they want it.
+- **Affected flows:** Main cascade (line ~2821) and retry flow (line ~2036). Both now `break`/`return` instead of continuing.
+- **Resolves:** User complaint: "er soll das auch nur machen wenn UI da ist" (it should only do that when the UI is open).
+
 ## Fixed (2026-04-09) — Cleanup & Reliability Fixes
 
 ### FIX-038: Game auth-state.js inlined to fix sandbox proxy 503
@@ -323,3 +409,95 @@
 ### FIX-042: Archived old tasks, proposals, prompts, and decisions
 - **Files:** `state/tasks/archived/`, `state/proposals/archived/`, `state/prompts-queue/archived/`, `state/decision_proposals/archived/`
 - **Feature:** Moved 47 old/stale tasks (PR_DRAFTED, NEW), 96 orphaned proposals, 77+ old prompts, and 6 resolved decisions to archived subdirectories. Dashboard only shows 11 active MERGED tasks. Clean state for new development.
+
+### BUG-020: Guardrail "Accept" leaves task stuck at IMPLEMENTED/IDLE with no UI button to continue
+- **Severity:** High
+- **Symptom:** User clicks "Accept" on a RED/YELLOW guardrail decision. Task state becomes `IMPLEMENTED` / `runtime_status: IDLE`. No Retry button (requires `FAILED`), no Start button (requires `NEW`), only a "Details" button. Pipeline is stuck — user has no way to continue.
+- **Root cause:** The accept handler set `runtime_status: 'IDLE'` and responded with "retry to continue pipeline", but the Retry button only renders when `runtime_status === 'FAILED'`. Dead end in the UI.
+- **Discovery:** T-0020 in aurena-wbs project, user accepted RED guardrail (layout.tsx shrunk), task went to IMPLEMENTED/IDLE, no further progress possible.
+- **Status:** FIXED by FIX-047 (2026-04-09)
+
+### FIX-047: Guardrail accept auto-continues pipeline (propose-followups → pr-draft → merge)
+- **File:** `serve-dashboard.mjs` (guardrail decision handler, `action === 'accept'`)
+- **Bug (BUG-020):** After accepting guardrail, task was left at IMPLEMENTED/IDLE with no way to continue.
+- **Fix:** Accept handler now:
+  1. Sets `runtime_status: 'running'` and `current_step: 'propose-followups'` (not IDLE)
+  2. Responds immediately to the user
+  3. Runs remaining pipeline steps (propose-followups → pr-draft → merge) in fire-and-forget background, same pattern as the test and retry handlers
+  4. After merge, spawns follow-up tasks from approved proposals
+  5. On failure at any step, sets `runtime_status: 'FAILED'` and `failed_step` so Retry button appears
+- **Impact:** All projects. Guardrail accept is now a one-click action that completes the pipeline.
+
+### BUG-024: Snapshot extension filter misses Python/Markdown/Config files — FIXED (FIX-050)
+- **Severity:** High
+- **Symptom:** ALL tasks show Yellow Guardrail ("no files changed on disk") even though Claude DID write files via Edit/Write tools. Git commits prove files exist.
+- **Root cause:** `snapshotSourceFiles()` in `execute-task-api.mjs` line 29 only captures web extensions (`.html`, `.js`, `.ts`, `.tsx`, `.jsx`, `.css`, `.mjs`, `.json`, `.mts`). Python (`.py`), docs (`.md`), config (`.yaml`, `.yml`) files are invisible to the snapshot diff.
+- **Impact:** Every non-web-extension task gets `written_files: []` and Yellow Guardrail. Affects aurena-k-list (Python project) and any non-JS project.
+- **Discovery:** T-0008, T-0009, T-0032, T-0033 all completed with valid artifacts on disk but all reported as Yellow.
+- **Status:** FIXED by FIX-050 (2026-04-11)
+
+### FIX-050: Expanded snapshot extension filter
+- **File:** `execute-task-api.mjs` (snapshotSourceFiles, line 29)
+- **Bug (BUG-024):** Snapshot only detected web-extension files.
+- **Fix:** Added `.py`, `.pyi`, `.pyx`, `.md`, `.rst`, `.txt`, `.yaml`, `.yml`, `.toml`, `.cfg`, `.ini`, `.sh`, `.bash`, `.zsh`, `.sql`, `.r`, `.R`, `.rb`, `.go`, `.rs`, `.java`, `.vue`, `.svelte`, `.graphql`, `.gql`, `.env.example`, `.env.template`.
+- **Impact:** All projects. Executor file detection now covers common source, docs, config, and shell files.
+
+### BUG-025: new-task.mjs hardcodes `repo: "ai-flow-lab"` — FIXED (FIX-051)
+- **Severity:** Medium
+- **Symptom:** Follow-up tasks spawned via `spawn-followup-task.mjs` or `spawn-from-goal-proposal.mjs` get `repo: "ai-flow-lab"` even when running for a different project (aurena-k-list, aurena-wbs).
+- **Root cause:** `new-task.mjs` line 39 had `repo: "ai-flow-lab"` hardcoded.
+- **Discovery:** T-0032, T-0033, T-0034 all created with `repo: "ai-flow-lab"` despite being aurena-k-list tasks.
+- **Status:** FIXED by FIX-051 (2026-04-11)
+
+### FIX-051: Derive repo name from REPO_ROOT env var
+- **File:** `new-task.mjs`
+- **Bug (BUG-025):** Hardcoded `repo: "ai-flow-lab"`.
+- **Fix:** Changed to `repo: path.basename(repoRoot())` — derives repo name from the `REPO_ROOT` env var (or cwd fallback).
+- **Manual fix:** Corrected T-0032, T-0033, T-0034 task JSON files from `"ai-flow-lab"` to `"aurena-k-list"`.
+
+### BUG-026: APP-mode prompts are 77KB+ due to full snapshot summary — FIXED (FIX-053)
+- **Severity:** Medium
+- **Symptom:** User sees enormous prompts (2000+ lines, 77KB) in ChatGPT prompt queue. Contains full file-by-file listing with function names for every file in the repo.
+- **Root cause:** `execute-task-api.mjs` includes `snapshotSummary` (all files with line counts + function lists) in the execute prompt. Useful for tool-capable executors (Claude/Codex), useless for ChatGPT which can't read files.
+- **Status:** FIXED by FIX-053 (2026-04-11)
+
+### FIX-053: Compact snapshot for non-tool executors
+- **File:** `execute-task-api.mjs`
+- **Fix:** Detects `task.executor` — full snapshot for claude/codex (tool-capable), compact filenames-only list (max 50 files) for ChatGPT/OpenAI.
+
+### BUG-027: APP-mode retries create duplicate prompts in queue — FIXED (FIX-054)
+- **Severity:** Medium
+- **Symptom:** Same 77KB prompt appears 2-5 times in prompts-queue for the same task+step. Each retry creates a new file.
+- **Root cause:** `callLLMApp()` always creates a new prompt file. No dedup check for existing pending prompts.
+- **Status:** FIXED by FIX-054 (2026-04-11)
+
+### FIX-054: Prompt dedup in callLLMApp()
+- **File:** `_llm-utils.mjs` (callLLMApp function)
+- **Fix:** Before creating a new prompt, scans queue for existing pending prompt with same taskId+step. If found, polls for that prompt's response instead of creating a duplicate.
+
+### BUG-028: Follow-up spiral on blocked tasks — FIXED (FIX-055)
+- **Severity:** Medium
+- **Symptom:** Task blocked on external dependency (missing fixture) → propose-followups spawns follow-ups that rediscover the same blocker → those spawn more follow-ups. 5 tasks spent documenting a missing file instead of doing useful work.
+- **Root cause:** propose-followups prompt had no instruction to detect blocked state or suppress spawning.
+- **Status:** FIXED by FIX-055 (2026-04-11)
+
+### FIX-055: Blocked-dependency detection in propose-followups
+- **File:** `propose-followups-api.mjs`
+- **Fix:** Added two rules to the LLM instructions:
+  1. If executor report shows task was BLOCKED on external dependency → set `should_spawn_now: false` for ALL follow-ups
+  2. No busywork — don't propose follow-ups that only document/describe a problem already covered by the executor report
+
+### FIX-052: Follow-up tasks inherit parent_goal_id
+- **File:** `spawn-followup-task.mjs`
+- **Bug:** Follow-up tasks (e.g. T-0034) were missing `parent_goal_id`, making them invisible to goal cascade status.
+- **Fix:** After spawning, reads parent task JSON and copies its `parent_goal_id` to the new task.
+
+### BUG-029: cascade-all deadlocks on stale `_runningCascades` counter — FIXED (FIX-056)
+- **File:** `serve-dashboard.mjs`
+- **Symptom:** `[CASCADE-ALL] Waiting for 1 running cascade(s)...` loops forever.
+- **Root cause:** If a single cascade is started (e.g. user clicks "Run Cascade" on one task), then cancelled mid-step (APP-mode architect waiting on ChatGPT paste), the `_runningCascades` counter stays at 1 because the poll loop is still alive or the finally block never ran. When cascade-all then starts, it enters `while (_runningCascades > 0)` and never exits.
+- **Impact:** cascade-all completely blocked, cannot run any goals.
+
+### FIX-056: cascade-all stale counter protection
+- **File:** `serve-dashboard.mjs`
+- **Fix:** (1) Force-reset `_runningCascades = 0` at cascade-all start before any goals run. (2) Add 60s timeout (12 × 5s polls) in the per-goal wait loop — if counter is still >0 after 60s, force-clear and continue. (3) Added `POST /api/cascade/reset-counter` endpoint for manual recovery.

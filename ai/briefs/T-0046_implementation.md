@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0046
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # Implementation Brief: T-0046 — Fix critical game bugs
 
 ## Priority Order
@@ -84,3 +91,11 @@ Fix: Add `levelReq` alias or update the template. Safest: add `levelReq` to each
 - [ ] "Next Level" button works, "Back to Menu" returns to main menu
 - [ ] Skins require level/coins to unlock (not all free)
 - [ ] Skills menu shows correct "Requires Level X" text
+
+
+## Related Documents
+- [[ai/specs/T-0046_spec.md|T-0046 spec]]
+- [[ai/reviews/T-0046_gemini_review.md|T-0046 review]]
+- [[ai/results/T-0046_executor_report.md|T-0046 result]]
+- [[ai/followups/T-0046_followups.md|T-0046 followup]]
+- [[ai/pr/T-0046_pr_draft.md|T-0046 pr-draft]]

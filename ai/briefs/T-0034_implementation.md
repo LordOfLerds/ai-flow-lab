@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0034
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0034 Implementation Brief: Score does not reset on game restart
 
 ## Agreed Changes
@@ -42,3 +49,9 @@ After the fix, restarting the game after death should show:
 - Coins: 0/0
 - Gems: 0
 - Health: full (3 hearts or configured max)
+
+
+## Related Documents
+- [[ai/specs/T-0034_spec.md|T-0034 spec]]
+- [[ai/reviews/T-0034_gemini_review.md|T-0034 review]]
+- [[ai/results/T-0034_executor_report.md|T-0034 result]]

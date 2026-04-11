@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0036
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0036 Executor Report
 
 ## Execution Report
@@ -44,3 +51,9 @@
 
 ---
 Files written: index.html
+
+
+## Related Documents
+- [[ai/specs/T-0036_spec.md|T-0036 spec]]
+- [[ai/reviews/T-0036_gemini_review.md|T-0036 review]]
+- [[ai/briefs/T-0036_implementation.md|T-0036 document]]

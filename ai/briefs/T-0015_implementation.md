@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0015
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0015 Implementation Brief
 
 ## Goal
@@ -81,3 +88,8 @@ Create lightweight browser-based smoke tests that validate the mock authenticati
 - Internationalization or Unicode edge cases
 - Mobile/touch interaction testing
 - Security testing (XSS protection, etc.)
+
+## Related Documents
+- [[ai/specs/T-0015_spec.md|T-0015 spec]]
+- [[ai/reviews/T-0015_gemini_review.md|T-0015 review]]
+- [[ai/results/T-0015_executor_report.md|T-0015 result]]

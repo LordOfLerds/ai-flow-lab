@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0041
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0041 Executor Report
 
 ## Execution Report
@@ -34,3 +41,11 @@
 
 ---
 Files written: index.html
+
+
+## Related Documents
+- [[ai/specs/T-0041_spec.md|T-0041 spec]]
+- [[ai/reviews/T-0041_gemini_review.md|T-0041 review]]
+- [[ai/briefs/T-0041_implementation.md|T-0041 document]]
+- [[ai/followups/T-0041_followups.md|T-0041 followup]]
+- [[ai/pr/T-0041_pr_draft.md|T-0041 pr-draft]]

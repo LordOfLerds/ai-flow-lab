@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0009
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0009 Spec
 
 ## Task metadata
@@ -51,3 +58,11 @@ The README file is the primary documentation entry point for all users. Any chan
 - Does the README have a table of contents that would need updating?
 - Are there any branding or style guidelines documented in AGENTS.md or elsewhere?
 - Should the greeting mention specific project benefits or just be generic?
+
+
+## Related Documents
+- [[ai/reviews/T-0009_gemini_review.md|T-0009 review]]
+- [[ai/briefs/T-0009_implementation.md|T-0009 document]]
+- [[ai/results/T-0009_result.md|T-0009 result]]
+- [[ai/followups/T-0009_followups.md|T-0009 followup]]
+- [[ai/pr/T-0009_pr_draft.md|T-0009 pr-draft]]

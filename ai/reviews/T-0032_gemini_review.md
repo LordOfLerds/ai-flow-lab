@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0032
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0032 Gemini Review
 
 ## Review target
@@ -89,3 +96,10 @@ The spec provides no testing strategy:
 9. **Make thresholds configurable**: Allow the 70% threshold and other validation parameters to be configured via environment variables or configuration files.
 
 10. **Consider git-based alternatives**: Investigate whether `git stash` or `git checkout HEAD` might provide more reliable restoration than in-memory snapshots.
+
+## Related Documents
+- [[ai/specs/T-0032_spec.md|T-0032 spec]]
+- [[ai/briefs/T-0032_implementation.md|T-0032 document]]
+- [[ai/results/T-0032_executor_report.md|T-0032 result]]
+- [[ai/followups/T-0032_followups.md|T-0032 followup]]
+- [[ai/pr/T-0032_pr_draft.md|T-0032 pr-draft]]

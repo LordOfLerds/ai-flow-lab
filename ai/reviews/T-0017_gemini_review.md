@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0017
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0017 Gemini Review
 
 ## Review target
@@ -33,3 +40,10 @@
 - **Address Directionality:** Add a requirement that score must never decrease even if the player moves backward.
 - **Collision Handling:** Clarify that "progress" must be measured by changes in the player's world coordinates, not by player input or animation state.
 - **Drift Instruction:** Add a specific instruction to check the existing code's `update()` loop for any variables like `scorePerFrame` or `timeBonus` and explicitly disable them.
+
+## Related Documents
+- [[ai/specs/T-0017_spec.md|T-0017 spec]]
+- [[ai/briefs/T-0017_implementation.md|T-0017 document]]
+- [[ai/results/T-0017_executor_report.md|T-0017 result]]
+- [[ai/followups/T-0017_followups.md|T-0017 followup]]
+- [[ai/pr/T-0017_pr_draft.md|T-0017 pr-draft]]

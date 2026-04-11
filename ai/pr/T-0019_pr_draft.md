@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0019
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0019] Add browser smoke coverage for Start UI visibility across supported entry points
 
 ## Summary
@@ -76,3 +83,11 @@ The executor added a Vitest smoke suite in `starter-test/tests/browser-smoke.tes
 **Branch**: `test/T-0019-add-browser-smoke-coverage-for-start-ui-visibility-across-supported-entry-points` → `main`
 **Generated**: 2026-04-07T20:25:50.253Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0019_spec.md|T-0019 spec]]
+- [[ai/reviews/T-0019_gemini_review.md|T-0019 review]]
+- [[ai/briefs/T-0019_implementation.md|T-0019 document]]
+- [[ai/results/T-0019_executor_report.md|T-0019 result]]
+- [[ai/followups/T-0019_followups.md|T-0019 followup]]

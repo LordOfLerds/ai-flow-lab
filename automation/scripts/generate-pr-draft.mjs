@@ -15,7 +15,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { loadTask, saveTask, readRepoFile, writeRepoFile, automationRoot, repoRoot } from "./_llm-utils.mjs";
+import { loadTask, saveTask, readRepoFile, writeRepoFile, automationRoot, repoRoot, addFrontmatter } from "./_llm-utils.mjs";
 import { listDecisions } from "./decision-gate.mjs";
 
 // ---------------------------------------------------------------------------
@@ -215,7 +215,13 @@ const prDraftJson = {
 
 // Write artifacts
 const mdPath = `ai/pr/${taskId}_pr_draft.md`;
-writeRepoFile(mdPath, prBody);
+writeRepoFile(mdPath, addFrontmatter(prBody, {
+  type: 'pr-draft',
+  task_id: taskId,
+  goal_id: task.parent_goal_id || '',
+  created: new Date().toISOString().split('T')[0],
+  tags: `[ai-flow-lab, pr-draft, ${task.lane_type || 'feature'}]`
+}));
 console.log(`✓ PR draft markdown: ${mdPath}`);
 
 const jsonDir = path.join(automationRoot(), "state", "pr_drafts");

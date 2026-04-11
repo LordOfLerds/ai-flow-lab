@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0030
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0030 Spec
 
 ## Task metadata
@@ -161,3 +168,11 @@ In `startGame()`, reset HUD elements to initial values.
 1. Should XP bar be functional? **Recommendation:** Show it but don't connect to XP system (separate task for XP/leveling).
 2. Should death count show in HUD? **Recommendation:** No — save for game-over screen.
 3. Should HUD animate (score counting up, coin pop)? **Recommendation:** Out of scope — basic display first.
+
+
+## Related Documents
+- [[ai/reviews/T-0030_gemini_review.md|T-0030 review]]
+- [[ai/briefs/T-0030_implementation.md|T-0030 document]]
+- [[ai/results/T-0030_executor_report.md|T-0030 result]]
+- [[ai/followups/T-0030_followups.md|T-0030 followup]]
+- [[ai/pr/T-0030_pr_draft.md|T-0030 pr-draft]]

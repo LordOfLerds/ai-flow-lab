@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0049
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0049 Implementation Brief
 
 ## Goal
@@ -51,3 +58,11 @@ Fix skin unlock progression so skins require levels/coins/gems, expand shop to 3
 - No animated skin previews in shop.
 - No achievement-based unlocks (only level + currency).
 - No refund mechanic for purchased items.
+
+
+## Related Documents
+- [[ai/specs/T-0049_spec.md|T-0049 spec]]
+- [[ai/reviews/T-0049_gemini_review.md|T-0049 review]]
+- [[ai/results/T-0049_executor_report.md|T-0049 result]]
+- [[ai/followups/T-0049_followups.md|T-0049 followup]]
+- [[ai/pr/T-0049_pr_draft.md|T-0049 pr-draft]]

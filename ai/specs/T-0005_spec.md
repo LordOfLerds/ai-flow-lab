@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0005
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0005 Spec
 
 ## Task metadata
@@ -110,3 +117,10 @@ The game currently has no reward or progression system. To make gameplay engagin
 3. What happens if player dies while magnet is active? (Assumption: magnet expires; coins stop moving toward player)
 4. Can coins be collected mid-air, or only on platforms? (Assumption: no restriction; collectibles are frictionless)
 5. Should magnet show a visual connection line to coins, or just move them? (Assumption: move silently, no visual line)
+
+
+## Related Documents
+- [[ai/reviews/T-0005_gemini_review.md|T-0005 review]]
+- [[ai/briefs/T-0005_implementation.md|T-0005 document]]
+- [[ai/followups/T-0005_followups.md|T-0005 followup]]
+- [[ai/pr/T-0005_pr_draft.md|T-0005 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0028
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0028 Gemini Review
 
 ## Review target
@@ -36,3 +43,10 @@
 - **Add Out-of-Bounds Check:** Explicitly trigger `killPlayer()` if `gs.player.y > (gs.level.tiles.length * CONFIG.TILE_SIZE)`.
 - **Define `oldY`:** Instruct the executor to store `gs.player.y` into a local `oldY` variable at the start of `updatePlayer()` to facilitate platform collision checks.
 - **Breakable Logic:** Add a specific clause in the Y-axis resolution: `if (tile === TILE.BREAKABLE && vy < 0) { tiles[row][col] = TILE.EMPTY; vy = 0; }`.
+
+## Related Documents
+- [[ai/specs/T-0028_spec.md|T-0028 spec]]
+- [[ai/briefs/T-0028_implementation.md|T-0028 document]]
+- [[ai/results/T-0028_executor_report.md|T-0028 result]]
+- [[ai/followups/T-0028_followups.md|T-0028 followup]]
+- [[ai/pr/T-0028_pr_draft.md|T-0028 pr-draft]]

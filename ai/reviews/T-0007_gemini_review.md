@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0007
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0007 Gemini Review
 
 ## Review target
@@ -70,3 +77,10 @@ Spec for implementing HUD (score, coins, XP, level, power-ups, skills), game-ove
 
 8. **Document particle system limits** - Add Constraint: "Max 50 concurrent particles. Use particle pool (pre-allocate). On spawn limit, remove oldest particle and reuse slot."
 
+
+
+## Related Documents
+- [[ai/specs/T-0007_spec.md|T-0007 spec]]
+- [[ai/briefs/T-0007_implementation.md|T-0007 document]]
+- [[ai/followups/T-0007_followups.md|T-0007 followup]]
+- [[ai/pr/T-0007_pr_draft.md|T-0007 pr-draft]]

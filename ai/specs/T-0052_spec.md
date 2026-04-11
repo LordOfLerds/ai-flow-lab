@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0052
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 T-0052 Spec
 
 Task metadata
@@ -140,3 +147,10 @@ Open questions
 	•	Is Escape already assigned to submenu/back-navigation behavior during gameplay-adjacent overlays?
 	•	Should Restart Level from pause reuse the same restart path as death/retry, or is there a separate documented current-level reset path?
 	•	When quitting from a paused run, do docs define any required persistence/update behavior before returning to menu, or should the executor preserve existing quit/menu semantics only?
+
+## Related Documents
+- [[ai/reviews/T-0052_gemini_review.md|T-0052 review]]
+- [[ai/briefs/T-0052_implementation.md|T-0052 document]]
+- [[ai/results/T-0052_executor_report.md|T-0052 result]]
+- [[ai/followups/T-0052_followups.md|T-0052 followup]]
+- [[ai/pr/T-0052_pr_draft.md|T-0052 pr-draft]]

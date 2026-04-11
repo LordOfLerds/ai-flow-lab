@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0019
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0019 Spec
 
 ## Task metadata
@@ -87,3 +94,10 @@ The coverage should avoid asserting speculative business rules such as authentic
 - Are there environment/setup requirements for browser tests in this repo that are defined outside the provided files?
 - Do the missing architecture/invariants docs define a required browser matrix or CI execution pattern for smoke tests?
 - Should redirect coverage also include the `/game` path in addition to `game.html`, since `game.html` contains path-based redirect logic for both?
+
+## Related Documents
+- [[ai/reviews/T-0019_gemini_review.md|T-0019 review]]
+- [[ai/briefs/T-0019_implementation.md|T-0019 document]]
+- [[ai/results/T-0019_executor_report.md|T-0019 result]]
+- [[ai/followups/T-0019_followups.md|T-0019 followup]]
+- [[ai/pr/T-0019_pr_draft.md|T-0019 pr-draft]]

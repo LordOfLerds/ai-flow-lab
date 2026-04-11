@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0017
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0017 Executor Result
 
 ## Task
@@ -844,3 +851,11 @@ describe("HUD score display", () => {
 ### Suggested follow-ups
 1. feature-lane — Expose the progress scoring unit/multiplier via config or difficulty settings so designers can tune how quickly forward motion adds points.
 2. test-lane — Add a headless browser (e.g., Playwright) regression that loads `game.html`, simulates a few frames with mocked positions, and asserts that the HUD score stays in sync with `gs.score` for an end-to-end safety net.
+
+
+## Related Documents
+- [[ai/specs/T-0017_spec.md|T-0017 spec]]
+- [[ai/reviews/T-0017_gemini_review.md|T-0017 review]]
+- [[ai/briefs/T-0017_implementation.md|T-0017 document]]
+- [[ai/followups/T-0017_followups.md|T-0017 followup]]
+- [[ai/pr/T-0017_pr_draft.md|T-0017 pr-draft]]

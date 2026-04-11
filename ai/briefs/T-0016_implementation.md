@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0016
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0016 Implementation Brief
 
 ## Goal
@@ -107,3 +114,10 @@ To resolve spec/review contradictions, implement with this policy:
 - Refactoring the full auth UI or repairing unrelated CSS issues
 - Adding global header/nav session indicators not already implied by current implementation
 - Changing gameplay, save data, or other app behavior beyond the visible mock-auth session affordance
+
+## Related Documents
+- [[ai/specs/T-0016_spec.md|T-0016 spec]]
+- [[ai/reviews/T-0016_gemini_review.md|T-0016 review]]
+- [[ai/results/T-0016_executor_report.md|T-0016 result]]
+- [[ai/followups/T-0016_followups.md|T-0016 followup]]
+- [[ai/pr/T-0016_pr_draft.md|T-0016 pr-draft]]

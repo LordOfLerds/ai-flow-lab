@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0034
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0034 Gemini Review
 
 ## Review target
@@ -51,3 +58,8 @@ T-0034 spec for fixing the bug where player score, coins, and gems persist acros
 4. **Add test methodology** - Include steps to reproduce bug, verify fix, and test edge cases
 5. **Validate assumptions** - Confirm `gs` object properties and that `startGame()` is the correct intervention point
 6. **Check for completeness** - Verify no other score-related state needs resetting
+
+## Related Documents
+- [[ai/specs/T-0034_spec.md|T-0034 spec]]
+- [[ai/briefs/T-0034_implementation.md|T-0034 document]]
+- [[ai/results/T-0034_executor_report.md|T-0034 result]]

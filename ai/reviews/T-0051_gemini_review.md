@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0051
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0051 Gemini Review
 
 ## Review target
@@ -33,3 +40,11 @@ Spec T-0051: Polish — level complete celebration, progress bar, smooth transit
 3. Cap menu stack at 10 entries to prevent memory issues.
 4. Add transition lock: `if (transition.active) return;` at top of all menu switch functions.
 5. Consider making confetti particle count configurable (15 for mobile, 30 for desktop).
+
+
+## Related Documents
+- [[ai/specs/T-0051_spec.md|T-0051 spec]]
+- [[ai/briefs/T-0051_implementation.md|T-0051 document]]
+- [[ai/results/T-0051_executor_report.md|T-0051 result]]
+- [[ai/followups/T-0051_followups.md|T-0051 followup]]
+- [[ai/pr/T-0051_pr_draft.md|T-0051 pr-draft]]

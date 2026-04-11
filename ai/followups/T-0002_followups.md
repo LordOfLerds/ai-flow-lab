@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0002
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0002 Follow-ups
 
 ## Task outcome summary
@@ -59,3 +66,10 @@ Spawn **F-1 (Build level system with platforms, terrain, and scrolling)** immedi
 - F-1 should prioritize simple, reusable level format (tile array or platform list) to unblock downstream tasks.
 - Consider parallel track: F-1 (levels) can proceed alongside F-2 (obstacles) once level data format is defined.
 - F-3 and F-4 represent non-essential but high-impact polish; sequence after core obstacle/enemy loop is working.
+
+
+## Related Documents
+- [[ai/specs/T-0002_spec.md|T-0002 spec]]
+- [[ai/reviews/T-0002_gemini_review.md|T-0002 review]]
+- [[ai/briefs/T-0002_implementation.md|T-0002 document]]
+- [[ai/pr/T-0002_pr_draft.md|T-0002 pr-draft]]

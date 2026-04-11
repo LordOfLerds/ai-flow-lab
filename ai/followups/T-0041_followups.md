@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0041
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 T-0041 Follow-ups
 
 Task outcome summary
@@ -63,3 +70,10 @@ F-1
 Notes for planner
 
 No decision blockers identified from the executor report. The major feature follow-ups suggested by the executor are already handled by T-0042, T-0043, and T-0044, so the best net-new follow-ups are small auth hardening and persistence-validation tasks rather than more feature expansion.
+
+## Related Documents
+- [[ai/specs/T-0041_spec.md|T-0041 spec]]
+- [[ai/reviews/T-0041_gemini_review.md|T-0041 review]]
+- [[ai/briefs/T-0041_implementation.md|T-0041 document]]
+- [[ai/results/T-0041_executor_report.md|T-0041 result]]
+- [[ai/pr/T-0041_pr_draft.md|T-0041 pr-draft]]

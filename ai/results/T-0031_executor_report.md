@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0031
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0031 Executor Result
 
 ## Task
@@ -1287,3 +1294,11 @@ init();
 1. feature-lane: Add automated canvas/gameplay tests for moving platform interactions to guard against regressions.
 2. test-lane: Create a lightweight harness to simulate moving platform physics headlessly for deterministic validation.
 3. docs-lane: Update player mechanics documentation to describe the new moving platform behavior and edge cases.
+
+
+## Related Documents
+- [[ai/specs/T-0031_spec.md|T-0031 spec]]
+- [[ai/reviews/T-0031_gemini_review.md|T-0031 review]]
+- [[ai/briefs/T-0031_implementation.md|T-0031 document]]
+- [[ai/followups/T-0031_followups.md|T-0031 followup]]
+- [[ai/pr/T-0031_pr_draft.md|T-0031 pr-draft]]

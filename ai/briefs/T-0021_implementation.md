@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0021
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0021 Implementation Brief
 
 ## Goal
@@ -96,3 +103,10 @@ If the repo already has relevant automated coverage, extend or use that path rat
 - Do not solve every possible OS/architecture combination unless already in documented scope.
 - Do not refactor unrelated CI jobs, app code, or browser-facing pages.
 - Do not add broad caching, containerization, or test-matrix work unless strictly required for this smoke test to run.
+
+## Related Documents
+- [[ai/specs/T-0021_spec.md|T-0021 spec]]
+- [[ai/reviews/T-0021_gemini_review.md|T-0021 review]]
+- [[ai/results/T-0021_executor_report.md|T-0021 result]]
+- [[ai/followups/T-0021_followups.md|T-0021 followup]]
+- [[ai/pr/T-0021_pr_draft.md|T-0021 pr-draft]]

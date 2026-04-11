@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0015
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0015 Spec
 
 ## Task metadata
@@ -114,3 +121,8 @@ Create browser-based smoke tests that validate:
 4. Is there a preference for a specific testing framework or approach?
 5. Should tests be integrated into a CI/CD pipeline or remain manual?
 6. How should test failures be reported and tracked?
+
+## Related Documents
+- [[ai/reviews/T-0015_gemini_review.md|T-0015 review]]
+- [[ai/briefs/T-0015_implementation.md|T-0015 document]]
+- [[ai/results/T-0015_executor_report.md|T-0015 result]]

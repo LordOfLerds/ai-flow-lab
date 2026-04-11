@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0009
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0009 Implementation Brief
 
 ## Goal
@@ -63,3 +70,11 @@ Example tone: "Welcome! This project implements the AI Flow Lab automation syste
 - Do not add badges, links to social media, or additional metadata
 - Do not modify any code examples or documentation content
 - Do not change README in subdirectories or alternate locations
+
+
+## Related Documents
+- [[ai/specs/T-0009_spec.md|T-0009 spec]]
+- [[ai/reviews/T-0009_gemini_review.md|T-0009 review]]
+- [[ai/results/T-0009_result.md|T-0009 result]]
+- [[ai/followups/T-0009_followups.md|T-0009 followup]]
+- [[ai/pr/T-0009_pr_draft.md|T-0009 pr-draft]]

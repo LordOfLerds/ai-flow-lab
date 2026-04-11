@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0019
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0019 Gemini Review
 
 ## Review target
@@ -34,3 +41,10 @@ The spec `T-0019_spec.md` aims to establish browser-based smoke test coverage fo
 *   **Add Interactivity Requirement:** Change "visibility" to "visibility and readiness." The test should assert that a primary action element (like a "Start Game" button) is visible and enabled.
 *   **Specify Timeout Policy:** Define a standard timeout for the `game.html` redirect (e.g., 5000ms) to prevent indefinite hanging in CI.
 *   **Environment Agnosticism:** Require the test to use an environment variable (e.g., `BASE_URL`) rather than hardcoding `localhost`.
+
+## Related Documents
+- [[ai/specs/T-0019_spec.md|T-0019 spec]]
+- [[ai/briefs/T-0019_implementation.md|T-0019 document]]
+- [[ai/results/T-0019_executor_report.md|T-0019 result]]
+- [[ai/followups/T-0019_followups.md|T-0019 followup]]
+- [[ai/pr/T-0019_pr_draft.md|T-0019 pr-draft]]

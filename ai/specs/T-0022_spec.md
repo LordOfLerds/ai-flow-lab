@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0022
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0022 Spec
 
 ## Task metadata
@@ -119,3 +126,10 @@ The resulting documentation should allow a maintainer to answer:
 - Are there CI-specific browser setup requirements that must be documented separately from local setup?
 - Do the missing primary documentation files under `docs/` already define testing architecture or runtime prerequisites?
 - If repository code and docs disagree once full repo inspection occurs, should the discrepancy be recorded in `ai/current-state/drift-register.md` per `AGENTS.md`?
+
+## Related Documents
+- [[ai/reviews/T-0022_gemini_review.md|T-0022 review]]
+- [[ai/briefs/T-0022_implementation.md|T-0022 document]]
+- [[ai/results/T-0022_executor_report.md|T-0022 result]]
+- [[ai/followups/T-0022_followups.md|T-0022 followup]]
+- [[ai/pr/T-0022_pr_draft.md|T-0022 pr-draft]]

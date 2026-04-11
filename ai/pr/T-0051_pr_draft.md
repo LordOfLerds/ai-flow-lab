@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0051
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0051] Polish: level complete celebration, progress bar, smooth transitions
 
 ## Summary
@@ -71,3 +78,11 @@ No critical follow-ups needed. All 6 polish items were implemented.
 **Branch**: `feature/T-0051` → `main`
 **Generated**: 2026-04-09T00:49:09.488Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0051_spec.md|T-0051 spec]]
+- [[ai/reviews/T-0051_gemini_review.md|T-0051 review]]
+- [[ai/briefs/T-0051_implementation.md|T-0051 document]]
+- [[ai/results/T-0051_executor_report.md|T-0051 result]]
+- [[ai/followups/T-0051_followups.md|T-0051 followup]]

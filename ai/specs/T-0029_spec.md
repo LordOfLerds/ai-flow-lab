@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0029
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0029 Spec
 
 ## Task metadata
@@ -133,3 +140,11 @@ function gameLoop() {
 1. Should dead enemies have a death animation (flash/fade)? **Recommendation:** Yes, but keep it minimal — flash for 10 frames then remove.
 2. Should stomping give temporary invincibility? **Recommendation:** No — the bounce upward provides natural protection.
 3. Should enemy speed scale with level difficulty? **Recommendation:** Already happens — `vx` includes `diff * 0.15` from generation.
+
+
+## Related Documents
+- [[ai/reviews/T-0029_gemini_review.md|T-0029 review]]
+- [[ai/briefs/T-0029_implementation.md|T-0029 document]]
+- [[ai/results/T-0029_executor_report.md|T-0029 result]]
+- [[ai/followups/T-0029_followups.md|T-0029 followup]]
+- [[ai/pr/T-0029_pr_draft.md|T-0029 pr-draft]]

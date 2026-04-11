@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0029
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0029 Gemini Review
 
 ## Review target
@@ -40,3 +47,10 @@
     checkEnemyCollision(); // Perform collision after all movement
     ```
 4.  **Define Ledge Check Offsets:** Use `enemy.vx > 0 ? 16 : -1` for the ledge check X-offset to ensure it looks exactly one pixel beyond the current horizontal footprint.
+
+## Related Documents
+- [[ai/specs/T-0029_spec.md|T-0029 spec]]
+- [[ai/briefs/T-0029_implementation.md|T-0029 document]]
+- [[ai/results/T-0029_executor_report.md|T-0029 result]]
+- [[ai/followups/T-0029_followups.md|T-0029 followup]]
+- [[ai/pr/T-0029_pr_draft.md|T-0029 pr-draft]]

@@ -1,3 +1,10 @@
+---
+type: result
+task_id: T-0035
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # T-0035 Executor Report
 
 ## Execution Report
@@ -34,3 +41,9 @@
 
 ---
 Files written: index.html
+
+
+## Related Documents
+- [[ai/specs/T-0035_spec.md|T-0035 spec]]
+- [[ai/reviews/T-0035_gemini_review.md|T-0035 review]]
+- [[ai/briefs/T-0035_implementation.md|T-0035 document]]

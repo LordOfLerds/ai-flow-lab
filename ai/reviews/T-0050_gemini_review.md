@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0050
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0050 Gemini Review
 
 ## Review target
@@ -32,3 +39,11 @@ Spec T-0050: Add Supabase backend for user auth, persistent progress, and leader
 3. Note that database schema must be created manually in Supabase dashboard (not from game code).
 4. Add error toast/notification for failed saves rather than silent failure.
 5. Consider adding display_name field to user_progress for leaderboard privacy.
+
+
+## Related Documents
+- [[ai/specs/T-0050_spec.md|T-0050 spec]]
+- [[ai/briefs/T-0050_implementation.md|T-0050 document]]
+- [[ai/results/T-0050_executor_report.md|T-0050 result]]
+- [[ai/followups/T-0050_followups.md|T-0050 followup]]
+- [[ai/pr/T-0050_pr_draft.md|T-0050 pr-draft]]

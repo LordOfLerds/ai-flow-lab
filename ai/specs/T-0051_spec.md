@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0051
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0051 Spec
 
 ## Task metadata
@@ -110,3 +117,11 @@ gs.menuStack = []; // Stack of previous screens
 ## Open questions
 - Should star ratings unlock bonus rewards (e.g., extra coins for 3 stars)?
 - Should there be a "best time" per level display?
+
+
+## Related Documents
+- [[ai/reviews/T-0051_gemini_review.md|T-0051 review]]
+- [[ai/briefs/T-0051_implementation.md|T-0051 document]]
+- [[ai/results/T-0051_executor_report.md|T-0051 result]]
+- [[ai/followups/T-0051_followups.md|T-0051 followup]]
+- [[ai/pr/T-0051_pr_draft.md|T-0051 pr-draft]]

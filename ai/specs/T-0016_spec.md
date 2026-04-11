@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0016
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0016 Spec
 
 ## Task metadata
@@ -123,3 +130,10 @@ Those behaviors should remain aligned with existing implementation if present.
 - Should logout clear any mock user input fields, saved mock session data, or status messages?
 - Are there docs in `docs/DOMAIN_MODEL.md`, `docs/INVARIANTS.md`, `docs/ARCHITECTURE.md`, or `docs/ADR/` that define mock auth behavior but were not included in the task input?
 - If the hidden code already implements login state transitions, should this task only expose missing UI controls, or also normalize state-handling behavior if inconsistencies are found?
+
+## Related Documents
+- [[ai/reviews/T-0016_gemini_review.md|T-0016 review]]
+- [[ai/briefs/T-0016_implementation.md|T-0016 document]]
+- [[ai/results/T-0016_executor_report.md|T-0016 result]]
+- [[ai/followups/T-0016_followups.md|T-0016 followup]]
+- [[ai/pr/T-0016_pr_draft.md|T-0016 pr-draft]]

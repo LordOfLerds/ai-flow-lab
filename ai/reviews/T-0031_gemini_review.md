@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0031
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0031 Gemini Review
 
 ## Review target
@@ -32,3 +39,10 @@ The spec aims to transition moving platform position calculations from the rende
 *   **Prevent Multiple Delta Application:** Add `break;` at the end of the collision detection logic once a platform is found and resolved.
 *   **Safe Horizontal Ride:** Wrap the `p.x += mp.deltaX` in a basic tile check or move the `checkMovingPlatformCollision` call to *before* the horizontal tile collision resolution in `updatePlayer` (though this requires a more significant refactor of `updatePlayer`).
 *   **Initialization:** Ensure the initialization loop for `currentX/Y` is also present in any "Reset Level" or "Next Level" logic, not just `startGame()`.
+
+## Related Documents
+- [[ai/specs/T-0031_spec.md|T-0031 spec]]
+- [[ai/briefs/T-0031_implementation.md|T-0031 document]]
+- [[ai/results/T-0031_executor_report.md|T-0031 result]]
+- [[ai/followups/T-0031_followups.md|T-0031 followup]]
+- [[ai/pr/T-0031_pr_draft.md|T-0031 pr-draft]]

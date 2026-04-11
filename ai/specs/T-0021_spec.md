@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0021
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0021 Spec
 
 ## Task metadata
@@ -123,3 +130,10 @@ Because the exact smoke-test runner is not documented in the provided truth set,
 - Is the expected behavior to provision only in CI/test environments, or also to provide a fallback for local developers without Chrome installed?
 - Does the current smoke test require a concrete executable path, or can it use a framework-default managed browser installation?
 - If code is already ahead of docs on this topic, what exact drift entry should be recorded before implementation proceeds?
+
+## Related Documents
+- [[ai/reviews/T-0021_gemini_review.md|T-0021 review]]
+- [[ai/briefs/T-0021_implementation.md|T-0021 document]]
+- [[ai/results/T-0021_executor_report.md|T-0021 result]]
+- [[ai/followups/T-0021_followups.md|T-0021 followup]]
+- [[ai/pr/T-0021_pr_draft.md|T-0021 pr-draft]]

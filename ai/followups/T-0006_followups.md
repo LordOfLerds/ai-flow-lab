@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0006
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0006 Follow-ups
 
 ## Task outcome summary
@@ -60,3 +67,10 @@ Spawn **F-1 (Add HUD, score tracking, game over, menus, and polish)** immediatel
 - F-2 (skill effects) should follow F-1 completion; adds gameplay depth without breaking core loop.
 - F-3 (save/load) significantly improves long-term engagement; prioritize if targeting sustained play sessions.
 - F-4 (audio) adds polish; defer to post-MVP if time is constrained.
+
+
+## Related Documents
+- [[ai/specs/T-0006_spec.md|T-0006 spec]]
+- [[ai/reviews/T-0006_gemini_review.md|T-0006 review]]
+- [[ai/briefs/T-0006_implementation.md|T-0006 document]]
+- [[ai/pr/T-0006_pr_draft.md|T-0006 pr-draft]]

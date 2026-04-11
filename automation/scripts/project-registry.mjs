@@ -140,6 +140,7 @@ export function updateProject(projectId, updates) {
   if (updates.name) project.name = updates.name;
   if (updates.path) project.path = path.resolve(updates.path);
   if (updates.automation_path) project.automation_path = path.resolve(updates.automation_path);
+  if (updates.chatgpt_chat_url !== undefined) project.chatgpt_chat_url = updates.chatgpt_chat_url;
   saveRegistry(reg);
 
   return { ok: true, project };

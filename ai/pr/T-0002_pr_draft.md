@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0002
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0002] Implement player character with physics and controls
 
 ## Summary
@@ -62,3 +69,10 @@ T-0002 successfully added player character mechanics including physics simulatio
 **Branch**: `feature/T-0002-implement-player-character-with-physics-and-controls` → `main`
 **Generated**: 2026-04-07T05:44:58.727Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0002_spec.md|T-0002 spec]]
+- [[ai/reviews/T-0002_gemini_review.md|T-0002 review]]
+- [[ai/briefs/T-0002_implementation.md|T-0002 document]]
+- [[ai/followups/T-0002_followups.md|T-0002 followup]]

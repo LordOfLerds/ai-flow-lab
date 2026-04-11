@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0004
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0004] Add obstacles and enemies
 
 ## Summary
@@ -63,3 +70,10 @@ T-0004 successfully added obstacles and enemies to the game, including spike tra
 **Branch**: `feature/T-0004-add-obstacles-and-enemies` → `main`
 **Generated**: 2026-04-07T05:46:05.197Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0004_spec.md|T-0004 spec]]
+- [[ai/reviews/T-0004_gemini_review.md|T-0004 review]]
+- [[ai/briefs/T-0004_implementation.md|T-0004 document]]
+- [[ai/followups/T-0004_followups.md|T-0004 followup]]

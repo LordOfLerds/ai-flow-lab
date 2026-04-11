@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0031
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0031 Follow-ups
 
 ## Task outcome summary
@@ -50,3 +57,11 @@ T-0031 implemented moving platform collision and ride mechanics for Pixel Runner
 - The T-0031 executor worked correctly this time — it produced 1239 lines with all existing code preserved and new functions properly integrated. The difference from previous failures may be that the brief was more explicit about preserving existing functions.
 - Core game loop is now complete: physics → enemies → moving platforms → HUD → collision. The remaining features are polish (game-over screen, sound, level select).
 - Consider reducing the `maxDepth` on cascades spawned from follow-ups to avoid chains going too deep without human review.
+
+
+## Related Documents
+- [[ai/specs/T-0031_spec.md|T-0031 spec]]
+- [[ai/reviews/T-0031_gemini_review.md|T-0031 review]]
+- [[ai/briefs/T-0031_implementation.md|T-0031 document]]
+- [[ai/results/T-0031_executor_report.md|T-0031 result]]
+- [[ai/pr/T-0031_pr_draft.md|T-0031 pr-draft]]

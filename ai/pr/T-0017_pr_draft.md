@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0017
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0017] Score goes higher while player not moving
 
 ## Summary
@@ -80,3 +87,11 @@ Implemented outcomes from the executor report:
 **Branch**: `feature/T-0017-score-goes-higher-while-player-not-moving` → `main`
 **Generated**: 2026-04-07T20:03:42.127Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0017_spec.md|T-0017 spec]]
+- [[ai/reviews/T-0017_gemini_review.md|T-0017 review]]
+- [[ai/briefs/T-0017_implementation.md|T-0017 document]]
+- [[ai/results/T-0017_executor_report.md|T-0017 result]]
+- [[ai/followups/T-0017_followups.md|T-0017 followup]]

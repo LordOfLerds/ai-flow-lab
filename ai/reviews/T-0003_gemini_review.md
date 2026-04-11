@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0003
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # Critique: T-0003 Level System Architecture
 
 ## Review Target
@@ -141,3 +148,10 @@ if (player.y > levelHeight + 100) {
 1. Level generation validation is BLOCKING - must ensure all levels are playable
 2. Moving platform physics integration is BLOCKING - must sync with T-0002 physics
 3. One-way platforms likely REQUIRED by actual game design (typical for platformers)
+
+
+## Related Documents
+- [[ai/specs/T-0003_spec.md|T-0003 spec]]
+- [[ai/briefs/T-0003_implementation.md|T-0003 document]]
+- [[ai/followups/T-0003_followups.md|T-0003 followup]]
+- [[ai/pr/T-0003_pr_draft.md|T-0003 pr-draft]]

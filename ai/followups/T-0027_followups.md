@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0027
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 # T-0027 Follow-ups
 
 ## Task outcome summary
@@ -57,3 +64,11 @@ T-0027 implemented the tile rendering and camera system for Pixel Runner. The `r
 - The executor report for T-0027 was malformed (Codex leaked internal reasoning). Consider adding report validation to the pipeline to detect and flag this.
 - Visual verification of the rendering output should be done before spawning physics tasks — if tiles don't render correctly, the physics task will be building on a broken foundation.
 - The existing tasks T-0001 through T-0008 from the original project bootstrap cover similar ground but were designed for a different architecture. The new tasks (F-1 through F-4) are specifically designed for the current single-file `index.html` architecture and should take precedence.
+
+
+## Related Documents
+- [[ai/specs/T-0027_spec.md|T-0027 spec]]
+- [[ai/reviews/T-0027_gemini_review.md|T-0027 review]]
+- [[ai/briefs/T-0027_implementation.md|T-0027 document]]
+- [[ai/results/T-0027_executor_report.md|T-0027 result]]
+- [[ai/pr/T-0027_pr_draft.md|T-0027 pr-draft]]

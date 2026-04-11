@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0024
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 You are the project architect.
 Return ONLY markdown for the spec file.
 Do not implement code.
@@ -742,3 +749,10 @@ Ergebnis: 59/59 ✓ in 0.3s
 5. CI Integration (GitHub Actions)
 
 Was ist dein nächster Architektur-Auftrag?
+
+## Related Documents
+- [[ai/reviews/T-0024_gemini_review.md|T-0024 review]]
+- [[ai/briefs/T-0024_implementation.md|T-0024 document]]
+- [[ai/results/T-0024_executor_report.md|T-0024 result]]
+- [[ai/followups/T-0024_followups.md|T-0024 followup]]
+- [[ai/pr/T-0024_pr_draft.md|T-0024 pr-draft]]

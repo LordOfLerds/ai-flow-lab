@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0022
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0022 Implementation Brief
 
 ## Goal
@@ -119,3 +126,10 @@ No implementation or browser execution is required unless existing repo instruct
 - Adding CI setup, Docker dependencies, or sandbox flags unless already present and merely being documented.
 - Expanding into general UI, gameplay, auth, or unrelated testing documentation.
 - Normalizing undocumented code behavior without noting uncertainty or drift.
+
+## Related Documents
+- [[ai/specs/T-0022_spec.md|T-0022 spec]]
+- [[ai/reviews/T-0022_gemini_review.md|T-0022 review]]
+- [[ai/results/T-0022_executor_report.md|T-0022 result]]
+- [[ai/followups/T-0022_followups.md|T-0022 followup]]
+- [[ai/pr/T-0022_pr_draft.md|T-0022 pr-draft]]

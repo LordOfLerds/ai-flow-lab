@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0024
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0024 Gemini Review
 
 ## Review target
@@ -30,3 +37,10 @@
 - **Formalize state/prompts-queue**: The architecture doc should explicitly define the `state/` directory structure as a "Communication Interface" between the Node.js pipeline and the Browser-based Dashboard.
 - **Cross-Reference ADR-0003**: Add a requirement to ensure the updated `ARCHITECTURE.md` specifically aligns with the flow defined in `docs/ADR/ADR-0003-end-to-end-reference-flow.md`.
 - **Define Entry Point Roles**: Clarify in the docs that `index.html` is the "Unified Interface" (Game + Dashboard) while `game.html` is a legacy entry point.
+
+## Related Documents
+- [[ai/specs/T-0024_spec.md|T-0024 spec]]
+- [[ai/briefs/T-0024_implementation.md|T-0024 document]]
+- [[ai/results/T-0024_executor_report.md|T-0024 result]]
+- [[ai/followups/T-0024_followups.md|T-0024 followup]]
+- [[ai/pr/T-0024_pr_draft.md|T-0024 pr-draft]]

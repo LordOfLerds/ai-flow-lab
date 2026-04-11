@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0001
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0001] Set up HTML canvas, game loop, and pixel-art rendering engine
 
 ## Summary
@@ -66,3 +73,10 @@ T-0001 successfully established the foundational game engine with a working canv
 **Branch**: `feature/T-0001-set-up-html-canvas-game-loop-and-pixel-art-rendering-engine` → `main`
 **Generated**: 2026-04-07T05:44:05.740Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0001_spec.md|T-0001 spec]]
+- [[ai/reviews/T-0001_gemini_review.md|T-0001 review]]
+- [[ai/briefs/T-0001_implementation.md|T-0001 document]]
+- [[ai/followups/T-0001_followups.md|T-0001 followup]]

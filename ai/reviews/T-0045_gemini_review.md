@@ -1,3 +1,10 @@
+---
+type: review
+task_id: T-0045
+created: 2026-04-10
+tags: [ai-flow-lab, review]
+---
+
 # T-0045 Gemini Review: Update game architecture and domain docs
 
 ## Review target
@@ -39,3 +46,11 @@ Task to audit and update three documentation files: `docs/ARCHITECTURE.md`, `doc
 
 ## Overall assessment
 **Critical task with significant consistency risk.** Three docs describing overlapping domains (systems, entities, rules) must be synchronized carefully. Recommend proceeding with checklist-driven approach: audit current code, identify inconsistencies, update docs methodically, then validate consistency across all three files before declaring complete.
+
+
+## Related Documents
+- [[ai/specs/T-0045_spec.md|T-0045 spec]]
+- [[ai/briefs/T-0045_implementation.md|T-0045 document]]
+- [[ai/results/T-0045_executor_report.md|T-0045 result]]
+- [[ai/followups/T-0045_followups.md|T-0045 followup]]
+- [[ai/pr/T-0045_pr_draft.md|T-0045 pr-draft]]

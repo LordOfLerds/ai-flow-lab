@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0017
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0017 Spec
 
 ## Task metadata
@@ -81,3 +88,10 @@ Those details remain open unless existing docs or code clearly establish them.
 - If the environment scrolls while the player appears still, should that count as progress?
 - Is score expected to track raw distance, milestones, or another progression metric?
 - Are there existing tests or invariants for scoring that need to be updated alongside this fix?
+
+## Related Documents
+- [[ai/reviews/T-0017_gemini_review.md|T-0017 review]]
+- [[ai/briefs/T-0017_implementation.md|T-0017 document]]
+- [[ai/results/T-0017_executor_report.md|T-0017 result]]
+- [[ai/followups/T-0017_followups.md|T-0017 followup]]
+- [[ai/pr/T-0017_pr_draft.md|T-0017 pr-draft]]

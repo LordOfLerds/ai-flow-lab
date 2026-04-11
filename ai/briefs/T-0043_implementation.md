@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0043
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0043 Implementation Brief
 
 ## Goal
@@ -75,3 +82,11 @@ function purchaseItem(category, itemId) {
 - Item tiers or rarity levels with color-coding
 - Trading or marketplace between players
 - Seasonal shop rotation or limited-time offers
+
+
+## Related Documents
+- [[ai/specs/T-0043_spec.md|T-0043 spec]]
+- [[ai/reviews/T-0043_gemini_review.md|T-0043 review]]
+- [[ai/results/T-0043_executor_report.md|T-0043 result]]
+- [[ai/followups/T-0043_followups.md|T-0043 followup]]
+- [[ai/pr/T-0043_pr_draft.md|T-0043 pr-draft]]

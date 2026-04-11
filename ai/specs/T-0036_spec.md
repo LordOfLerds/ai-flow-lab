@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0036
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 T-0036 Spec
 
 Task metadata
@@ -150,3 +157,8 @@ Open questions
 	•	Which abilities are documented as active keyboard-triggered abilities versus passive abilities?
 	•	What are the documented rules for unlocking/selecting skills, and are they still meant to be enforced in the menu UI?
 	•	What is the intended current runtime path for skill activation and cooldown display in the existing codebase?
+
+## Related Documents
+- [[ai/reviews/T-0036_gemini_review.md|T-0036 review]]
+- [[ai/briefs/T-0036_implementation.md|T-0036 document]]
+- [[ai/results/T-0036_executor_report.md|T-0036 result]]

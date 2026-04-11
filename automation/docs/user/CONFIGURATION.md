@@ -67,9 +67,9 @@ CLAUDE_API_KEY=sk-ant-...
 LLM_MODE=api
 
 # Optional: override default models
-OPENAI_MODEL=gpt-4-turbo
-GEMINI_MODEL=gemini-2.0-flash
-CLAUDE_MODEL=claude-opus-4
+OPENAI_MODEL=gpt-4o
+GEMINI_MODEL=gemini-2.5-flash-lite
+CLAUDE_MODEL=claude-sonnet-4-20250514
 
 # Optional: logging and debugging
 DEBUG=ai-flow-lab:*
@@ -82,6 +82,27 @@ CASCADE_DRY_RUN=false  # true = show what would spawn, don't execute
 # SaaS only: auth token
 AIFLOWLAB_TOKEN=...
 ```
+
+## Gemini Model Selection
+
+The `GEMINI_MODEL` variable controls which Google model handles the critique step. Choose carefully — deprecated models fail silently.
+
+**Stable models (recommended):**
+
+| Model | Use case | Notes |
+|-------|----------|-------|
+| `gemini-2.5-flash` | Default critique | Fast, good quality. Shared quota pool. |
+| `gemini-2.5-flash-lite` | Fallback / budget | Fastest, cheapest. **Separate quota** from flash — use when flash quota is exhausted (429 errors). |
+| `gemini-2.5-pro` | Complex analysis | Highest quality, slowest. Overkill for critique. |
+
+**Deprecated models (DO NOT USE):**
+- `gemini-2.0-flash` — retired, API calls hang or fail silently
+- `gemini-2.0-flash-lite` — retired
+- `gemini-1.5-*` — legacy
+
+**Quota strategy:** Free-tier Gemini has strict rate limits. If you hit 429 errors on `gemini-2.5-flash`, switch to `gemini-2.5-flash-lite` which uses a separate quota pool. The flash quota typically recovers within 1-24 hours.
+
+**Multi-project note:** Each project has its own `.env` file. The server loads the base `.env` from `ai-flow-lab/automation/` at startup, then overrides with the active project's `.env` on project switch. Make sure `GEMINI_MODEL` is set correctly in both files.
 
 ## Lane Configuration
 

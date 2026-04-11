@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0052
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 T-0052 Follow-ups
 
 Task outcome summary
@@ -27,3 +34,10 @@ Spawn F-1. The executor indicates implementation is already complete, so the bes
 Notes for planner
 
 No implementation follow-up is needed unless manual or automated verification disproves the executor report. The suggested follow-up is intentionally limited to test coverage and does not overlap with the existing pause feature task itself.
+
+## Related Documents
+- [[ai/specs/T-0052_spec.md|T-0052 spec]]
+- [[ai/reviews/T-0052_gemini_review.md|T-0052 review]]
+- [[ai/briefs/T-0052_implementation.md|T-0052 document]]
+- [[ai/results/T-0052_executor_report.md|T-0052 result]]
+- [[ai/pr/T-0052_pr_draft.md|T-0052 pr-draft]]

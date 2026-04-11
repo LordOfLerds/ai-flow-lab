@@ -1,3 +1,10 @@
+---
+type: followup
+task_id: T-0023
+created: 2026-04-10
+tags: [ai-flow-lab, followup]
+---
+
 T-0023 Follow-ups
 
 Task outcome summary
@@ -59,3 +66,10 @@ Notes for planner
 	•	Do not spawn a broad “rewrite architecture docs” task yet; the safer sequence is to close the clearly incomplete section first, then reassess whether additional runtime architecture coverage is still needed.
 	•	F-2 should remain a separate follow-up rather than being bundled into F-1, to keep review scope tight.
 	•	F-3 is optional and should only be created if repo docs actually contain another entry-point mention surface; otherwise skip it.
+
+## Related Documents
+- [[ai/specs/T-0023_spec.md|T-0023 spec]]
+- [[ai/reviews/T-0023_gemini_review.md|T-0023 review]]
+- [[ai/briefs/T-0023_implementation.md|T-0023 document]]
+- [[ai/results/T-0023_executor_report.md|T-0023 result]]
+- [[ai/pr/T-0023_pr_draft.md|T-0023 pr-draft]]

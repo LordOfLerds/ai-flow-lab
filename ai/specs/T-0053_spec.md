@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0053
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 T-0053 Spec
 
 Task metadata
@@ -143,3 +150,9 @@ Open questions
 	•	What runtime width should drive the requested proportional scaling: CSS viewport width, canvas width, container width, or another documented/current source?
 	•	Is the overlap caused primarily by fixed font/icon sizes, insufficient inter-item spacing, no wrapping behavior, or an interaction between multiple top-layer UI systems?
 	•	Do the product docs already define responsive HUD behavior or small-screen layout rules, or is the current runtime ahead of documentation on this point?
+
+## Related Documents
+- [[ai/reviews/T-0053_gemini_review.md|T-0053 review]]
+- [[ai/briefs/T-0053_implementation.md|T-0053 document]]
+- [[ai/results/T-0053_executor_report.md|T-0053 result]]
+- [[ai/followups/T-0053_followups.md|T-0053 followup]]

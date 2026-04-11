@@ -431,6 +431,97 @@ function createBugTask(bugSpec, parentTaskId) {
 // MAIN
 // ═══════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════
+// HAIKU PRE-CHECK (cost gate)
+// ═══════════════════════════════════════════════
+
+function buildHaikuPreCheckPrompt(task) {
+  const parts = [`You are a fast triage checker. Determine if this code change needs a full detailed test or if it's clearly safe.`];
+  parts.push(`\nTask: ${task.title} (${task.task_id})`);
+  if (task.description) parts.push(`Description: ${task.description}`);
+  parts.push(`Lane: ${task.lane_type || 'unknown'}`);
+
+  // Guardrail summary
+  if (task.guardrail_result) {
+    parts.push(`\nGuardrail level: ${task.guardrail_result.level}`);
+    for (const issue of (task.guardrail_result.issues || [])) {
+      parts.push(`- [${issue.severity}] ${issue.file}: ${issue.reason}`);
+    }
+  }
+
+  // Brief summary (truncated heavily)
+  if (task.brief_path) {
+    try {
+      const brief = readRepoFile(task.brief_path);
+      if (brief) parts.push(`\nBrief (summary):\n${truncate(brief, 3000)}`);
+    } catch (_) {}
+  }
+
+  // Executor report (truncated)
+  if (task.result_path) {
+    try {
+      const report = readRepoFile(task.result_path);
+      if (report) parts.push(`\nExecutor report:\n${truncate(report, 2000)}`);
+    } catch (_) {}
+  }
+
+  parts.push(`\nRespond with ONLY this JSON (no markdown fences):
+{
+  "needs_full_test": true or false,
+  "confidence": 0.0 to 1.0,
+  "reason": "one sentence explaining your decision"
+}
+
+Set needs_full_test=false ONLY if the change is clearly safe: cosmetic, docs-only, config tweaks, trivial renames. When in doubt, set needs_full_test=true.`);
+
+  return parts.join('\n');
+}
+
+async function runHaikuPreCheck(task) {
+  const prompt = buildHaikuPreCheckPrompt(task);
+  const startMs = Date.now();
+
+  console.log(`[COWORK-TEST] Running Haiku pre-check (${prompt.length} chars)...`);
+
+  try {
+    const cmd = `echo ${JSON.stringify(prompt)} | claude --print --model "claude-haiku-4-5-20251001" --max-turns 1`;
+    const { stdout } = await execFileAsync("bash", ["-c", cmd], {
+      cwd: repoRoot(),
+      timeout: 30000,
+      maxBuffer: 1024 * 1024,
+      env: { ...process.env }
+    });
+
+    const raw = (stdout || "").trim();
+    const durationMs = Date.now() - startMs;
+
+    // Log usage
+    logUsage({
+      taskId,
+      step: "cowork-test-precheck",
+      provider: "claude-cli",
+      model: "claude-haiku-4-5-20251001",
+      inputTokens: estimateTokens(prompt),
+      outputTokens: estimateTokens(raw),
+      durationMs,
+      costUsd: 0.01
+    });
+
+    // Parse JSON
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const result = JSON.parse(jsonMatch[0]);
+      console.log(`[COWORK-TEST] Haiku pre-check: needs_full_test=${result.needs_full_test}, confidence=${result.confidence}, reason="${result.reason}" (${durationMs}ms)`);
+      return result;
+    }
+  } catch (err) {
+    console.warn(`[COWORK-TEST] Haiku pre-check failed (${err.message}) — falling through to full test`);
+  }
+
+  // Default: run full test
+  return { needs_full_test: true, confidence: 0, reason: "pre-check failed or unparseable" };
+}
+
 const task = loadTask(taskId);
 if (!task) {
   console.error(`Task ${taskId} not found`);
@@ -439,6 +530,28 @@ if (!task) {
 
 console.log(`\n🧪 Cowork Test: ${taskId} — ${task.title}`);
 console.log(`   State: ${task.state}, Guardrail: ${task.guardrail_result?.level || 'n/a'}`);
+
+// 0. Haiku pre-check gate
+const skipPreCheck = process.argv.includes('--force');
+if (!skipPreCheck) {
+  const preCheck = await runHaikuPreCheck(task);
+  if (!preCheck.needs_full_test && preCheck.confidence > 0.8) {
+    console.log(`[COWORK-TEST] ✅ Haiku pre-check PASSED with high confidence (${preCheck.confidence}) — skipping full Sonnet test`);
+    console.log(`   Reason: ${preCheck.reason}`);
+    task.state = 'TESTED';
+    task.test_result = {
+      result: 'PASS',
+      summary: `Haiku pre-check: ${preCheck.reason}`,
+      pre_check: true,
+      confidence: preCheck.confidence,
+      tested_at: new Date().toISOString()
+    };
+    saveTask(taskId, task);
+    console.log(`[COWORK-TEST] Task ${taskId} updated: state=${task.state}`);
+    process.exit(0);
+  }
+  console.log(`[COWORK-TEST] Haiku pre-check says full test needed — proceeding with Sonnet...`);
+}
 
 // 1. Build test prompt
 const prompt = buildTestPrompt(task);

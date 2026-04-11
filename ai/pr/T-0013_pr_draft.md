@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0013
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0013] User Login
 
 ## Summary
@@ -83,3 +90,11 @@ Delivered behavior includes:
 **Branch**: `feature/T-0013-user-login` → `main`
 **Generated**: 2026-04-07T09:37:28.154Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0013_spec.md|T-0013 spec]]
+- [[ai/reviews/T-0013_gemini_review.md|T-0013 review]]
+- [[ai/briefs/T-0013_implementation.md|T-0013 document]]
+- [[ai/results/T-0013_executor_report.md|T-0013 result]]
+- [[ai/followups/T-0013_followups.md|T-0013 followup]]

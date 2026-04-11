@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0040
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0040 Spec
 
 ## Task metadata
@@ -90,3 +97,11 @@ The Pixel Runner game currently has a basic game over screen that shows only the
 1. Should the parallax layers use pre-drawn pixel art shapes or procedurally generated silhouettes? (Suggested: Procedural — simpler to implement as rectangles/triangles, consistent with existing pixel art style)
 2. Should the XP bar on game over show the actual level-up animation if the player levels up? (Suggested: Yes — it's satisfying and the XP system already exists)
 3. Should screen shake intensity scale with damage amount? (Suggested: No for v1 — use a fixed shake, customize later)
+
+
+## Related Documents
+- [[ai/reviews/T-0040_gemini_review.md|T-0040 review]]
+- [[ai/briefs/T-0040_implementation.md|T-0040 document]]
+- [[ai/results/T-0040_executor_report.md|T-0040 result]]
+- [[ai/followups/T-0040_followups.md|T-0040 followup]]
+- [[ai/pr/T-0040_pr_draft.md|T-0040 pr-draft]]

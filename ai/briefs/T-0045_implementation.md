@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0045
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0045 Implementation Brief
 
 ## Goal
@@ -100,3 +107,11 @@ INVARIANTS.md additions:
 - UI mockups or wireframes (separate design docs)
 - Performance analysis or optimization strategies
 - Multiplayer architecture or server state management
+
+
+## Related Documents
+- [[ai/specs/T-0045_spec.md|T-0045 spec]]
+- [[ai/reviews/T-0045_gemini_review.md|T-0045 review]]
+- [[ai/results/T-0045_executor_report.md|T-0045 result]]
+- [[ai/followups/T-0045_followups.md|T-0045 followup]]
+- [[ai/pr/T-0045_pr_draft.md|T-0045 pr-draft]]

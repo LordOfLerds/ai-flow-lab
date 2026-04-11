@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0024
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 T-0024 Implementation Brief
 
 Goal
@@ -98,3 +105,10 @@ Explicit non-goals
 	•	No attempt to classify game.html as deprecated, legacy, permanent, or distributor-specific unless already stated in truth docs.
 	•	No broad rewrite of docs/ARCHITECTURE.md.
 	•	No cleanup of unrelated automation architecture topics such as prompt queue internals, App Mode state persistence, multi-task queue collisions, or Gemini routing behavior unless a true blocking conflict in the touched architecture section forces a minimal note.
+
+## Related Documents
+- [[ai/specs/T-0024_spec.md|T-0024 spec]]
+- [[ai/reviews/T-0024_gemini_review.md|T-0024 review]]
+- [[ai/results/T-0024_executor_report.md|T-0024 result]]
+- [[ai/followups/T-0024_followups.md|T-0024 followup]]
+- [[ai/pr/T-0024_pr_draft.md|T-0024 pr-draft]]

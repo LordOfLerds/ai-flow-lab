@@ -51,6 +51,22 @@ export function writeRepoFile(relPath, content) {
   fs.writeFileSync(abs, content);
 }
 
+/**
+ * Add YAML frontmatter to markdown content for Obsidian compatibility.
+ * If content already has frontmatter (starts with ---), it is returned as-is.
+ */
+export function addFrontmatter(content, metadata = {}) {
+  if (content.trimStart().startsWith('---')) return content;
+  const fm = Object.entries(metadata)
+    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => {
+      if (Array.isArray(v)) return `${k}: [${v.join(', ')}]`;
+      return `${k}: ${v}`;
+    })
+    .join('\n');
+  return `---\n${fm}\n---\n\n${content}`;
+}
+
 export function requireEnv(name) {
   const value = process.env[name];
   if (!value || !value.trim()) {

@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0041
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0041 Implementation Brief
 
 ## Goal
@@ -90,3 +97,11 @@ Document as known limitation: last-write-wins. No cross-tab synchronization in v
 - Battle pass UI (future task T-0044)
 - Shop UI (future task T-0043)
 - Implementing completedLevels or battlePassTier functionality (only save/load the fields as empty defaults)
+
+
+## Related Documents
+- [[ai/specs/T-0041_spec.md|T-0041 spec]]
+- [[ai/reviews/T-0041_gemini_review.md|T-0041 review]]
+- [[ai/results/T-0041_executor_report.md|T-0041 result]]
+- [[ai/followups/T-0041_followups.md|T-0041 followup]]
+- [[ai/pr/T-0041_pr_draft.md|T-0041 pr-draft]]

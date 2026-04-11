@@ -1,3 +1,10 @@
+---
+type: pr-draft
+task_id: T-0023
+created: 2026-04-10
+tags: [ai-flow-lab, pr-draft]
+---
+
 # [T-0023] Document  as a compatibility redirect entry point in architecture docs
 
 ## Summary
@@ -78,3 +85,11 @@ T-0023 completed its intended narrow scope successfully: docs/ARCHITECTURE.md no
 **Branch**: `docs/T-0023-document-as-a-compatibility-redirect-entry-point-in-architecture-docs` → `main`
 **Generated**: 2026-04-07T20:58:14.476Z
 **Generator**: generate-pr-draft.mjs
+
+
+## Related Documents
+- [[ai/specs/T-0023_spec.md|T-0023 spec]]
+- [[ai/reviews/T-0023_gemini_review.md|T-0023 review]]
+- [[ai/briefs/T-0023_implementation.md|T-0023 document]]
+- [[ai/results/T-0023_executor_report.md|T-0023 result]]
+- [[ai/followups/T-0023_followups.md|T-0023 followup]]

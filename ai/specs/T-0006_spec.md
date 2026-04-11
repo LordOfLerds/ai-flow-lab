@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0006
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0006 Spec
 
 ## Task metadata
@@ -107,3 +114,10 @@ The game currently has no progression system. To provide long-term engagement, w
 3. Do skill bonuses stack (e.g., double jump + dash = 4 jumps)? (Assumption: no stacking; bonuses are independent and apply per-skill)
 4. Should character select screen be reachable mid-game (pause menu), or only at start? (Assumption: only at start; pausing deferred to T-0007)
 5. What happens if player unlocks a skin mid-level? (Assumption: skin change only applies on next level start, not mid-level)
+
+
+## Related Documents
+- [[ai/reviews/T-0006_gemini_review.md|T-0006 review]]
+- [[ai/briefs/T-0006_implementation.md|T-0006 document]]
+- [[ai/followups/T-0006_followups.md|T-0006 followup]]
+- [[ai/pr/T-0006_pr_draft.md|T-0006 pr-draft]]

@@ -160,6 +160,53 @@ ls -la .ai-flow-lab/tasks/TASK_ID/
 
 If spec lacks F-# blocks, they won't auto-generate. Edit spec and re-trigger propose-followups.
 
+## Wrong Dashboard After Server Start (Multi-Project)
+
+**Symptom:** You start the server but see an old/outdated dashboard without multi-project support, inline APP mode prompts, or other recent features.
+
+**Cause:** You're starting the server from the **project directory** (e.g. `aurena-wbs-ai-flow/automation/`) instead of from the **AI Flow Lab core directory** (`ai-flow-lab/automation/`). Each project has its own copy of `serve-dashboard.mjs` and `ui/dashboard.html`, but the canonical, up-to-date versions live in the `ai-flow-lab/` repo. The core server supports multi-project switching — it loads project-specific state and `.env` files dynamically.
+
+**Fix:**
+1. Always start the server from the **`ai-flow-lab/`** directory
+2. Use the `restart-server.command` or `start-server.command` in `~/Dev/ai-flow-lab/` (double-click on macOS)
+3. In the dashboard, use the project switcher to select your target project (e.g. `aurena-wbs`)
+
+**What the `.command` files do:**
+- `start-server.command`: `cd automation && LLM_MODE=app node scripts/serve-dashboard.mjs`
+- `restart-server.command`: Same, but first kills any existing process on port 3847
+
+**Important:** Do NOT create `.command` files in project directories — they would start the old, project-local copy of the server without multi-project support.
+
+**Architecture:**
+- `ai-flow-lab/automation/ui/dashboard.html` — canonical dashboard UI (230+ KB, full features)
+- `ai-flow-lab/automation/scripts/serve-dashboard.mjs` — canonical server with `project-registry.mjs`, `switchToProject()`, `captureProjectContext()`
+- `<project>/automation/` — project-local copies are older snapshots, NOT the source of truth
+- `.env` is loaded first from `ai-flow-lab/automation/.env`, then overridden per-project via `dotenv.config({ override: true })` on project switch
+
+## Gemini API Returns 429 (Rate Limit / Quota Exhausted)
+
+**Symptom:** Critique step fails or hangs. Server logs show repeated `429 Too Many Requests` from Gemini API. Google AI Studio dashboard shows hundreds of errors.
+
+**Cause:** The Gemini free tier has strict rate limits (requests per minute and per day). The retry loop in `callGemini()` (4 retries with exponential backoff) can exhaust quota quickly, especially if the server crashed and restarted mid-cascade (triggering re-execution of the same step).
+
+**Quick Fix:**
+1. Switch to a model with separate quota: edit `.env` → `GEMINI_MODEL=gemini-2.5-flash-lite`
+2. Restart the server and click Retry on the failed task
+
+**Model Options (as of April 2026):**
+
+| Model | Speed | Cost | Quota | Notes |
+|-------|-------|------|-------|-------|
+| `gemini-2.5-flash` | Fast | Low | Shared | Default. Good for critique. |
+| `gemini-2.5-flash-lite` | Fastest | Lowest | **Separate** | Best fallback when flash quota is exhausted |
+| `gemini-2.5-pro` | Slow | High | Separate | Overkill for critique step |
+| `gemini-2.0-flash` | — | — | — | **DEPRECATED — do not use** |
+| `gemini-2.0-flash-lite` | — | — | — | **DEPRECATED — do not use** |
+
+**Fallback behavior (APP mode):** If all Gemini retries fail due to network errors, `callGemini()` automatically falls back to the prompt queue — the critique step appears as a manual paste widget in the dashboard (same as OpenAI steps). This only triggers on network-level errors (`EAI_AGAIN`, `ENOTFOUND`, `ECONNREFUSED`), not on 429 quota errors.
+
+**Long-term fix:** Upgrade to a paid Gemini API plan for higher rate limits, or route critique through a different provider via `executor_routing.critique` in `project.config.yaml`.
+
 ## Pipeline Step Fails — Auto-Diagnosis
 
 **Symptom:** A pipeline step fails and the task shows a red error card with error details.

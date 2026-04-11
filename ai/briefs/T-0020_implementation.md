@@ -1,3 +1,10 @@
+---
+type: brief
+task_id: T-0020
+created: 2026-04-10
+tags: [ai-flow-lab, brief]
+---
+
 # T-0020 Implementation Brief
 
 ## Goal
@@ -69,3 +76,10 @@ Add one true headless-browser smoke test that proves the Start UI becomes visibl
 - Do not add mobile/responsive matrix coverage.
 - Do not add click-through gameplay assertions unless required to identify the canonical Start control.
 - Do not assume or implement `game.html` redirect verification unless repo inspection confirms it is part of the real entry path and it can be covered with negligible extra scope.
+
+## Related Documents
+- [[ai/specs/T-0020_spec.md|T-0020 spec]]
+- [[ai/reviews/T-0020_gemini_review.md|T-0020 review]]
+- [[ai/results/T-0020_executor_report.md|T-0020 result]]
+- [[ai/followups/T-0020_followups.md|T-0020 followup]]
+- [[ai/pr/T-0020_pr_draft.md|T-0020 pr-draft]]

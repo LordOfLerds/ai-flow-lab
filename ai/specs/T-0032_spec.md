@@ -1,3 +1,10 @@
+---
+type: spec
+task_id: T-0032
+created: 2026-04-10
+tags: [ai-flow-lab, spec]
+---
+
 # T-0032 Spec
 
 ## Task metadata
@@ -146,3 +153,11 @@ Add a "File Safety Check" section to the executor report:
 1. Should the executor step be marked as FAILED when destruction is detected? **Recommendation:** No — mark as succeeded but include issues in the report. The pipeline can continue because the file was restored. A separate follow-up can investigate why the LLM produced truncated output.
 2. Should the snapshot include ALL files or just files mentioned in the brief? **Recommendation:** Start with a known list of key files + any files the brief explicitly mentions. Expand later if needed.
 3. Should there be a `.backup/` directory for persistent snapshots? **Recommendation:** No — in-memory is sufficient. The snapshot only needs to live for the duration of the executor script.
+
+
+## Related Documents
+- [[ai/reviews/T-0032_gemini_review.md|T-0032 review]]
+- [[ai/briefs/T-0032_implementation.md|T-0032 document]]
+- [[ai/results/T-0032_executor_report.md|T-0032 result]]
+- [[ai/followups/T-0032_followups.md|T-0032 followup]]
+- [[ai/pr/T-0032_pr_draft.md|T-0032 pr-draft]]
