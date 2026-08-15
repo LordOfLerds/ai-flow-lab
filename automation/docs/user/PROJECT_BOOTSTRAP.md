@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Project Bootstrap
 
 When you connect a repository to AI Flow Lab, the **bootstrap process** analyzes your codebase and generates configuration, documentation, and workspace structure.

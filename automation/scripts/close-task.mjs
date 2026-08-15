@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [taskId, finalStatus = "DONE"] = process.argv.slice(2);
 
@@ -9,9 +10,9 @@ if (!taskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
-const taskFile = path.join(automationRoot, "state", "tasks", `${taskId}.json`);
+const autoRoot = automationRoot();
+const _repoRoot = repoRoot();
+const taskFile = path.join(autoRoot, "state", "tasks", `${taskId}.json`);
 
 if (!fs.existsSync(taskFile)) {
   console.error(`Task file not found: ${taskFile}`);
@@ -40,7 +41,7 @@ if (fs.existsSync(branchLock)) fs.unlinkSync(branchLock);
 
 try {
   if (task.worktree_path && fs.existsSync(task.worktree_path)) {
-    execSync(`git -C "${repoRoot}" worktree remove "${task.worktree_path}" --force`, {
+    execSync(`git -C "${_repoRoot}" worktree remove "${task.worktree_path}" --force`, {
       stdio: "inherit"
     });
   }

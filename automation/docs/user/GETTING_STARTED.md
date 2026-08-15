@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Getting Started with AI Flow Lab
 
 ## What is AI Flow Lab?

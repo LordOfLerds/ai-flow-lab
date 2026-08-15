@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # LLM Prompts Reference
 
 All system prompts used by the AI Flow Lab pipeline. Prompts are hardcoded in their respective step scripts (planned: configurable prompt templates in v2.0).

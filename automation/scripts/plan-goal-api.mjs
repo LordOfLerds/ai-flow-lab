@@ -4,7 +4,8 @@ import {
   readRepoFile,
   writeRepoFile,
   callOpenAI,
-  repoRoot
+  repoRoot,
+  automationRoot
 } from "./_llm-utils.mjs";
 import { createProposal as createDecisionProposal } from "./decision-gate.mjs";
 
@@ -15,10 +16,9 @@ if (!goalId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
 const root = repoRoot();
 
-const goalJsonPath = path.join(automationRoot, "state", "goals", `${goalId}.json`);
+const goalJsonPath = path.join(automationRoot(), "state", "goals", `${goalId}.json`);
 const goalMdRel = `goals/${goalId}.md`;
 const goalMdAbs = path.join(root, goalMdRel);
 
@@ -126,7 +126,7 @@ const markdown = await callOpenAI({ instructions, input, taskId: goalId, step: "
 const planRel = `goals/${goalId}_plan.md`;
 writeRepoFile(planRel, markdown);
 
-const proposalDir = path.join(automationRoot, "state", "proposals");
+const proposalDir = path.join(automationRoot(), "state", "proposals");
 fs.mkdirSync(proposalDir, { recursive: true });
 
 function parseTruthy(value) {

@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { normalizeLaneType, normalizeExecutor } from "./_llm-utils.mjs";
+import { normalizeLaneType, normalizeExecutor, automationRoot } from "./_llm-utils.mjs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const _scriptsDir = __dirname;
 
 const [proposalId, newTaskId] = process.argv.slice(2);
 
@@ -10,8 +15,8 @@ if (!proposalId || !newTaskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const proposalFile = path.join(automationRoot, "state", "proposals", `${proposalId}.json`);
+const autoRoot = automationRoot();
+const proposalFile = path.join(autoRoot, "state", "proposals", `${proposalId}.json`);
 
 if (!fs.existsSync(proposalFile)) {
   console.error(`Proposal file not found: ${proposalFile}`);
@@ -26,7 +31,7 @@ const executor = normalizeExecutor(proposal.executor, laneType);
 execFileSync(
   "node",
   [
-    "scripts/new-task.mjs",
+    path.join(_scriptsDir, "new-task.mjs"),
     newTaskId,
     laneType,
     proposal.title,
@@ -34,10 +39,10 @@ execFileSync(
     "",
     "goal-planner"
   ],
-  { cwd: automationRoot, stdio: "inherit" }
+  { cwd: path.dirname(_scriptsDir), stdio: "inherit", env: { ...process.env, AUTOMATION_ROOT: autoRoot } }
 );
 
-const taskFile = path.join(automationRoot, "state", "tasks", `${newTaskId}.json`);
+const taskFile = path.join(autoRoot, "state", "tasks", `${newTaskId}.json`);
 const task = JSON.parse(fs.readFileSync(taskFile, "utf8"));
 
 task.parent_goal_id = proposal.parent_goal_id;

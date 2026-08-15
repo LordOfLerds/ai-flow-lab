@@ -1,0 +1,16 @@
+{
+  "goal_id": "G-0008",
+  "title": "Auto-Deduct + Auto-Lot-Check Pipeline",
+  "description": "Nach Match-Bestaetigung automatisch Revenue-Aktion anwenden (DEDUCT_NET fuer normal, DEDUCT_DIFF fuer differential) und danach automatisch Lot-Check triggern. Gemaess OPERATOR_WORKFLOW_SPEC Sections 6.2 und 7.1. Mixed-Tax geht weiterhin manuell ueber revenue_action_pending.",
+  "priority": "P0",
+  "project": "k-liste",
+  "state": "NEW",
+  "task_ids": ["T-0055", "T-0056", "T-0057"],
+  "task_order": {
+    "T-0055": "Auto-Deduct Logic in Match-Confirm Route einbauen (normal->DEDUCT_NET, differential->DEDUCT_DIFF, mixed->manual)",
+    "T-0056": "Auto Lot-Check nach jeder Revenue-Entscheidung triggern (inkl. nach Auto-Deduct)",
+    "T-0057": "Lot-Export Datei in konfigurierbaren Zielordner verschieben nach Download"
+  },
+  "created_at": "2026-04-15T14:00:00.000Z",
+  "updated_at": "2026-04-15T14:00:00.000Z"
+}

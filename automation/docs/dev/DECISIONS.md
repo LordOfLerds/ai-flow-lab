@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Decision Register
 
 ## ADR-0001: 7-Step Pipeline Architecture
@@ -284,3 +290,21 @@ const STATE_MACHINE = {
 ```
 
 **Benefits**: Validates transitions, clear error recovery points, self-documenting
+
+## ADR-0015: Multi-Project Path Resolution via ENV vars
+
+**Date:** 2026-04-10
+**Status:** Accepted
+
+**Context:** Pipeline scripts live in ai-flow-lab but must operate on target projects (aurena-k-list, aurena-wbs). The server invokes scripts with `cwd: ai-flow-lab/automation` so Node can resolve `node scripts/X.mjs`. But scripts need to read/write state in the target project.
+
+**Problem:** 25 scripts used `process.cwd()` to find state directories. This always resolved to ai-flow-lab, causing state (proposals, tasks, decisions) to be written to the wrong project.
+
+**Decision:** All scripts use `automationRoot()` and `repoRoot()` from `_llm-utils.mjs`, which read `AUTOMATION_ROOT` and `REPO_ROOT` env vars (injected by `buildChildEnv()` in serve-dashboard.mjs). Fallback to `process.cwd()` only when env vars are unset (single-project mode).
+
+**Rule:** Never use `process.cwd()` for state/config paths in pipeline scripts. Always use the imported functions. `process.cwd()` is only valid for script-relative paths (e.g. finding sibling scripts).
+
+**Alternatives rejected:**
+- Passing paths as CLI args: Too many args, brittle, every script signature changes
+- Changing CWD per invocation: Breaks `node scripts/X.mjs` resolution
+- Symlinks: Fragile across OS, doesn't work with git worktrees

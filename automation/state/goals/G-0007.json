@@ -1,0 +1,20 @@
+{
+  "goal_id": "G-0007",
+  "title": "K-Liste Post-Fix Volltest",
+  "description": "Nach Bug-Fixes NEW-01 bis NEW-07 (QA-Session vom 2026-04-14) kompletten Browser-Workflow-Test gegen localhost:8766 durchführen. Alle Fixes als live bestätigen — insbesondere: Batch-Filename statt UUID (NEW-01), Umlaut-Fix (NEW-02), Dropbox State-Machine (NEW-03), Export 503 (NEW-04), Excluded Reopen-Button (NEW-05). Server-Neustart nach app.py-Änderungen ist Voraussetzung. Ergebnisse in WORKFLOW_AUDIT.md Phase 4 dokumentieren.",
+  "priority": "P0",
+  "project": "k-liste",
+  "state": "NEW",
+  "task_ids": [
+    "T-PFX-01",
+    "T-PFX-02",
+    "T-PFX-03"
+  ],
+  "task_order": {
+    "T-PFX-01": "Server-Neustart nach Fix-Session verifizieren (app.py-Änderungen laden)",
+    "T-PFX-02": "Kompletter Browser-Workflow-Test gegen localhost:8766",
+    "T-PFX-03": "WORKFLOW_AUDIT.md Phase 4 schreiben"
+  },
+  "created_at": "2026-04-14T08:50:00.000Z",
+  "updated_at": "2026-04-14T08:50:00.000Z"
+}

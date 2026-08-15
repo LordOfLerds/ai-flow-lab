@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const args = process.argv.slice(2);
 const [taskId] = args;
@@ -12,12 +13,8 @@ if (!taskId) {
 
 const skipWorktree = args.includes("--skip-worktree");
 
-function repoRoot() {
-  return path.resolve(process.cwd(), "..");
-}
-
 function taskJson(taskId) {
-  return path.join(process.cwd(), "state", "tasks", `${taskId}.json`);
+  return path.join(automationRoot(), "state", "tasks", `${taskId}.json`);
 }
 
 function logStep(stepName, message = "") {
@@ -44,7 +41,7 @@ function run(cmd, stepName = "run", onError = "throw") {
   logStep(stepName, cmd);
   try {
     const startMs = Date.now();
-    execSync(cmd, { stdio: "inherit", shell: true, cwd: process.cwd() });
+    execSync(cmd, { stdio: "inherit", shell: true, cwd: automationRoot() });
     const durationMs = Date.now() - startMs;
     logStep(stepName, `completed in ${durationMs}ms`);
     return { success: true, durationMs };

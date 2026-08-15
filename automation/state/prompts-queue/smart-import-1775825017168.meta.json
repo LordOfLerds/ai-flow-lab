@@ -1,0 +1,14 @@
+{
+  "id": "smart-import-1775825017168",
+  "taskId": null,
+  "step": "smart-import",
+  "provider": "openai",
+  "status": "completed",
+  "createdAt": "2026-04-10T12:43:37.168Z",
+  "promptFile": "smart-import-1775825017168.prompt.md",
+  "responseFile": "smart-import-1775825017168.response.md",
+  "projectPath": "/Users/l.erdkoenig/Dev/aurena-k-list",
+  "projectName": "aurena-k-list",
+  "completedAt": "2026-04-10T12:51:34.054Z",
+  "workerType": "chatgpt-browser"
+}

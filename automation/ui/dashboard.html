@@ -1367,15 +1367,35 @@ async function startCascade(taskId) {
         pollTaskCompletion(taskId);
     } catch(e) { toast('Cascade failed: '+e.message,'error'); }
 }
+async function startAllGoalsCascade() {
+    const btn = document.getElementById('run-all-goals-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '&#9203; Running All Goals...'; btn.style.opacity = '0.6'; }
+    toast('Starting ALL GOALS cascade. Goals will run sequentially...', 'info');
+    try {
+        const r = await fetch('/api/cascade/run-all-goals', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({maxDepth:3})});
+        if(!r.ok) throw new Error(await r.text());
+        const data = await r.json();
+        toast(data.message, 'info');
+        pollCascadeStatus();
+    } catch(e) {
+        toast('All-goals cascade failed: '+e.message,'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#127793; Run All Goals'; btn.style.opacity = '1'; }
+    }
+}
 async function startGoalCascade(goalId) {
-    toast(`Starting GOAL CASCADE for ${goalId}. All tasks will be spawned and run...`, 'info');
+    // Disable button to prevent double-click
+    const btn = document.querySelector(`[onclick="startGoalCascade('${goalId}')"]`);
+    if (btn) { btn.disabled = true; btn.innerHTML = '&#9203; Running Cascade...'; btn.style.opacity = '0.6'; }
+    toast(`Starting GOAL CASCADE for ${goalId}. Tasks will run sequentially...`, 'info');
     try {
         const r = await fetch('/api/cascade/run-goal', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goalId, maxDepth:3})});
         if(!r.ok) throw new Error(await r.text());
         toast(`Goal cascade running for ${goalId}...`, 'info');
-        // Poll cascade status
         pollCascadeStatus();
-    } catch(e) { toast('Goal cascade failed: '+e.message,'error'); }
+    } catch(e) {
+        toast('Goal cascade failed: '+e.message,'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#127793; Run Cascade'; btn.style.opacity = '1'; }
+    }
 }
 function pollTaskCompletion(taskId, interval=3000) {
     const poll = setInterval(async ()=>{
@@ -1558,8 +1578,14 @@ function renderGoals() {
         return;
     }
 
-    // Goal list (compact cards)
-    $('goals-list').innerHTML = goals.map(g => {
+    // Goal list header with "Run All" button
+    const pendingGoals = goals.filter(g => g.state !== 'DONE' && g.state !== 'DELETED');
+    const hasRunningCascade = tasks.some(t => t.runtime_status === 'running');
+    const runAllBtn = pendingGoals.length > 0
+        ? `<button id="run-all-goals-btn" class="btn btn-success btn-sm" onclick="startAllGoalsCascade()" style="font-weight:700;padding:6px 16px;" ${hasRunningCascade ? 'disabled style="opacity:0.6;"' : ''}>&#127793; Run All Goals (${pendingGoals.length})</button>`
+        : '';
+
+    $('goals-list').innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">${runAllBtn}</div>` + goals.map(g => {
         const linkedTasks = tasks.filter(t=>t.parent_goal_id===g.goal_id);
         const completedTasks = linkedTasks.filter(t=>t.state==='MERGED'||t.state==='PR_DRAFTED');
         const progressPct = linkedTasks.length ? Math.round(completedTasks.length / linkedTasks.length * 100) : 0;
@@ -1700,14 +1726,29 @@ function renderGoalWorkspace(goalId) {
             </div>
 
             <div class="card" style="padding:14px;">
-                <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Tasks (${tasks.length})</div>
-                ${tasks.length ? tasks.map(t => `
-                    <div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border-color);cursor:pointer;font-size:11px;" onclick="openTaskPanel('${t.task_id}')">
+                ${(() => {
+                    const doneCount = tasks.filter(t => t.state === 'PR_DRAFTED' || t.state === 'MERGED').length;
+                    const pct = tasks.length ? Math.round(doneCount / tasks.length * 100) : 0;
+                    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                        <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;">Tasks</div>
+                        <div style="font-size:10px;color:var(--text-secondary);font-weight:700;">${doneCount}/${tasks.length}</div>
+                        <div style="flex:1;"></div>
+                        ${pct > 0 ? `<div style="font-size:10px;color:var(--success);font-weight:600;">${pct}%</div>` : ''}
+                    </div>
+                    <div style="height:3px;background:var(--border-color);border-radius:2px;margin-bottom:10px;">
+                        <div style="height:100%;width:${pct}%;background:var(--success);border-radius:2px;transition:width 0.3s;"></div>
+                    </div>`;
+                })()}
+                ${tasks.length ? tasks.map(t => {
+                    const isRunning = t.runtime_status === 'running' || t.state === 'IMPLEMENTING' || t.state === 'ARCHITECTED' || t.state === 'CRITIQUED' || t.state === 'SYNTHESIZED';
+                    const isDone = t.state === 'PR_DRAFTED' || t.state === 'MERGED';
+                    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border-color);cursor:pointer;font-size:11px;${isRunning?'background:rgba(234,179,8,0.08);margin:0 -6px;padding:5px 6px;border-radius:4px;':''}" onclick="openTaskPanel('${t.task_id}')">
+                        ${isRunning ? '<span style="color:var(--warning);font-size:8px;animation:pulse 1.5s infinite;">&#9679;</span>' : isDone ? '<span style="color:var(--success);font-size:10px;">&#10003;</span>' : '<span style="color:var(--text-muted);font-size:8px;">&#9675;</span>'}
                         <span class="mono" style="color:var(--accent);font-weight:600;">${t.task_id}</span>
                         <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</span>
-                        <span class="badge badge-${t.state==='MERGED'?'success':t.state==='IMPLEMENTING'?'warning':'info'}" style="font-size:8px;">${t.state}</span>
-                    </div>
-                `).join('') : '<div style="font-size:11px;color:var(--text-muted);">No tasks yet — use Decompose to create them.</div>'}
+                        <span class="badge badge-${isDone?'success':isRunning?'warning':'info'}" style="font-size:8px;">${t.current_step||t.state}</span>
+                    </div>`;
+                }).join('') : '<div style="font-size:11px;color:var(--text-muted);">No tasks yet — use Decompose to create them.</div>'}
             </div>
 
             <div class="card" style="padding:10px 14px;">
@@ -3296,25 +3337,34 @@ async function renderSettings() {
 async function saveChatGPTUrl() {
     const url = $('settings-chatgpt-url')?.value?.trim() || '';
     try {
-        await fetch('/api/project/config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'chatgpt_chat_url',value:url})});
+        const r = await fetch('/api/project/config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'chatgpt_chat_url',value:url})});
+        const data = await r.json();
+        if (!r.ok || !data.success) { toast('Failed to save: ' + (data.error || r.statusText), 'error'); return; }
         APP.project.chatgpt_chat_url = url;
         toast('ChatGPT URL saved', 'success');
     } catch(e) { toast('Failed to save: ' + e.message, 'error'); }
 }
 
 async function startChatGPTWorker() {
+    toast('Starting ChatGPT Worker...', 'info');
     try {
-        await fetch('/api/chatgpt-worker/start', {method:'POST'});
-        toast('ChatGPT Worker starting...', 'success');
-        setTimeout(() => renderSettings(), 2000);
+        const r = await fetch('/api/chatgpt-worker/start', {method:'POST'});
+        const res = await r.json();
+        if (res.error) {
+            toast('Worker error: ' + res.error, 'error');
+            if (res.logTail?.length) { const b=$('worker-log-box'); if(b){b.textContent=res.logTail.join('\n'); b.style.display='block'; b.style.borderColor='rgba(239,68,68,0.4)';} }
+        } else if (res.running) {
+            toast('Worker started (PID ' + res.pid + ')', 'success');
+        }
+        await renderChatGPTWorkerStatus();
     } catch(e) { toast('Failed to start worker: ' + e.message, 'error'); }
 }
 
 async function stopChatGPTWorker() {
     try {
         await fetch('/api/chatgpt-worker/stop', {method:'POST'});
-        toast('ChatGPT Worker stopped', 'success');
-        setTimeout(() => renderSettings(), 500);
+        toast('ChatGPT Worker stopped', 'info');
+        await renderChatGPTWorkerStatus();
     } catch(e) { toast('Failed to stop worker: ' + e.message, 'error'); }
 }
 
@@ -3629,30 +3679,6 @@ async function renderChatGPTWorkerStatus() {
             logBox.style.borderColor = 'rgba(239,68,68,0.4)';
         }
     } catch {}
-}
-async function startChatGPTWorker() {
-    toast('Starting ChatGPT Worker...', 'info');
-    const res = await APP.fetch('/api/chatgpt-worker/start', { method: 'POST' });
-    if (res.error) {
-        toast('Worker error: ' + res.error, 'error');
-        if (res.logTail?.length) { const b=$('worker-log-box'); b.textContent=res.logTail.join('\n'); b.style.display='block'; b.style.borderColor='rgba(239,68,68,0.4)'; }
-    } else if (res.running) {
-        toast('Worker started', 'success');
-    }
-    await renderChatGPTWorkerStatus();
-}
-async function stopChatGPTWorker() {
-    await APP.fetch('/api/chatgpt-worker/stop', { method: 'POST' });
-    toast('Worker stopped', 'info');
-    await renderChatGPTWorkerStatus();
-}
-async function toggleWorkerLog() {
-    const box = $('worker-log-box');
-    if (box.style.display !== 'none') { box.style.display = 'none'; return; }
-    const data = await APP.fetch('/api/chatgpt-worker/log');
-    box.textContent = (data.lines || []).join('\n') || '(no log yet)';
-    box.style.borderColor = 'var(--border-color)';
-    box.style.display = 'block';
 }
 
 // ===== SMART IMPORT =====

@@ -1,0 +1,17 @@
+{
+  "goal_id": "G-0009",
+  "title": "Inline Workflow Actions in Cases-Liste",
+  "description": "Cases-Liste bekommt vollstaendige Inline-Workflows gemaess OPERATOR_WORKFLOW_SPEC Section 3.3: Match-Bestaetigung fuer bidware_candidates_found, Revenue-Formular fuer auctions_confirmed/revenue_action_pending, Dropbox Wert-Eingabe fuer bidware_no_match/dropbox_fallback_pending, Lot-Review fuer lot_review_pending. Alles status-gated mit HTMX.",
+  "priority": "P1",
+  "project": "k-liste",
+  "state": "NEW",
+  "task_ids": ["T-0058", "T-0059", "T-0060", "T-0061"],
+  "task_order": {
+    "T-0058": "Inline Match-Confirm Formular in Cases-Liste (bidware_candidates_found/needs_match_review)",
+    "T-0059": "Inline Revenue-Entscheidungs-Formular in Cases-Liste (auctions_confirmed/revenue_action_pending)",
+    "T-0060": "Inline Dropbox Wert-Eingabe + Position-Streichen in Cases-Liste (bidware_no_match/dropbox_fallback_pending)",
+    "T-0061": "Inline Lot-Review Entscheidungen in Cases-Liste (lot_review_pending)"
+  },
+  "created_at": "2026-04-15T14:00:00.000Z",
+  "updated_at": "2026-04-15T14:00:00.000Z"
+}

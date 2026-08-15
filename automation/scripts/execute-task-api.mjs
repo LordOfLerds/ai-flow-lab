@@ -26,7 +26,19 @@ if (!taskId) {
 
 function snapshotSourceFiles(rootDir) {
   const snapshot = {};
-  const extensions = new Set(['.html', '.js', '.ts', '.tsx', '.jsx', '.css', '.mjs', '.json', '.mts']);
+  const extensions = new Set([
+    '.html', '.js', '.ts', '.tsx', '.jsx', '.css', '.mjs', '.json', '.mts',
+    '.py', '.pyi', '.pyx',          // Python
+    '.md', '.rst', '.txt',           // Docs
+    '.yaml', '.yml', '.toml', '.cfg', '.ini', // Config
+    '.sh', '.bash', '.zsh',          // Shell
+    '.sql',                          // SQL
+    '.r', '.R',                      // R
+    '.rb', '.go', '.rs', '.java',    // Other languages
+    '.vue', '.svelte',               // Frontend frameworks
+    '.graphql', '.gql',              // GraphQL
+    '.env.example', '.env.template'  // Env templates (never .env itself)
+  ]);
   // Directories to skip entirely (never descend into these)
   const skipDirs = new Set(['node_modules', '.git', '.next', 'dist', 'build', '.turbo', '.vercel', 'coverage', '__pycache__']);
   // Path substrings to skip (relative paths containing these are ignored)
@@ -253,9 +265,18 @@ const snapshot = snapshotSourceFiles(repoRoot());
 console.log(`📸 Snapshotted ${Object.keys(snapshot).length} source files`);
 
 // Build a snapshot summary so the LLM knows what files exist
-const snapshotSummary = Object.entries(snapshot).map(([file, info]) =>
+// Full summary for tool-capable executors (claude/codex) who can Read/Edit files
+const snapshotSummaryFull = Object.entries(snapshot).map(([file, info]) =>
   `  ${file}: ${info.lineCount} lines, ${info.functions.length} functions [${info.functions.slice(0, 8).join(', ')}${info.functions.length > 8 ? '...' : ''}]`
 ).join('\n');
+
+// Compact summary for non-tool executors (ChatGPT APP mode) — just filenames, max 50
+const snapshotSummaryCompact = Object.keys(snapshot).slice(0, 50).map(f => `  ${f}`).join('\n')
+  + (Object.keys(snapshot).length > 50 ? `\n  ... and ${Object.keys(snapshot).length - 50} more files` : '');
+
+// Use full summary only when executor has tool access (claude/codex)
+const isToolCapable = ['claude', 'codex'].includes(task.executor);
+const snapshotSummary = isToolCapable ? snapshotSummaryFull : snapshotSummaryCompact;
 
 // SAFETY STEP 2: Check for file conflicts with other active tasks
 let conflictWarning = '';

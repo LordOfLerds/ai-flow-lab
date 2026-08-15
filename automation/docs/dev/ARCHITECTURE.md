@@ -1,3 +1,9 @@
+---
+type: architecture
+created: 2026-04-10
+tags: [ai-flow-lab, architecture]
+---
+
 # Architecture
 
 ## System Overview

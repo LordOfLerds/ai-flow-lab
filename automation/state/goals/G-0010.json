@@ -1,0 +1,16 @@
+{
+  "goal_id": "G-0010",
+  "title": "Duplikat-Gruppen Ansicht + Merge-Workflow",
+  "description": "Cases mit gleichem purchase_group_id als aufklappbare Gruppen in der Cases-Liste darstellen. Checkbox-basierte Aktionen: Zusammenfuehren (Werte summieren, Survivor-Case), Separat behalten, Selektierte excluden, Alle excluden. Gemaess OPERATOR_WORKFLOW_SPEC Section 4.2-4.3.",
+  "priority": "P1",
+  "project": "k-liste",
+  "state": "NEW",
+  "task_ids": ["T-0062", "T-0063", "T-0064"],
+  "task_order": {
+    "T-0062": "Backend: Duplikat-Gruppen Queries + Merge-Service (Werte summieren, Survivor-Case, andere excluden)",
+    "T-0063": "Frontend: Gruppierte Darstellung in Cases-Liste mit aufklappbaren Gruppen-Headern",
+    "T-0064": "Frontend: Checkbox-Selektion + Batch-Aktionen (Zusammenfuehren, Separat behalten, Selektierte/Alle excluden)"
+  },
+  "created_at": "2026-04-15T14:00:00.000Z",
+  "updated_at": "2026-04-15T14:00:00.000Z"
+}

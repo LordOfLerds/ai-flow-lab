@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURENA · 3D Motion Showcase</title>
+<style>
+  :root{
+    --bg:#070a0b; --card:rgba(18,24,26,.7);
+    --green:#16a34a; --green-bright:#3fe07f; --green-deep:#0b5a2b;
+    --text:#e9eef2; --text2:#9aa5af; --muted:#5b656e;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.15);
+    --metal:linear-gradient(180deg,#f5f8fb 0%,#c2cbd3 46%,#727b84 100%);
+    --green-grad:linear-gradient(120deg,#16a34a,#3fe07f);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue','Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+  h1,h2{font-weight:800;letter-spacing:-.025em;line-height:1.03}
+  ::selection{background:rgba(22,163,74,.4)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--green-bright)}
+  .lead{color:var(--text2);font-size:clamp(15px,1.5vw,19px);max-width:52ch}
+  .metal{background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mchar,.gchar{background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .gchar,.green{background:var(--green-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  #progress{position:fixed;top:0;left:0;height:2px;width:100%;transform:scaleX(0);transform-origin:0 50%;background:var(--green-grad);z-index:60}
+  .nav{position:fixed;top:0;left:0;right:0;z-index:55;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;backdrop-filter:saturate(140%) blur(8px);background:linear-gradient(180deg,rgba(7,10,11,.82),rgba(7,10,11,0))}
+  .nav img{height:24px;display:block;opacity:.95}
+  .nav .links{display:flex;gap:24px;align-items:center}
+  .nav a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:600}.nav a:hover{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--green-grad);color:#04140a;font-weight:800;font-size:13px;padding:10px 18px;border-radius:999px;text-decoration:none;box-shadow:0 6px 24px rgba(22,163,74,.3)}
+  .btn:hover{filter:brightness(1.06)}
+
+  /* HERO */
+  .hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;position:relative;overflow:hidden}
+  .hero-glow{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(46% 50% at 72% 52%,rgba(22,163,74,.20),transparent 70%)}
+  .hero-copy{position:relative;z-index:2;padding-left:8px}
+  .hero h1{font-size:clamp(46px,8vw,118px);margin:16px 0 0}
+  .hero h1 .line{display:block;overflow:hidden;padding-bottom:.04em}
+  .hero .lead{margin-top:26px}
+  .hero-visual{position:relative;z-index:1;display:flex;justify-content:center;align-items:center}
+  .hero-visual img{width:100%;max-width:620px;height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+  .cue{margin-top:40px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;letter-spacing:.06em}
+  .cue i{width:20px;height:30px;border:1.5px solid var(--line2);border-radius:11px;position:relative;display:inline-block}
+  .cue i::after{content:'';position:absolute;left:50%;top:6px;width:3px;height:6px;border-radius:2px;background:var(--green-bright);transform:translateX(-50%);animation:wheel 1.6s ease-in-out infinite}
+  @keyframes wheel{50%{transform:translate(-50%,9px);opacity:.3}}
+  @media(max-width:880px){.hero{grid-template-columns:1fr;text-align:left}.hero-visual{order:-1}}
+
+  /* TURNTABLE (real 3D scrub) */
+  .sec-turn{height:320vh}
+  .turn-stage{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative}
+  .turn-stage h2{font-size:clamp(28px,4.4vw,56px);margin-bottom:6px}
+  .turn-stage .eyebrow{margin-bottom:14px}
+  .turn-canvas-wrap{position:relative;width:min(680px,90vw);height:58vh}
+  #turn{width:100%;height:100%;display:block}
+  .price{position:absolute;top:6%;left:50%;transform:translateX(-50%);font-weight:900;font-size:clamp(30px,5vw,58px);letter-spacing:-.02em}
+  .stamp{position:absolute;top:26%;right:6%;border:3px solid var(--green-bright);color:var(--green-bright);font-weight:900;letter-spacing:.04em;font-size:clamp(13px,1.8vw,20px);padding:7px 15px;border-radius:10px;transform:rotate(-8deg);text-transform:uppercase;opacity:0;box-shadow:0 0 30px rgba(63,224,127,.25)}
+  .turn-hint{color:var(--muted);font-size:13px;margin-top:8px}
+
+  /* OUTRO */
+  .outro{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px;padding:12vh 32px}
+  .outro h2{font-size:clamp(38px,7vw,104px)}
+  .foot{margin-top:30px;color:var(--muted);font-size:12px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .foot img{height:18px;opacity:.7}.foot code{background:rgba(255,255,255,.06);padding:3px 8px;border-radius:6px;color:var(--text2)}
+
+  .reveal-note{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:70;display:none;background:rgba(63,224,127,.12);border:1px solid var(--green);color:var(--green-bright);padding:8px 16px;border-radius:999px;font-size:12px}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="rm-note" class="reveal-note">prefers-reduced-motion aktiv → statisch.</div>
+
+<nav class="nav">
+  <img src="./assets/aurena-logo.png" alt="AURENA.GROUP">
+  <div class="links"><a href="#zuschlag">Zuschlag</a><a class="btn" href="#cta">Jetzt bieten →</a></div>
+</nav>
+
+<!-- HERO -->
+<header class="hero wrap">
+  <div class="hero-glow"></div>
+  <div class="hero-copy">
+    <p class="eyebrow">Aurena.Group · Industrieauktionen</p>
+    <h1>
+      <span class="line"><span class="metal">Wo der Hammer</span></span>
+      <span class="line"><span class="green">fällt.</span></span>
+    </h1>
+    <p class="lead">Echtes 3D im Aurena-Look — in Blender gerendert, per GSAP an die Scrollbar gekoppelt. Lokal, framework-frei, ruckelfrei.</p>
+    <div class="cue"><i></i> scroll</div>
+  </div>
+  <div class="hero-visual"><img id="heroImg" src="./assets/gavel-hero.jpg" alt="3D Auktionshammer" loading="eager"></div>
+</header>
+
+<!-- TURNTABLE -->
+<section class="sec-turn" id="zuschlag">
+  <div class="turn-stage">
+    <p class="eyebrow">Der Moment des Zuschlags · 3D-Render</p>
+    <h2 class="metal">Einmal. Zweimal. <span class="green">Verkauft.</span></h2>
+    <div class="price metal" id="price">€ 0</div>
+    <div class="stamp" id="stamp">Zugeschlagen</div>
+    <div class="turn-canvas-wrap"><canvas id="turn"></canvas></div>
+    <p class="turn-hint">Scrollen dreht das echte 3D-Modell — 20 in Blender gerenderte Frames, an die Scroll-Position gebunden.</p>
+  </div>
+</section>
+
+<!-- OUTRO -->
+<section class="outro" id="cta">
+  <p class="eyebrow">Aurena.Group</p>
+  <h2><span class="metal">Bereit zu</span> <span class="green">bieten?</span></h2>
+  <p class="lead" style="margin:0 auto">Pipeline: Blender (3D) → ffmpeg/Optimierung → GSAP-Scroll. Drache &amp; E-Bike folgen über Sketchfab / fal, sobald freigeschaltet.</p>
+  <a class="btn" href="#zuschlag" style="font-size:15px;padding:14px 26px">Zum Zuschlag →</a>
+  <div class="foot"><img src="./assets/aurena-logo.png" alt="AURENA"><span><code>Blender</code> · <code>GSAP</code> · <code>ScrollTrigger</code> · <code>SplitText</code></span></div>
+</section>
+
+<script src="./vendor/gsap/gsap.min.js"></script>
+<script src="./vendor/gsap/ScrollTrigger.min.js"></script>
+<script src="./vendor/gsap/SplitText.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!window.gsap) return;
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  const fmt = n => '€ ' + Math.round(n).toLocaleString('de-DE');
+
+  // ---- preload turntable frames ----
+  const FRAMES = 20;
+  const imgs = [];
+  const canvas = document.getElementById('turn');
+  const ctx = canvas.getContext('2d');
+  let ready = false;
+  function sizeCanvas(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, r.width * dpr);
+    canvas.height = Math.max(1, r.height * dpr);
+  }
+  function draw(i){
+    const im = imgs[i];
+    if (!im || !im.complete || !im.naturalWidth) return;
+    const cw = canvas.width, ch = canvas.height;
+    ctx.clearRect(0,0,cw,ch);
+    const s = Math.min(cw/im.naturalWidth, ch/im.naturalHeight);
+    const w = im.naturalWidth*s, h = im.naturalHeight*s;
+    ctx.drawImage(im, (cw-w)/2, (ch-h)/2, w, h);
+  }
+  for (let i=1;i<=FRAMES;i++){
+    const im = new Image();
+    im.src = `./assets/gavel-turn/f_${String(i).padStart(4,'0')}.jpg`;
+    if (i===1) im.onload = () => { sizeCanvas(); draw(0); ready = true; };
+    imgs.push(im);
+  }
+  window.addEventListener('resize', () => { sizeCanvas(); });
+
+  const mm = gsap.matchMedia();
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+    gsap.to('#progress', { scaleX:1, ease:'none', scrollTrigger:{ start:0, end:'max', scrub:.3 } });
+
+    // hero headline
+    const l1 = new SplitText('.hero h1 .line:first-child .metal', { type:'chars', charsClass:'mchar' });
+    const l2 = new SplitText('.hero h1 .line:last-child .green', { type:'chars', charsClass:'gchar' });
+    gsap.timeline()
+      .from(l1.chars, { yPercent:120, opacity:0, stagger:.035, duration:.9, ease:'power4.out' }, .15)
+      .from(l2.chars, { yPercent:120, opacity:0, stagger:.05, duration:.9, ease:'power4.out' }, .5)
+      .from('.hero .lead', { opacity:0, y:18, duration:.7 }, .8)
+      .from('.hero-visual', { opacity:0, scale:.9, duration:1, ease:'power3.out' }, .3)
+      .from('.hero .cue', { opacity:0, duration:.6 }, 1.1);
+    // hero image float + parallax
+    gsap.to('#heroImg', { y:-16, duration:3, yoyo:true, repeat:-1, ease:'sine.inOut' });
+    gsap.to('.hero-visual', { yPercent:18, ease:'none', scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:true } });
+
+    // turntable scrub + price + stamp
+    const o = { f:0 }, price = { v:0 };
+    const priceEl = document.getElementById('price');
+    const tl = gsap.timeline({ scrollTrigger:{ trigger:'.sec-turn', start:'top top', end:'+=1900', scrub:.4, pin:'.turn-stage' } });
+    tl.to(o, { f:FRAMES-1, ease:'none', onUpdate:()=>draw(Math.round(o.f)) }, 0)
+      .to(price, { v:24500, ease:'none', onUpdate:()=>priceEl.textContent=fmt(price.v) }, 0)
+      .fromTo('#stamp', { opacity:0, scale:0, rotation:-22 }, { opacity:1, scale:1, rotation:-8, ease:'back.out(2)', duration:.16 }, .82);
+
+    ScrollTrigger.addEventListener('refreshInit', sizeCanvas);
+  });
+
+  mm.add('(prefers-reduced-motion: reduce)', () => {
+    document.getElementById('rm-note').style.display='block';
+    document.getElementById('price').textContent = '€ 24.500';
+    const im = imgs[0]; if (im.complete) { sizeCanvas(); draw(0); } else im.onload = () => { sizeCanvas(); draw(0); };
+  });
+});
+</script>
+</body>
+</html>

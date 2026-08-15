@@ -19,9 +19,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
-import { getLLMMode, callOpenAI, logUsage, estimateTokens } from "./_llm-utils.mjs";
+import { getLLMMode, callOpenAI, logUsage, estimateTokens, automationRoot as getAutomationRoot } from "./_llm-utils.mjs";
 
-const automationRoot = process.cwd();
+const automationRoot = getAutomationRoot();
 const templateDir = path.resolve(automationRoot, "..", "template");
 
 // ─── Prompt loading ───

@@ -1,0 +1,24 @@
+{
+  "goal_id": "G-0006",
+  "title": "K-Liste Source Row Visibility",
+  "description": "In der Cases-Listenansicht (/cases) und in der Case-Detail-Seite zeigen die expandierten <details>-Elemente nur Zeilennummern (z.B. \"401, 402, 403\") aber NICHT die tatsächlichen Zellinhalte der importierten Excel-Zeilen. Der Operator kann die Originalinhalte (Kaufname pro Zeile, Block, SY, Steuerfeld, Wert etc.) nicht einsehen. Problem bestätigt durch Browser-Check. Ziel: Source Rows in den <details>-Klapp-Elementen als vollständige Tabelle anzeigen.",
+  "priority": "P0",
+  "project": "k-liste",
+  "state": "NEW",
+  "task_ids": [
+    "T-SRV-04",
+    "T-SRV-05",
+    "T-SRV-03",
+    "T-SRV-01",
+    "T-SRV-02"
+  ],
+  "task_order": {
+    "T-SRV-04": "Browser-Check Cases-Liste (läuft vor Implementierung)",
+    "T-SRV-05": "Browser-Check Case-Detail (läuft vor Implementierung)",
+    "T-SRV-03": "Backend-Audit: source_rows im Template-Kontext verfügbar?",
+    "T-SRV-01": "Implementierung: source rows in Cases-Tabelle <details>",
+    "T-SRV-02": "Implementierung: Quellzeilen-Sektion in Case-Detail"
+  },
+  "created_at": "2026-04-14T00:00:00.000Z",
+  "updated_at": "2026-04-14T08:50:00.000Z"
+}

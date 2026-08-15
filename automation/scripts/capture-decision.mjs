@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [decisionId, topic, status = "accepted"] = process.argv.slice(2);
 
@@ -8,14 +9,14 @@ if (!decisionId || !topic) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
+const autoRoot = automationRoot();
+const _repoRoot = repoRoot();
 
-const decisionStateDir = path.join(automationRoot, "state", "decisions");
+const decisionStateDir = path.join(autoRoot, "state", "decisions");
 fs.mkdirSync(decisionStateDir, { recursive: true });
 
 const jsonPath = path.join(decisionStateDir, `${decisionId}.json`);
-const mdPath = path.join(repoRoot, "decisions", `${decisionId}.md`);
+const mdPath = path.join(_repoRoot, "decisions", `${decisionId}.md`);
 
 const decision = {
   decision_id: decisionId,

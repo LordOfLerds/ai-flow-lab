@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [taskId] = process.argv.slice(2);
 
@@ -8,10 +9,10 @@ if (!taskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
-const taskFile = path.join(automationRoot, "state", "tasks", `${taskId}.json`);
-const promptsDir = path.join(automationRoot, "prompts");
+const autoRoot = automationRoot();
+const _repoRoot = repoRoot();
+const taskFile = path.join(autoRoot, "state", "tasks", `${taskId}.json`);
+const promptsDir = path.join(autoRoot, "prompts");
 fs.mkdirSync(promptsDir, { recursive: true });
 
 if (!fs.existsSync(taskFile)) {
@@ -22,7 +23,7 @@ if (!fs.existsSync(taskFile)) {
 const task = JSON.parse(fs.readFileSync(taskFile, "utf8"));
 
 const specRel = `ai/specs/${taskId}_spec.md`;
-const specAbs = path.join(repoRoot, specRel);
+const specAbs = path.join(_repoRoot, specRel);
 
 if (!fs.existsSync(specAbs)) {
   fs.writeFileSync(

@@ -155,6 +155,14 @@ CRITICAL RULES:
 4. EXECUTOR REPORT PRIORITY: The executor result report is your PRIMARY input. It tells you
    exactly what was done, what was NOT done, what issues were discovered, and what the executor
    recommends as follow-ups. Weight this heavily.
+5. BLOCKED DEPENDENCY DETECTION: If the executor report indicates the task was BLOCKED on an
+   external dependency (missing file, missing data, waiting on human input, fixture not available),
+   set should_spawn_now: false for ALL follow-ups. The blocker must be resolved manually before
+   AI follow-ups make sense. Add "reason: blocked — <what is missing>" to each proposal.
+   Do NOT spawn follow-ups that will just re-discover the same blocker.
+6. NO BUSYWORK: Do not propose follow-ups that only document or describe a problem that was
+   already documented by the current task. "Add README about missing X" or "Document that Y
+   is blocked" are not useful follow-ups if the executor report already covers this.
 
 If any follow-up requires an owner decision, emit it in the "Decision blockers" section using:
 
@@ -244,7 +252,7 @@ const markdown = await callLLMForStep({
 
 writeRepoFile(followupPath, markdown);
 
-const proposalDir = path.join(process.cwd(), "state", "proposals");
+const proposalDir = path.join(automationRoot(), "state", "proposals");
 fs.mkdirSync(proposalDir, { recursive: true });
 
 function parseTruthy(value) {

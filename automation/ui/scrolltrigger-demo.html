@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScrollTrigger Demo — AI Flow Lab</title>
+<style>
+  /* Palette aligned with automation/ui/dashboard.html */
+  :root{
+    --bg-base:#0a0e17; --bg-card:rgba(20,28,45,.8); --bg-hover:rgba(30,41,59,.6);
+    --border-color:rgba(255,255,255,.06); --border-light:rgba(255,255,255,.1);
+    --text-primary:#e2e8f0; --text-secondary:#94a3b8; --text-muted:#64748b;
+    --accent:#6366f1; --accent2:#a78bfa; --success:#22c55e; --warning:#f59e0b;
+    --radius:12px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-base); color:var(--text-primary);
+    font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px;}
+  .section{padding:14vh 0; border-bottom:1px solid var(--border-color);}
+  h1{font-size:clamp(32px,6vw,56px); line-height:1.1; letter-spacing:-.02em;
+     background:linear-gradient(135deg,var(--accent),var(--accent2));
+     -webkit-background-clip:text; background-clip:text; color:transparent;}
+  h2{font-size:clamp(22px,3vw,30px); margin-bottom:14px; letter-spacing:-.01em;}
+  p.lead{color:var(--text-secondary); font-size:18px; max-width:60ch;}
+  .pill{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.08em;
+        text-transform:uppercase; color:var(--accent2);
+        border:1px solid var(--border-light); border-radius:999px; padding:5px 12px; margin-bottom:18px;}
+  .hero{min-height:90vh; display:flex; flex-direction:column; justify-content:center;}
+  .hint{margin-top:32px; color:var(--text-muted); font-size:13px; display:flex; align-items:center; gap:8px;}
+  .arrow{display:inline-block; animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+  /* Reveal grid */
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:28px;}
+  .card{background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius);
+        padding:22px; backdrop-filter:blur(8px);}
+  .card .k{font-size:34px; font-weight:700; color:var(--text-primary);}
+  .card .l{color:var(--text-secondary); font-size:13px; margin-top:4px;}
+
+  /* Pin + scrub section */
+  .pin-section{position:relative;}
+  .pin-inner{min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;}
+  .count{font-size:clamp(80px,18vw,180px); font-weight:800; line-height:1;
+         background:linear-gradient(135deg,var(--accent),var(--success));
+         -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .progress{width:min(560px,80vw); height:8px; background:var(--bg-hover); border-radius:999px; overflow:hidden; margin-top:24px;}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--success));}
+  .steps{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; justify-content:center;}
+  .step{font-size:12px; color:var(--text-muted); border:1px solid var(--border-color); border-radius:8px; padding:8px 14px; transition:all .3s;}
+  .step.on{color:var(--text-primary); border-color:var(--accent); background:rgba(99,102,241,.12);}
+
+  /* Parallax */
+  .parallax{position:relative; overflow:hidden; border-radius:var(--radius); margin-top:28px;
+            background:radial-gradient(120% 120% at 50% 0,rgba(99,102,241,.18),transparent 60%),var(--bg-card);
+            border:1px solid var(--border-color);}
+  .parallax-inner{padding:18vh 24px; position:relative;}
+  .parallax-blob{position:absolute; inset:auto 8% -30% auto; width:260px; height:260px; border-radius:50%;
+                 background:radial-gradient(circle,rgba(167,139,250,.35),transparent 70%); filter:blur(6px); will-change:transform;}
+
+  /* Compare table */
+  table{width:100%; border-collapse:collapse; margin-top:18px; font-size:14px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--border-color);}
+  th{color:var(--text-secondary); font-weight:600;}
+  code{background:var(--bg-hover); padding:2px 6px; border-radius:5px; font-size:13px;}
+  .notice{display:none; background:rgba(245,158,11,.12); border:1px solid var(--warning);
+          color:var(--warning); border-radius:8px; padding:12px 16px; margin:20px 0; font-size:14px;}
+</style>
+</head>
+<body>
+
+<header class="wrap hero section">
+  <span class="pill">GSAP 3.15 · ScrollTrigger · self-hosted</span>
+  <h1>ScrollTrigger,<br>live im AI-Flow-Lab-Look.</h1>
+  <p class="lead">Diese Seite lädt GSAP <strong>lokal</strong> aus <code>./vendor/gsap/</code> — keine CDN, kein Build-Step. Scrolle, um Reveal-, Pin/Scrub- und Parallax-Effekte zu sehen.</p>
+  <div id="rm-notice" class="notice">⚠️ <strong>prefers-reduced-motion</strong> ist aktiv → Animationen sind bewusst deaktiviert, Inhalte werden statisch gezeigt. Genau so soll es sein.</div>
+  <div id="js-notice" class="notice" style="display:block">⏳ GSAP konnte nicht geladen werden — die Inhalte bleiben trotzdem voll lesbar (graceful fallback).</div>
+  <div class="hint">Scroll runter <span class="arrow">↓</span></div>
+</header>
+
+<section class="wrap section">
+  <h2 class="reveal">1 · Reveal on scroll</h2>
+  <p class="lead reveal">Elemente faden gestaffelt ein, sobald sie in den Viewport kommen. Ohne JS bleiben sie sichtbar (kein FOUC).</p>
+  <div class="grid">
+    <div class="card reveal"><div class="k">29</div><div class="l">Tasks orchestriert</div></div>
+    <div class="card reveal"><div class="k">3</div><div class="l">AI-Agenten im Loop</div></div>
+    <div class="card reveal"><div class="k">45<span style="font-size:16px">KB</span></div><div class="l">GSAP gzip, 0 Deps</div></div>
+    <div class="card reveal"><div class="k">100%</div><div class="l">kostenlos (Webflow-Lizenz)</div></div>
+  </div>
+</section>
+
+<section class="pin-section section">
+  <div class="wrap pin-inner">
+    <div style="color:var(--text-secondary); font-size:14px; margin-bottom:10px;">2 · Pin + Scrub — an die Scrollbar gekoppelt</div>
+    <div class="count" id="count">0%</div>
+    <div class="progress"><div class="progress-fill" id="fill"></div></div>
+    <div class="steps">
+      <div class="step" data-at="25" id="s1">Plan</div>
+      <div class="step" data-at="50" id="s2">Execute</div>
+      <div class="step" data-at="75" id="s3">Review</div>
+      <div class="step" data-at="100" id="s4">Merge</div>
+    </div>
+    <p style="color:var(--text-muted); font-size:13px; margin-top:22px; max-width:48ch;">Dieser Block wird <em>gepinnt</em> und der Zähler ist direkt an die Scroll-Distanz gebunden — das ist der Teil, den natives CSS heute (noch) nicht sauber kann.</p>
+  </div>
+</section>
+
+<section class="wrap section">
+  <h2 class="reveal">3 · Parallax</h2>
+  <p class="lead reveal">Tiefenwirkung durch unterschiedliche Scroll-Geschwindigkeit.</p>
+  <div class="parallax">
+    <div class="parallax-blob" id="blob"></div>
+    <div class="parallax-inner">
+      <h2 style="position:relative">Hintergrund bewegt sich langsamer.</h2>
+      <p class="lead" style="position:relative">Subtil eingesetzt wirkt das edel — übertrieben wird es schnell zur Spielerei.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section">
+  <h2 class="reveal">Wann ScrollTrigger — und wann nicht</h2>
+  <table class="reveal">
+    <tr><th>Bedarf</th><th>Empfehlung</th></tr>
+    <tr><td>Einfaches Reveal/Fade beim Scrollen</td><td>Natives CSS <code>animation-timeline:view()</code> + IntersectionObserver-Fallback — <strong>0 KB</strong></td></tr>
+    <tr><td>Pinning, Scrubbing, komplexe Timelines</td><td><strong>ScrollTrigger</strong> (das hier)</td></tr>
+    <tr><td>Garantierte Firefox-Parität heute</td><td>ScrollTrigger (natives CSS noch nicht in Firefox stable)</td></tr>
+    <tr><td>Info-dichtes Dashboard</td><td>Motion sparsam — Lesbarkeit &gt; Effekt</td></tr>
+  </table>
+  <p style="color:var(--text-muted); font-size:13px; margin-top:24px;">Hinweis: Im Dashboard wird in <code>.content-area</code> gescrollt, nicht im Fenster — dort bräuchte ScrollTrigger zusätzlich <code>scroller:'.content-area'</code>. Diese Demo nutzt Fenster-Scroll, daher ohne Extra-Config.</p>
+</section>
+
+<script src="./vendor/gsap/gsap.min.js"></script>
+<script src="./vendor/gsap/ScrollTrigger.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Graceful fallback: if the lib didn't load, leave everything visible.
+    if (!window.gsap || !window.ScrollTrigger) return;
+    document.getElementById('js-notice').style.display = 'none';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Accessibility: only animate when the user is OK with motion.
+    const mm = gsap.matchMedia();
+
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      // 1 — staggered reveals
+      gsap.utils.toArray('.reveal').forEach((el) => {
+        gsap.from(el, {
+          opacity: 0, y: 40, duration: 0.7, ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' }
+        });
+      });
+
+      // 2 — pin + scrub a counter to scroll distance
+      const fill = document.getElementById('fill');
+      const count = document.getElementById('count');
+      const steps = ['s1','s2','s3','s4'].map((id) => document.getElementById(id));
+      const obj = { v: 0 };
+      gsap.to(obj, {
+        v: 100, ease: 'none',
+        scrollTrigger: {
+          trigger: '.pin-section', start: 'top top', end: '+=1400',
+          scrub: 0.4, pin: '.pin-inner'
+          // markers: true,  // ← uncomment to debug start/end positions
+        },
+        onUpdate: () => {
+          const v = obj.v;
+          count.textContent = Math.round(v) + '%';
+          fill.style.width = v + '%';
+          steps.forEach((s) => s.classList.toggle('on', v >= +s.dataset.at - 12));
+        }
+      });
+
+      // 3 — parallax blob
+      gsap.to('#blob', {
+        yPercent: -40, ease: 'none',
+        scrollTrigger: { trigger: '.parallax', start: 'top bottom', end: 'bottom top', scrub: true }
+      });
+    });
+
+    // prefers-reduced-motion branch: show the notice, animate nothing.
+    mm.add('(prefers-reduced-motion: reduce)', () => {
+      document.getElementById('rm-notice').style.display = 'block';
+    });
+  });
+</script>
+</body>
+</html>

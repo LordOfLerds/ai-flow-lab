@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { automationRoot as getAutomationRoot, repoRoot as getRepoRoot } from "./_llm-utils.mjs";
 
 // ── Config ──────────────────────────────────────────────────────────────────
 
@@ -25,8 +26,8 @@ const TASK_ID = "T-E2E-P1";
 const PROPOSAL_ID = `${GOAL_ID}-P-1`;
 const KEEP = process.argv.includes("--keep");
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
+const automationRoot = getAutomationRoot();
+const repoRoot = getRepoRoot();
 const fixturesDir = path.join(automationRoot, "test-fixtures");
 
 // Force mock mode

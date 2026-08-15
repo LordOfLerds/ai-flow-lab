@@ -1,3 +1,9 @@
+---
+type: result
+created: 2026-04-10
+tags: [ai-flow-lab, result]
+---
+
 # AI Flow Lab — End-to-End Workflow Test Report
 
 **Date:** 2026-04-08

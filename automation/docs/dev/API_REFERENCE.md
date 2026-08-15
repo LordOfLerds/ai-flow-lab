@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # API Reference
 
 **Base URL:** `http://localhost:3847`

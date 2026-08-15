@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { automationRoot } from "./_llm-utils.mjs";
 
 const [goalId, firstTaskId] = process.argv.slice(2);
 
@@ -9,9 +10,9 @@ if (!goalId || !firstTaskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const proposalDir = path.join(automationRoot, "state", "proposals");
-const goalsDir = path.join(automationRoot, "state", "goals");
+const autoRoot = automationRoot();
+const proposalDir = path.join(autoRoot, "state", "proposals");
+const goalsDir = path.join(autoRoot, "state", "goals");
 
 function logStep(stepName, message = "") {
   const timestamp = new Date().toISOString();
@@ -27,7 +28,7 @@ function run(cmd) {
   logStep("run", cmd);
   try {
     const startMs = Date.now();
-    execSync(cmd, { stdio: "inherit", shell: true, cwd: automationRoot });
+    execSync(cmd, { stdio: "inherit", shell: true, cwd: autoRoot });
     const durationMs = Date.now() - startMs;
     logStep("run", `completed in ${durationMs}ms`);
     return { success: true, durationMs };

@@ -2,6 +2,7 @@ project_name: ai-flow-lab
 truth_sources:
   - CLAUDE.md
   - AGENTS.md
+  - knowledge/
 entry_points:
   - index.html
   - game.html
@@ -59,3 +60,4 @@ executor_routing:
     analysis-lane:
       synthesize: claude
       execute: claude
+chatgpt_chat_url: "https://chatgpt.com/g/g-p-69bebafb1cbc8191bc43956a609fc017-aurena-wbs/c/69d896c8-6814-8384-8132-4d5dc11f5664"

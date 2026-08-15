@@ -3,11 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 export function automationRoot() {
-  return process.cwd();
+  return process.env.AUTOMATION_ROOT || process.cwd();
 }
 
 export function repoRoot() {
-  return path.resolve(process.cwd(), "..");
+  return process.env.REPO_ROOT || path.resolve(process.cwd(), "..");
 }
 
 export function taskFilePath(taskId) {
@@ -156,101 +156,9 @@ export function isProviderAvailable(provider) {
 // --- Executor routing: resolve provider per pipeline step + lane ---
 
 /**
- * Reads executor_routing from project.config.yaml and returns the provider
- * for a given pipeline step and lane type.
- *
- * Pipeline steps: architect, critique, synthesize, execute, followups, pr_draft
- * Providers: openai, gemini, claude
- *
- * @param {string} step - Pipeline step name
- * @param {string} laneType - Lane type (e.g. "feature-lane", "bug-lane")
- * @returns {string} Provider name ("openai" | "gemini" | "claude")
- */
-export function getProviderForStep(step, laneType = "feature-lane") {
-  const root = repoRoot();
-  const configPath = path.join(root, "ai", "project.config.yaml");
-
-  // Defaults if no config found
-  const defaultRouting = {
-    architect: "openai",
-    critique: "gemini",
-    synthesize: "openai",
-    execute: "codex",
-    followups: "openai",
-    pr_draft: "openai",
-    "propose-followups": "openai"
-  };
-
-  if (!fs.existsSync(configPath)) {
-    return defaultRouting[step] || "openai";
-  }
-
-  try {
-    const raw = fs.readFileSync(configPath, "utf8");
-    const lines = raw.split("\n");
-
-    // Parse executor_routing section
-    let routing = {};
-    let overrides = {};
-    let section = null;     // null | "default" | "overrides"
-    let overrideLane = null; // current lane in overrides
-
-    for (const line of lines) {
-      if (/^executor_routing\s*:/.test(line)) { section = "top"; continue; }
-      if ((section === "top" || section === "default") && /^\s+default\s*:/.test(line)) { section = "default"; continue; }
-      if ((section === "top" || section === "default") && /^\s+overrides\s*:/.test(line)) { section = "overrides"; continue; }
-
-      // Default routing entries
-      if (section === "default" && /^\s{4}\w/.test(line)) {
-        const m = line.match(/^\s{4}(\w[\w-]*):\s*(.+)/);
-        if (m) routing[m[1].trim()] = m[2].trim();
-      }
-
-      // Override lane header
-      if (section === "overrides" && /^\s{4}[\w-]+\s*:/.test(line)) {
-        const m = line.match(/^\s{4}([\w-]+)\s*:/);
-        if (m) overrideLane = m[1].trim();
-      }
-
-      // Override entries
-      if (section === "overrides" && overrideLane && /^\s{6}\w/.test(line)) {
-        const m = line.match(/^\s{6}(\w[\w-]*):\s*(.+)/);
-        if (m) {
-          if (!overrides[overrideLane]) overrides[overrideLane] = {};
-          overrides[overrideLane][m[1].trim()] = m[2].trim();
-        }
-      }
-
-      // End of executor_routing block
-      if (section && /^\S/.test(line) && !/^executor_routing/.test(line)) {
-        break;
-      }
-    }
-
-    // Normalize step name: "propose-followups" → "followups"
-    const normalizedStep = step === "propose-followups" ? "followups" : step;
-
-    // Check lane-specific override first
-    const lane = (laneType || "").trim();
-    if (overrides[lane] && overrides[lane][normalizedStep]) {
-      return overrides[lane][normalizedStep];
-    }
-
-    // Then default routing
-    if (routing[normalizedStep]) {
-      return routing[normalizedStep];
-    }
-
-    // Fallback
-    return defaultRouting[normalizedStep] || "openai";
-  } catch (_) {
-    return defaultRouting[step] || "openai";
-  }
-}
-
-/**
- * Like getProviderForStep but returns {primary, fallbacks} supporting both
- * plain-string config (backward compat) and {primary, fallback:[]} object format.
+ * Returns {primary, fallback:[]} for a given pipeline step and lane type.
+ * Supports both plain-string config (backward compat) and {primary, fallback:[]} object format.
+ * Reads from executor_routing in project.config.yaml.
  */
 export function getRoutingForStep(step, laneType = "feature-lane") {
   const root = repoRoot();
@@ -315,7 +223,21 @@ export function getRoutingForStep(step, laneType = "feature-lane") {
       }
       if (section === "overrides" && overrideLane && /^\s{6}\w/.test(line)) {
         const m = line.match(/^\s{6}(\w[\w-]*):\s*(.+)/);
-        if (m) { if (!overrides[overrideLane]) overrides[overrideLane] = {}; overrides[overrideLane][m[1].trim()] = m[2].trim(); }
+        if (m) {
+          if (!overrides[overrideLane]) overrides[overrideLane] = {};
+          const val = m[2].trim();
+          // Parse inline object: { primary: claude, fallback: [] }
+          const primM = val.match(/primary:\s*([\w-]+)/);
+          const fbM = val.match(/fallback:\s*\[([^\]]*)\]/);
+          if (primM) {
+            overrides[overrideLane][m[1].trim()] = {
+              primary: primM[1],
+              fallback: fbM ? fbM[1].split(",").map(s => s.trim()).filter(Boolean) : []
+            };
+          } else {
+            overrides[overrideLane][m[1].trim()] = val;
+          }
+        }
       }
       if (section && /^\S/.test(line) && !/^executor_routing/.test(line)) break;
     }
@@ -373,14 +295,22 @@ export async function callLLMForStep({ instructions, input, taskId, step, laneTy
     } catch (err) {
       lastErr = err;
       const msg = err.message || "";
-      const isQuotaErr = /quota exhausted|rate.?limit|free.tier|limit.*0|429|503 Service/i.test(msg);
-      if (isQuotaErr) {
-        const ttl = /quota exhausted|free.tier|limit.*0/i.test(msg) ? 86_400_000 : 3_600_000;
-        console.warn(`[routing] Provider "${provider}" quota/rate error — marking exhausted (${ttl / 3600_000}h), trying fallback`);
-        setProviderExhausted(provider, ttl);
+      const isQuotaErr = /quota exhausted|rate.?limit|free.tier|limit.*0|429|503/i.test(msg);
+      const isNetworkErr = /ENOTFOUND|EAI_AGAIN|ECONNREFUSED|fetch failed|ETIMEDOUT/i.test(msg);
+      const isUnavailable = /not found.*unavailable|provider unavailable|not installed/i.test(msg);
+      if (isQuotaErr || isNetworkErr || isUnavailable) {
+        if (isQuotaErr) {
+          const ttl = /quota exhausted|free.tier|limit.*0/i.test(msg) ? 86_400_000 : 3_600_000;
+          console.warn(`[routing] Provider "${provider}" quota/rate error — marking exhausted (${ttl / 3600_000}h), trying fallback`);
+          setProviderExhausted(provider, ttl);
+        } else if (isUnavailable) {
+          console.warn(`[routing] Provider "${provider}" unavailable (${msg.substring(0, 80)}) — trying fallback`);
+        } else {
+          console.warn(`[routing] Provider "${provider}" network error (${msg.substring(0, 80)}) — trying fallback`);
+        }
         continue;
       }
-      throw err; // non-quota errors propagate immediately
+      throw err; // non-recoverable errors propagate immediately
     }
   }
 
@@ -398,15 +328,14 @@ async function _callWithProvider(provider, { instructions, input, prompt, taskId
     case "claude":
       return await callClaudeCLI({ instructions: i, input: inp, taskId, step });
 
-    case "codex":
-      try {
-        const { execSync: es } = await import("node:child_process");
-        es("which codex", { stdio: "ignore" });
-        return await callCodexCLI({ instructions: i, input: inp, taskId, step });
-      } catch {
-        console.log(`[routing] codex CLI not found → fallback to Claude CLI`);
-        return await callClaudeCLI({ instructions: i, input: inp, taskId, step });
+    case "codex": {
+      const { execSync: es } = await import("node:child_process");
+      try { es("which codex", { stdio: "ignore" }); } catch {
+        // Codex not installed — throw so callLLMForStep tries next fallback in chain
+        throw new Error("codex CLI not found — provider unavailable");
       }
+      return await callCodexCLI({ instructions: i, input: inp, taskId, step });
+    }
 
     case "gemini": {
       const gp = prompt || (instructions ? `${instructions}\n\n---\n\n${inp}` : inp);
@@ -742,15 +671,11 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
       const isOverload = is429 || is503;
 
       // 429 with "limit: 0" means free-tier is fully exhausted — no point retrying
+      // Throw immediately so callLLMForStep can try the next fallback provider
       const isQuotaExhausted = is429 && JSON.stringify(data).includes('"limit":0');
       if (isQuotaExhausted) {
         console.warn(`[GEMINI] Free-tier quota exhausted for model ${model}. No retries.`);
-        // In APP mode → fall back to prompt queue (ChatGPT manual)
-        if (getLLMMode() === "app") {
-          console.warn(`[GEMINI-FALLBACK] Quota exhausted → falling back to prompt queue for ${step}/${taskId}`);
-          return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini-fallback", model: "manual-chatgpt" });
-        }
-        throw new Error(`Gemini free-tier quota exhausted. Either upgrade to a paid plan at https://ai.google.dev or switch LLM_MODE=cli to route critique through Claude CLI.`);
+        throw new Error(`Gemini free-tier quota exhausted (limit: 0). 429`);
       }
 
       // 503 (overload) — retry with longer backoff
@@ -765,12 +690,7 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
         continue;
       }
 
-      // If all retries exhausted for 503 in APP mode → fall back to prompt queue
-      if (isOverload && getLLMMode() === "app") {
-        console.warn(`[GEMINI-FALLBACK] ${res.status} after ${attempt} retries — falling back to prompt queue for ${step}/${taskId}`);
-        return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini-fallback", model: "manual-chatgpt" });
-      }
-
+      // If all retries exhausted → throw so callLLMForStep tries fallback providers
       throw lastError;
     } catch (e) {
       lastError = e;
@@ -784,14 +704,7 @@ export async function callGemini({ prompt, retries = 4, taskId = null, step = nu
         continue;
       }
 
-      // Network-level errors (DNS, connection refused) → fall back to prompt queue in APP mode
-      const isNetworkError = e.message.includes("EAI_AGAIN") || e.message.includes("ENOTFOUND") ||
-                             e.message.includes("ECONNREFUSED") || e.message.includes("fetch failed");
-      if (isNetworkError && getLLMMode() === "app") {
-        console.warn(`[GEMINI-FALLBACK] Network error (${e.message.substring(0, 80)}) — falling back to prompt queue for ${step}/${taskId}`);
-        return await callLLMApp({ instructions: "", input: prompt, taskId, step, provider: "gemini-fallback", model: "manual" });
-      }
-
+      // Let callLLMForStep handle fallback to next provider
       throw lastError;
     }
   }
@@ -1247,6 +1160,38 @@ function isCLIAvailable(command) {
 async function callLLMApp({ instructions, input, taskId, step, provider, model }) {
   const queueDir = path.join(automationRoot(), "state", "prompts-queue");
   fs.mkdirSync(queueDir, { recursive: true });
+
+  // DEDUP: Check if a pending prompt for this task+step already exists
+  if (taskId && step) {
+    try {
+      const existingFiles = fs.readdirSync(queueDir).filter(f => f.endsWith('.meta.json'));
+      for (const mf of existingFiles) {
+        try {
+          const em = JSON.parse(fs.readFileSync(path.join(queueDir, mf), 'utf8'));
+          if (em.taskId === taskId && em.step === step && em.status === 'pending') {
+            const existingResponseFile = path.join(queueDir, em.responseFile);
+            console.log(`[APP MODE] Reusing existing pending prompt: ${em.id}`);
+            // Poll for the existing prompt's response instead of creating a duplicate
+            const pollIntervalMs = parseInt(process.env.LLM_POLL_INTERVAL || "2000", 10);
+            const timeoutMs = parseInt(process.env.LLM_APP_TIMEOUT || "3600000", 10);
+            const startMs = Date.now();
+            while (Date.now() - startMs < timeoutMs) {
+              if (fs.existsSync(existingResponseFile)) {
+                const response = fs.readFileSync(existingResponseFile, "utf8");
+                em.status = "completed";
+                em.completedAt = new Date().toISOString();
+                fs.writeFileSync(path.join(queueDir, mf), JSON.stringify(em, null, 2));
+                console.log(`[APP MODE] Response received for reused prompt: ${em.id}`);
+                return response;
+              }
+              await sleep(pollIntervalMs);
+            }
+            throw new Error(`App mode timeout waiting for reused prompt: ${em.id}`);
+          }
+        } catch (parseErr) { if (parseErr.message?.includes('timeout')) throw parseErr; }
+      }
+    } catch (dedupErr) { if (dedupErr.message?.includes('timeout')) throw dedupErr; }
+  }
 
   const timestamp = Date.now();
   const baseId = taskId && step ? `${timestamp}-${taskId}-${step}` : `${timestamp}-app-prompt`;

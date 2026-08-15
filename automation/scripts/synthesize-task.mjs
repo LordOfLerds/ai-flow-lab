@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [taskId] = process.argv.slice(2);
 
@@ -8,10 +9,10 @@ if (!taskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
-const taskFile = path.join(automationRoot, "state", "tasks", `${taskId}.json`);
-const promptsDir = path.join(automationRoot, "prompts");
+const autoRoot = automationRoot();
+const _repoRoot = repoRoot();
+const taskFile = path.join(autoRoot, "state", "tasks", `${taskId}.json`);
+const promptsDir = path.join(autoRoot, "prompts");
 fs.mkdirSync(promptsDir, { recursive: true });
 
 if (!fs.existsSync(taskFile)) {
@@ -26,8 +27,8 @@ if (!task.spec_path || !task.review_path) {
   process.exit(1);
 }
 
-const specAbs = path.join(repoRoot, task.spec_path);
-const reviewAbs = path.join(repoRoot, task.review_path);
+const specAbs = path.join(_repoRoot, task.spec_path);
+const reviewAbs = path.join(_repoRoot, task.review_path);
 
 if (!fs.existsSync(specAbs) || !fs.existsSync(reviewAbs)) {
   console.error("Spec or review file missing.");
@@ -35,7 +36,7 @@ if (!fs.existsSync(specAbs) || !fs.existsSync(reviewAbs)) {
 }
 
 const briefRel = `ai/briefs/${taskId}_implementation.md`;
-const briefAbs = path.join(repoRoot, briefRel);
+const briefAbs = path.join(_repoRoot, briefRel);
 
 if (!fs.existsSync(briefAbs)) {
   fs.writeFileSync(

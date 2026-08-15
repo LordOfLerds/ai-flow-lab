@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [goalId, title, priority = "normal"] = process.argv.slice(2);
 
@@ -8,14 +9,14 @@ if (!goalId || !title) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
+const autoRoot = automationRoot();
+const _repoRoot = repoRoot();
 
-const goalStateDir = path.join(automationRoot, "state", "goals");
+const goalStateDir = path.join(autoRoot, "state", "goals");
 fs.mkdirSync(goalStateDir, { recursive: true });
 
 const goalJsonPath = path.join(goalStateDir, `${goalId}.json`);
-const goalMdPath = path.join(repoRoot, "goals", `${goalId}.md`);
+const goalMdPath = path.join(_repoRoot, "goals", `${goalId}.md`);
 
 const goal = {
   goal_id: goalId,

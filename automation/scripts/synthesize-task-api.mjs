@@ -6,7 +6,8 @@ import {
   writeRepoFile,
   callLLMForStep,
   repoRoot,
-  addFrontmatter
+  addFrontmatter,
+  automationRoot
 } from "./_llm-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -80,8 +81,7 @@ const truthContext = loadTruthFiles();
 
 // Load resolved clarification answers from previous runs (if re-running after user answered)
 function loadResolvedClarifications() {
-  const automationRoot = process.cwd();
-  const decisionsDir = path.join(automationRoot, "state", "decisions");
+  const decisionsDir = path.join(automationRoot(), "state", "decisions");
   if (!fs.existsSync(decisionsDir)) return "";
   try {
     const decisions = fs.readdirSync(decisionsDir)

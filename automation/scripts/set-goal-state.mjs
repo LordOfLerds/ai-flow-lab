@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot } from "./_llm-utils.mjs";
 
 const [goalId, newState] = process.argv.slice(2);
 
@@ -21,8 +22,8 @@ if (!allowedStates.includes(newState)) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const file = path.join(automationRoot, "state", "goals", `${goalId}.json`);
+const autoRoot = automationRoot();
+const file = path.join(autoRoot, "state", "goals", `${goalId}.json`);
 
 if (!fs.existsSync(file)) {
   console.error(`Goal file not found: ${file}`);

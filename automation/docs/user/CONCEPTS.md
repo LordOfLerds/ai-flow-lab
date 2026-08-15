@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Core Concepts
 
 ## Goal → Task → Follow-up Hierarchy

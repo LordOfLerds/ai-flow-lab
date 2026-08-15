@@ -1,0 +1,14 @@
+{
+  "proposal_id": "T-0053-F-1",
+  "parent_task_id": "T-0053",
+  "title": "Add browser smoke coverage for HUD responsiveness on narrow screens",
+  "lane_type": "test-lane",
+  "executor": "claude",
+  "rationale": "The executor’s own recommended follow-up is viewport verification. A small automated/browser check would reduce regression risk for the newly added <600px and <400px HUD breakpoints without reopening the HUD architecture.",
+  "smallest_safe_scope": "Add narrow-viewport browser smoke coverage that loads gameplay, exercises the active HUD states that are currently present, and verifies no obvious HUD overflow/overlap regression at representative widths below 600px and at a default width.",
+  "depends_on": "T-0053",
+  "priority": "medium",
+  "should_spawn_now": true,
+  "created_at": "2026-04-09T09:58:54.139Z",
+  "index": 1
+}

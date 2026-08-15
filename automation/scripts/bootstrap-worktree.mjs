@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { automationRoot } from "./_llm-utils.mjs";
 
 const [taskId] = process.argv.slice(2);
 
@@ -9,8 +10,8 @@ if (!taskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const taskFile = path.join(automationRoot, "state", "tasks", `${taskId}.json`);
+const autoRoot = automationRoot();
+const taskFile = path.join(autoRoot, "state", "tasks", `${taskId}.json`);
 
 if (!fs.existsSync(taskFile)) {
   console.error(`Task file not found: ${taskFile}`);

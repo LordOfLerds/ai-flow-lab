@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeLaneType, normalizeExecutor } from "./_llm-utils.mjs";
+import { normalizeLaneType, normalizeExecutor, automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [taskId, rawLaneType, title, rawExecutor, parentTaskId = "", origin = "user"] = process.argv.slice(2);
 
@@ -12,7 +12,7 @@ if (!taskId || !rawLaneType || !title || !rawExecutor) {
 const laneType = normalizeLaneType(rawLaneType);
 const executor = normalizeExecutor(rawExecutor, laneType);
 
-const root = path.resolve(process.cwd());
+const root = automationRoot();
 const stateDir = path.join(root, "state", "tasks");
 fs.mkdirSync(stateDir, { recursive: true });
 
@@ -36,7 +36,7 @@ const branchName = `${branchPrefix}/${taskId}-${slug}`;
 const task = {
   task_id: taskId,
   title,
-  repo: "ai-flow-lab",
+  repo: path.basename(repoRoot()),
   lane_type: laneType,
   executor,
   parent_task_id: parentTaskId,

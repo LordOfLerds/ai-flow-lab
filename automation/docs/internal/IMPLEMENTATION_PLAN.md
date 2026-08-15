@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # AI Flow Lab — Implementation Plan v3
 
 > Last updated: 2026-04-07 (rev 4 — Phases 10-13 implemented + Phase 11B + 12A/B)

@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Execution Modes
 
 AI Flow Lab supports four execution modes. Choose based on your workflow, API availability, and need for human review.

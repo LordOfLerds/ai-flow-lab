@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA objects</title>
+<style>body{margin:0;background:#070a0b;font-family:-apple-system,sans-serif}</style></head>
+<body>
+<svg viewBox="0 0 1260 460" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+  <defs>
+    <linearGradient id="metalV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f8fb"/><stop offset=".5" stop-color="#bcc5ce"/><stop offset="1" stop-color="#6c757e"/></linearGradient>
+    <linearGradient id="gun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4248"/><stop offset="1" stop-color="#1c2126"/></linearGradient>
+    <linearGradient id="grn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16a34a"/><stop offset="1" stop-color="#3fe07f"/></linearGradient>
+    <linearGradient id="dgBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b5a2b"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
+    <linearGradient id="dgWing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16a34a"/><stop offset="1" stop-color="#3fe07f"/></linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16a34a"/><stop offset="1" stop-color="#3fe07f"/></linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe6ec"/><stop offset="1" stop-color="#7c858d"/></linearGradient>
+  </defs>
+
+  <!-- GAVEL -->
+  <g transform="translate(20,40) scale(0.82)">
+    <rect x="96" y="150" width="128" height="22" rx="9" fill="url(#metalV)"/>
+    <rect x="96" y="150" width="128" height="6" rx="3" fill="#fff" opacity=".5"/>
+    <rect x="80" y="172" width="160" height="14" rx="6" fill="url(#gun)"/>
+    <rect x="80" y="172" width="160" height="3" rx="1.5" fill="#16a34a" opacity=".8"/>
+    <g transform="rotate(-30 330 250)">
+      <line x1="330" y1="250" x2="172" y2="116" stroke="url(#gun)" stroke-width="17" stroke-linecap="round"/>
+      <circle cx="330" cy="250" r="12" fill="url(#gun)"/>
+      <rect x="84" y="84" width="152" height="48" rx="24" fill="url(#metalV)"/>
+      <rect x="84" y="86" width="152" height="8" rx="4" fill="#fff" opacity=".55"/>
+      <rect x="92" y="84" width="14" height="48" rx="7" fill="url(#gun)" opacity=".85"/>
+      <rect x="214" y="84" width="14" height="48" rx="7" fill="url(#gun)" opacity=".85"/>
+      <rect x="150" y="98" width="22" height="22" rx="6" fill="url(#grn)"/>
+    </g>
+  </g>
+  <text x="180" y="300" fill="#3fe07f" font-size="18" text-anchor="middle" font-family="sans-serif">Auktionshammer</text>
+
+  <!-- DRAGON -->
+  <g transform="translate(470,170) scale(1.9)">
+    <path d="M8,52 C-18,58 -34,44 -30,28 C-22,40 -10,40 2,44 Z" fill="url(#dgBody)"/>
+    <path d="M2,44 C26,48 52,46 74,40 C92,35 104,22 120,18 C128,16 134,18 138,14 C140,22 134,26 128,28 C140,30 146,24 150,26 C146,34 136,38 126,38 C112,46 96,52 78,54 C54,58 28,58 6,54 Z" fill="url(#dgBody)"/>
+    <path d="M120,18 L122,4 L130,16 Z" fill="#3fe07f"/>
+    <circle cx="128" cy="22" r="2.4" fill="#04140a"/>
+    <path d="M86,52 l4,12 l-3,0 l-3,-10 M94,53 l3,12 l-3,0 l-2,-10" stroke="#0b5a2b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <g transform="rotate(-14 64 34)">
+      <path d="M64,34 C40,2 18,-6 -8,-2 C12,8 14,18 30,24 C10,22 0,30 -16,30 C8,38 22,40 44,40 C54,40 60,38 64,34 Z" fill="url(#dgWing)" opacity=".96"/>
+      <path d="M64,34 C44,12 28,4 8,4 M40,40 C30,26 22,18 8,14 M50,40 C42,30 36,22 26,16" stroke="#0b5a2b" stroke-width="1.6" fill="none" opacity=".5"/>
+    </g>
+  </g>
+  <text x="630" y="360" fill="#3fe07f" font-size="18" text-anchor="middle" font-family="sans-serif">Drache</text>
+
+  <!-- BIKE -->
+  <g transform="translate(840,120) scale(1.0)">
+    <g><circle cx="92" cy="158" r="50" fill="none" stroke="#10151a" stroke-width="9"/><circle cx="92" cy="158" r="44" fill="none" stroke="url(#rim)" stroke-width="3"/>
+      <g stroke="#9aa5af" stroke-width="1.6" opacity=".8"><line x1="92" y1="158" x2="92" y2="112"/><line x1="92" y1="158" x2="92" y2="204"/><line x1="92" y1="158" x2="46" y2="158"/><line x1="92" y1="158" x2="138" y2="158"/><line x1="92" y1="158" x2="60" y2="126"/><line x1="92" y1="158" x2="124" y2="190"/><line x1="92" y1="158" x2="124" y2="126"/><line x1="92" y1="158" x2="60" y2="190"/></g>
+      <circle cx="92" cy="158" r="6" fill="#cfd6dd"/></g>
+    <g><circle cx="268" cy="158" r="50" fill="none" stroke="#10151a" stroke-width="9"/><circle cx="268" cy="158" r="44" fill="none" stroke="url(#rim)" stroke-width="3"/>
+      <g stroke="#9aa5af" stroke-width="1.6" opacity=".8"><line x1="268" y1="158" x2="268" y2="112"/><line x1="268" y1="158" x2="268" y2="204"/><line x1="268" y1="158" x2="222" y2="158"/><line x1="268" y1="158" x2="314" y2="158"/><line x1="268" y1="158" x2="236" y2="126"/><line x1="268" y1="158" x2="300" y2="190"/><line x1="268" y1="158" x2="300" y2="126"/><line x1="268" y1="158" x2="236" y2="190"/></g>
+      <circle cx="268" cy="158" r="6" fill="#cfd6dd"/></g>
+    <g fill="none" stroke="url(#frame)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M178,158 L150,88"/><path d="M178,158 L236,104"/><path d="M150,90 L236,104"/><path d="M178,158 L92,158"/><path d="M150,90 L92,158"/><path d="M236,104 L268,158"/><path d="M236,104 L246,92"/></g>
+    <path d="M138,86 q14,-5 26,1" stroke="#10151a" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M232,90 q18,-6 30,0" stroke="#10151a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <line x1="178" y1="158" x2="178" y2="184" stroke="#10151a" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="178" cy="158" r="7" fill="#cfd6dd"/>
+  </g>
+  <text x="1020" y="360" fill="#3fe07f" font-size="18" text-anchor="middle" font-family="sans-serif">E-Bike (Los 042)</text>
+</svg>
+</body></html>

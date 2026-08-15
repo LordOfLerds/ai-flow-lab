@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { automationRoot, repoRoot } from "./_llm-utils.mjs";
 
 const [taskId] = process.argv.slice(2);
 
@@ -8,9 +9,9 @@ if (!taskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
-const taskFile = path.join(automationRoot, "state", "tasks", `${taskId}.json`);
+const autoRoot = automationRoot();
+const _repoRoot = repoRoot();
+const taskFile = path.join(autoRoot, "state", "tasks", `${taskId}.json`);
 
 if (!fs.existsSync(taskFile)) {
   console.error(`Task file not found: ${taskFile}`);
@@ -34,7 +35,7 @@ for (const [name, rel] of required) {
     continue;
   }
 
-  const abs = path.join(repoRoot, rel);
+  const abs = path.join(_repoRoot, rel);
   if (!fs.existsSync(abs)) {
     console.error(`Missing file for ${name}: ${rel}`);
     ok = false;

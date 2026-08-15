@@ -23,11 +23,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 import { listProjects } from "./project-registry.mjs";
+import { automationRoot } from "./_llm-utils.mjs";
 
-const AUTOMATION_ROOT = process.cwd();
+const AUTOMATION_ROOT = automationRoot();
 const PROFILE_DIR = path.join(AUTOMATION_ROOT, "state", ".chatgpt-profile");
+const PID_FILE = path.join(AUTOMATION_ROOT, "state", ".chatgpt-worker.pid");
 const POLL_INTERVAL = 3000; // ms between queue checks
-const RESPONSE_TIMEOUT = 300000; // 5 min max wait for ChatGPT response
+const RESPONSE_TIMEOUT = 1800000; // 30 min max wait for ChatGPT response
 const HEADED = process.argv.includes("--headed");
 
 // ChatGPT URL — project-specific chat or default
@@ -50,17 +52,22 @@ let page = null;
 
 // ─── Browser Lifecycle ───
 
-async function launchBrowser() {
-  console.log(`[WORKER] Launching browser (headed=${HEADED})...`);
+async function launchBrowser({ forceHeaded = false } = {}) {
+  const headed = HEADED || forceHeaded;
+  console.log(`[WORKER] Launching browser (headed=${headed})...`);
   console.log(`[WORKER] Profile: ${PROFILE_DIR}`);
   console.log(`[WORKER] ChatGPT URL: ${CHATGPT_URL}`);
 
   fs.mkdirSync(PROFILE_DIR, { recursive: true });
 
+  // Remove stale lock files left by a previous crash
+  for (const lockFile of ["SingletonLock", "SingletonCookie", "SingletonSocket"]) {
+    try { fs.rmSync(path.join(PROFILE_DIR, lockFile)); } catch {}
+  }
+
   const context = await chromium.launchPersistentContext(PROFILE_DIR, {
-    headless: !HEADED,
-    channel: "chromium",
-    viewport: { width: 1280, height: 900 },
+    headless: !headed,
+    viewport: { width: 1440, height: 1080 },
     args: [
       "--disable-blink-features=AutomationControlled",
     ],
@@ -73,12 +80,16 @@ async function launchBrowser() {
   await page.goto(CHATGPT_URL, { waitUntil: "domcontentloaded", timeout: 30000 });
   await page.waitForTimeout(2000);
 
-  // Check if logged in
+  // Check if logged in — if not, relaunch headed so the user can log in
   const isLoggedIn = await checkLoggedIn();
   if (!isLoggedIn) {
+    if (!headed) {
+      console.log("[WORKER] ⚠️  Not logged in — relaunching with visible window for login...");
+      await browser.close();
+      return launchBrowser({ forceHeaded: true });
+    }
     console.log("[WORKER] ⚠️  Not logged in to ChatGPT!");
     console.log("[WORKER] Please log in manually in the browser window.");
-    console.log("[WORKER] Restart with --headed if you can't see the browser.");
     console.log("[WORKER] Waiting for login...");
 
     // Wait for login (poll for the chat input to appear)
@@ -125,7 +136,8 @@ async function sendPromptAndGetResponse(promptText) {
   );
 
   // Clear existing content and paste the prompt
-  await textarea.click();
+  await textarea.scrollIntoViewIfNeeded();
+  await textarea.click({ force: true });
   await page.waitForTimeout(300);
 
   // Use clipboard paste for large prompts (faster and more reliable)
@@ -278,6 +290,28 @@ async function processPrompt({ meta, metaFile, promptFile, responseFile, queueDi
   }
 }
 
+// ─── Single-Instance Guard ───
+
+function acquireWorkerLock() {
+  if (fs.existsSync(PID_FILE)) {
+    const pid = parseInt(fs.readFileSync(PID_FILE, "utf8").trim(), 10);
+    if (!isNaN(pid) && pid !== process.pid) {
+      try {
+        process.kill(pid, 0); // throws if process is dead
+        console.error(`[WORKER] Another instance is already running (pid=${pid}). Exiting.`);
+        process.exit(0);
+      } catch {
+        console.log(`[WORKER] Stale PID file (pid=${pid}), taking over.`);
+      }
+    }
+  }
+  fs.writeFileSync(PID_FILE, String(process.pid));
+}
+
+function releaseWorkerLock() {
+  try { fs.rmSync(PID_FILE); } catch {}
+}
+
 // ─── Main Loop ───
 
 async function main() {
@@ -294,6 +328,7 @@ async function main() {
   }
   console.log("");
 
+  acquireWorkerLock();
   await launchBrowser();
 
   console.log(`[WORKER] Watching queue (poll every ${POLL_INTERVAL / 1000}s)...`);
@@ -350,11 +385,13 @@ async function main() {
 process.on("SIGINT", async () => {
   console.log("\n[WORKER] Shutting down...");
   try { await browser?.close(); } catch {}
+  releaseWorkerLock();
   process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
   try { await browser?.close(); } catch {}
+  releaseWorkerLock();
   process.exit(0);
 });
 

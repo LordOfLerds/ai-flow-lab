@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Multi-Project Design (Not Yet Implemented)
 
 This document describes the planned architecture for supporting multiple projects in a single AI Flow Lab instance.

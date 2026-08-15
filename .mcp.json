@@ -3,6 +3,10 @@
     "repo-context": {
       "command": "node",
       "args": ["/Users/l.erdkoenig/Dev/ai-flow-lab/automation/dist/index.js"]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "obsidian-mcp-server", "/Users/l.erdkoenig/Dev/ai-flow-lab"]
     }
   }
 }

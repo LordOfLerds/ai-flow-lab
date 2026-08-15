@@ -1,3 +1,9 @@
+---
+type: document
+created: 2026-04-10
+tags: [ai-flow-lab, document]
+---
+
 # Pipeline
 
 ## 8 Stages (7 Core + Optional Test)

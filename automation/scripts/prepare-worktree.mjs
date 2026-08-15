@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { automationRoot as getAutomationRoot, repoRoot as getRepoRoot } from "./_llm-utils.mjs";
 
 const [taskId] = process.argv.slice(2);
 
@@ -9,8 +10,8 @@ if (!taskId) {
   process.exit(1);
 }
 
-const automationRoot = process.cwd();
-const repoRoot = path.resolve(automationRoot, "..");
+const automationRoot = getAutomationRoot();
+const repoRoot = getRepoRoot();
 const taskFile = path.join(automationRoot, "state", "tasks", `${taskId}.json`);
 
 if (!fs.existsSync(taskFile)) {

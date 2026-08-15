@@ -1,0 +1,699 @@
+- generic [ref=e2]:
+  - heading "GF-Dashboard für das Aurena Konkurrenz-Radar mit Markt-Share, Kategorie-Heatmap, Länderverteilung, Preis-Realisierung, Mandats-Radar, Bedrohungs-Timeline und Health-Feed." [level=2] [ref=e3]
+  - banner [ref=e4]:
+    - heading "Aurena Konkurrenz-Radar" [level=1] [ref=e5]
+    - generic [ref=e6]: GF-Dashboard · AT/DACH-Auktionslandschaft
+  - generic [ref=e7]: "Datenstand: 27.06.2026, 17:57 · Quelle: https://illfmjnbbrwmccvqjvii.supabase.co (schema monitor) · geladen aus data.json"
+  - region "KPI-Band" [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]: 79 224
+      - generic [ref=e11]: Aktive Lose (live)
+      - generic [ref=e12]: 682 aktive Auktionen
+    - generic [ref=e13]:
+      - generic [ref=e14]: 4 / 13
+      - generic [ref=e15]: Wettbewerber mit Daten
+      - generic [ref=e16]: von 13 beobachtet
+    - generic [ref=e17]:
+      - generic [ref=e18]: 12.5%
+      - generic [ref=e19]: Sell-through (final)
+      - generic [ref=e20]: 1 / 8 Lose verkauft
+    - generic [ref=e21]:
+      - generic [ref=e22]: ×553.12
+      - generic [ref=e23]: Ø Realisierungs-Faktor
+      - generic [ref=e24]: Gebot / Startpreis
+    - generic [ref=e25]:
+      - generic [ref=e26]: "43"
+      - generic [ref=e27]: Mandats-Signale
+      - generic [ref=e28]: Insolvenz / Konkurs / Liquidation
+    - generic [ref=e29]:
+      - generic [ref=e30]: "17"
+      - generic [ref=e31]: Strategische Events
+      - generic [ref=e32]: M&A · PR · Gebühren
+  - generic [ref=e33]:
+    - generic [ref=e34]:
+      - heading "Markt-Share — aktive Lose je Wettbewerber" [level=2] [ref=e35]
+      - paragraph [ref=e36]: Summe der Lose aller laufenden Auktionen (Status BIDDING_OPEN). Anteil an der Gesamtmenge.
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic "Troostwijk Auctions — 61 797 Lose / 450 Auktionen" [ref=e39]:
+            - generic [ref=e40]: Troostwijk Auctions
+            - generic [ref=e42]: 61 797 · 78%
+          - generic "Surplex — 16 297 Lose / 176 Auktionen" [ref=e43]:
+            - generic [ref=e44]: Surplex
+            - generic [ref=e46]: 16 297 · 20.6%
+          - generic "ÖVG Versteigerungen — 1 080 Lose / 2 Auktionen" [ref=e47]:
+            - generic [ref=e48]: ÖVG Versteigerungen
+            - generic [ref=e50]: 1 080 · 1.4%
+          - generic "NetBid / Angermann — 50 Lose / 54 Auktionen" [ref=e51]:
+            - generic [ref=e52]: NetBid / Angermann
+            - generic [ref=e54]: 50 · 0.1%
+        - paragraph [ref=e55]: 9 weitere beobachtete Wettbewerber ohne aktuell aktive Auktionen (Scraper folgen / Tier 2–3).
+    - generic [ref=e56]:
+      - heading "Health / Alert-Feed" [level=2] [ref=e57]
+      - paragraph [ref=e58]: Jüngster Extraktions-Lauf je Wettbewerber.
+      - table [ref=e60]:
+        - rowgroup [ref=e61]:
+          - row "austriaauction.com — kein Lauf" [ref=e62]:
+            - cell "austriaauction.com —" [ref=e63]:
+              - text: austriaauction.com
+              - text: —
+            - cell "kein Lauf" [ref=e64]:
+              - generic [ref=e65]: kein Lauf
+          - row "IPG-Versteigerungen — kein Lauf" [ref=e66]:
+            - cell "IPG-Versteigerungen —" [ref=e67]:
+              - text: IPG-Versteigerungen
+              - text: —
+            - cell "kein Lauf" [ref=e68]:
+              - generic [ref=e69]: kein Lauf
+          - row "IVG — kein Lauf" [ref=e70]:
+            - cell "IVG —" [ref=e71]:
+              - text: IVG
+              - text: —
+            - cell "kein Lauf" [ref=e72]:
+              - generic [ref=e73]: kein Lauf
+          - row "Proventura — kein Lauf" [ref=e74]:
+            - cell "Proventura —" [ref=e75]:
+              - text: Proventura
+              - text: —
+            - cell "kein Lauf" [ref=e76]:
+              - generic [ref=e77]: kein Lauf
+          - row "RESTLOS — kein Lauf" [ref=e78]:
+            - cell "RESTLOS —" [ref=e79]:
+              - text: RESTLOS
+              - text: —
+            - cell "kein Lauf" [ref=e80]:
+              - generic [ref=e81]: kein Lauf
+          - row "Justiz-Auktion / Edikte — kein Lauf" [ref=e82]:
+            - cell "Justiz-Auktion / Edikte —" [ref=e83]:
+              - text: Justiz-Auktion / Edikte
+              - text: —
+            - cell "kein Lauf" [ref=e84]:
+              - generic [ref=e85]: kein Lauf
+          - row "willhaben (Gewerbe/Insolvenz) — kein Lauf" [ref=e86]:
+            - cell "willhaben (Gewerbe/Insolvenz) —" [ref=e87]:
+              - text: willhaben (Gewerbe/Insolvenz)
+              - text: —
+            - cell "kein Lauf" [ref=e88]:
+              - generic [ref=e89]: kein Lauf
+          - row "Dorotheum Fahrzeuge-Technik 27.06.2026 degraded" [ref=e90]:
+            - cell "Dorotheum Fahrzeuge-Technik 27.06.2026" [ref=e91]:
+              - text: Dorotheum Fahrzeuge-Technik
+              - text: 27.06.2026
+            - cell "degraded" [ref=e92]:
+              - generic [ref=e93]: degraded
+          - row "Klaravik 27.06.2026 grün" [ref=e94]:
+            - cell "Klaravik 27.06.2026" [ref=e95]:
+              - text: Klaravik
+              - text: 27.06.2026
+            - cell "grün" [ref=e96]:
+              - generic [ref=e97]: grün
+          - row "NetBid / Angermann 27.06.2026 grün" [ref=e98]:
+            - cell "NetBid / Angermann 27.06.2026" [ref=e99]:
+              - text: NetBid / Angermann
+              - text: 27.06.2026
+            - cell "grün" [ref=e100]:
+              - generic [ref=e101]: grün
+          - row "ÖVG Versteigerungen 27.06.2026 grün" [ref=e102]:
+            - cell "ÖVG Versteigerungen 27.06.2026" [ref=e103]:
+              - text: ÖVG Versteigerungen
+              - text: 27.06.2026
+            - cell "grün" [ref=e104]:
+              - generic [ref=e105]: grün
+          - row "Surplex 27.06.2026 grün" [ref=e106]:
+            - cell "Surplex 27.06.2026" [ref=e107]:
+              - text: Surplex
+              - text: 27.06.2026
+            - cell "grün" [ref=e108]:
+              - generic [ref=e109]: grün
+          - row "Troostwijk Auctions 27.06.2026 grün" [ref=e110]:
+            - cell "Troostwijk Auctions 27.06.2026" [ref=e111]:
+              - text: Troostwijk Auctions
+              - text: 27.06.2026
+            - cell "grün" [ref=e112]:
+              - generic [ref=e113]: grün
+    - generic [ref=e114]:
+      - heading "Wettbewerber × Kategorie" [level=2] [ref=e115]
+      - paragraph [ref=e116]: Erfasste Lose je Top-Level-Kategorie (aus category_path).
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - generic [ref=e120]: Unkategorisiert
+          - generic [ref=e121]: Transport & Logistics
+          - generic [ref=e122]: Agricultural
+          - generic [ref=e123]: Food industry
+          - generic [ref=e124]: Garden & Terrace
+          - generic [ref=e125]: Installation material
+          - generic [ref=e126]: Living & sleeping
+          - generic [ref=e127]: Metalworking
+          - generic [ref=e128]: More industrial categories
+          - generic [ref=e129]: Retail and Office
+          - generic [ref=e130]: ÖVG Versteigerungen
+          - 'generic "ÖVG Versteigerungen · Unkategorisiert: 12 Lose" [ref=e131]': "12"
+          - 'generic "ÖVG Versteigerungen · Transport & Logistics: 0 Lose" [ref=e132]': ·
+          - 'generic "ÖVG Versteigerungen · Agricultural: 0 Lose" [ref=e133]': ·
+          - 'generic "ÖVG Versteigerungen · Food industry: 0 Lose" [ref=e134]': ·
+          - 'generic "ÖVG Versteigerungen · Garden & Terrace: 0 Lose" [ref=e135]': ·
+          - 'generic "ÖVG Versteigerungen · Installation material: 0 Lose" [ref=e136]': ·
+          - 'generic "ÖVG Versteigerungen · Living & sleeping: 0 Lose" [ref=e137]': ·
+          - 'generic "ÖVG Versteigerungen · Metalworking: 0 Lose" [ref=e138]': ·
+          - 'generic "ÖVG Versteigerungen · More industrial categories: 0 Lose" [ref=e139]': ·
+          - 'generic "ÖVG Versteigerungen · Retail and Office: 0 Lose" [ref=e140]': ·
+          - generic [ref=e141]: NetBid / Angermann
+          - 'generic "NetBid / Angermann · Unkategorisiert: 6 Lose" [ref=e142]': "6"
+          - 'generic "NetBid / Angermann · Transport & Logistics: 0 Lose" [ref=e143]': ·
+          - 'generic "NetBid / Angermann · Agricultural: 0 Lose" [ref=e144]': ·
+          - 'generic "NetBid / Angermann · Food industry: 0 Lose" [ref=e145]': ·
+          - 'generic "NetBid / Angermann · Garden & Terrace: 0 Lose" [ref=e146]': ·
+          - 'generic "NetBid / Angermann · Installation material: 0 Lose" [ref=e147]': ·
+          - 'generic "NetBid / Angermann · Living & sleeping: 0 Lose" [ref=e148]': ·
+          - 'generic "NetBid / Angermann · Metalworking: 0 Lose" [ref=e149]': ·
+          - 'generic "NetBid / Angermann · More industrial categories: 0 Lose" [ref=e150]': ·
+          - 'generic "NetBid / Angermann · Retail and Office: 0 Lose" [ref=e151]': ·
+          - generic [ref=e152]: Troostwijk Auctions
+          - 'generic "Troostwijk Auctions · Unkategorisiert: 0 Lose" [ref=e153]': ·
+          - 'generic "Troostwijk Auctions · Transport & Logistics: 2 Lose" [ref=e154]': "2"
+          - 'generic "Troostwijk Auctions · Agricultural: 1 Lose" [ref=e155]': "1"
+          - 'generic "Troostwijk Auctions · Food industry: 1 Lose" [ref=e156]': "1"
+          - 'generic "Troostwijk Auctions · Garden & Terrace: 1 Lose" [ref=e157]': "1"
+          - 'generic "Troostwijk Auctions · Installation material: 1 Lose" [ref=e158]': "1"
+          - 'generic "Troostwijk Auctions · Living & sleeping: 1 Lose" [ref=e159]': "1"
+          - 'generic "Troostwijk Auctions · Metalworking: 1 Lose" [ref=e160]': "1"
+          - 'generic "Troostwijk Auctions · More industrial categories: 1 Lose" [ref=e161]': "1"
+          - 'generic "Troostwijk Auctions · Retail and Office: 1 Lose" [ref=e162]': "1"
+        - generic [ref=e163]:
+          - generic [ref=e164]: mehr Lose
+          - generic [ref=e166]: keine
+    - generic [ref=e168]:
+      - heading "Länder-Verteilung der Lose" [level=2] [ref=e169]
+      - paragraph [ref=e170]: Lot-Standort (location_country). AT-Lose explizit hervorgehoben.
+      - generic [ref=e171]:
+        - generic [ref=e172]:
+          - generic [ref=e173]:
+            - generic [ref=e174]: AT 🇦🇹
+            - generic [ref=e176]: 12 · 43%
+          - generic [ref=e177]:
+            - generic [ref=e178]: NL
+            - generic [ref=e180]: 7 · 25%
+          - generic [ref=e181]:
+            - generic [ref=e182]: DE
+            - generic [ref=e184]: 6 · 21%
+          - generic [ref=e185]:
+            - generic [ref=e186]: BE
+            - generic [ref=e188]: 3 · 11%
+        - paragraph [ref=e189]: "AT-Lose gesamt: 12."
+    - generic [ref=e190]:
+      - heading "Preis-Benchmark & Realisierung" [level=2] [ref=e191]
+      - paragraph [ref=e192]: "Finale Lose (Zuschlag): Startpreis → Gebot, Realisierungs-Faktor, Sell-through."
+      - table [ref=e194]:
+        - rowgroup [ref=e195]:
+          - row "Lot Kategorie Start Gebot Faktor Ergebnis" [ref=e196]:
+            - columnheader "Lot" [ref=e197]
+            - columnheader "Kategorie" [ref=e198]
+            - columnheader "Start" [ref=e199]
+            - columnheader "Gebot" [ref=e200]
+            - columnheader "Faktor" [ref=e201]
+            - columnheader "Ergebnis" [ref=e202]
+        - rowgroup [ref=e203]:
+          - row "MaxxGarden kingsbrook Lounge set luxury Garden & Terrace €400 — — nicht zugeschlagen" [ref=e204]:
+            - cell "MaxxGarden kingsbrook Lounge set luxury" [ref=e205]
+            - cell "Garden & Terrace" [ref=e206]
+            - cell "€400" [ref=e207]
+            - cell "—" [ref=e208]
+            - cell "—" [ref=e209]
+            - cell "nicht zugeschlagen" [ref=e210]:
+              - generic [ref=e211]: nicht zugeschlagen
+          - row "2024 -Easy-Going - CPD-20 - Electric Forklift Transport & Logistics €1 €3 300 ×3300 nicht zugeschlagen" [ref=e212]:
+            - cell "2024 -Easy-Going - CPD-20 - Electric Forklift" [ref=e213]
+            - cell "Transport & Logistics" [ref=e214]
+            - cell "€1" [ref=e215]
+            - cell "€3 300" [ref=e216]
+            - cell "×3300" [ref=e217]
+            - cell "nicht zugeschlagen" [ref=e218]:
+              - generic [ref=e219]: nicht zugeschlagen
+          - row "2021 Salf BIO AGRO WEED CONTROL Agricultural €900 €3 000 ×3.33 verkauft" [ref=e220]:
+            - cell "2021 Salf BIO AGRO WEED CONTROL" [ref=e221]
+            - cell "Agricultural" [ref=e222]
+            - cell "€900" [ref=e223]
+            - cell "€3 000" [ref=e224]
+            - cell "×3.33" [ref=e225]
+            - cell "verkauft" [ref=e226]:
+              - generic [ref=e227]: verkauft
+          - row "Opel Astra Sports Tourer 1.6 CDTI Online Edition, G-831-XL Transport & Logistics €1 600 €3 700 ×2.31 nicht zugeschlagen" [ref=e228]:
+            - cell "Opel Astra Sports Tourer 1.6 CDTI Online Edition, G-831-XL" [ref=e229]
+            - cell "Transport & Logistics" [ref=e230]
+            - cell "€1 600" [ref=e231]
+            - cell "€3 700" [ref=e232]
+            - cell "×2.31" [ref=e233]
+            - cell "nicht zugeschlagen" [ref=e234]:
+              - generic [ref=e235]: nicht zugeschlagen
+          - row "Daewoo DAMIG350GDL & DAWS-10L - water-cooled multifunctional welding machine Metalworking €1 000 — — nicht zugeschlagen" [ref=e236]:
+            - cell "Daewoo DAMIG350GDL & DAWS-10L - water-cooled multifunctional welding machine" [ref=e237]
+            - cell "Metalworking" [ref=e238]
+            - cell "€1 000" [ref=e239]
+            - cell "—" [ref=e240]
+            - cell "—" [ref=e241]
+            - cell "nicht zugeschlagen" [ref=e242]:
+              - generic [ref=e243]: nicht zugeschlagen
+          - row "Workplace (2x) Retail and Office €10 €50 ×5 verkauft" [ref=e244]:
+            - cell "Workplace (2x)" [ref=e245]
+            - cell "Retail and Office" [ref=e246]
+            - cell "€10" [ref=e247]
+            - cell "€50" [ref=e248]
+            - cell "×5" [ref=e249]
+            - cell "verkauft" [ref=e250]:
+              - generic [ref=e251]: verkauft
+          - row "Searle Condenser (3x) More industrial categories €15 €100 ×6.67 nicht zugeschlagen" [ref=e252]:
+            - cell "Searle Condenser (3x)" [ref=e253]
+            - cell "More industrial categories" [ref=e254]
+            - cell "€15" [ref=e255]
+            - cell "€100" [ref=e256]
+            - cell "×6.67" [ref=e257]
+            - cell "nicht zugeschlagen" [ref=e258]:
+              - generic [ref=e259]: nicht zugeschlagen
+          - row "Leventi - Bakermat Quadro MM type 2 - Bakery oven Food industry €100 €140 ×1.4 nicht zugeschlagen" [ref=e260]:
+            - cell "Leventi - Bakermat Quadro MM type 2 - Bakery oven" [ref=e261]
+            - cell "Food industry" [ref=e262]
+            - cell "€100" [ref=e263]
+            - cell "€140" [ref=e264]
+            - cell "×1.4" [ref=e265]
+            - cell "nicht zugeschlagen" [ref=e266]:
+              - generic [ref=e267]: nicht zugeschlagen
+    - generic [ref=e268]:
+      - heading "Mandats-Radar" [level=2] [ref=e269]
+      - paragraph [ref=e270]: Auktionen mit Insolvenz-/Konkurs-/Liquidations-Signal.
+      - generic [ref=e271]:
+        - generic [ref=e272]:
+          - generic [ref=e273]:
+            - generic [ref=e274]: Bankruptcy
+            - generic [ref=e275]: 669 Lose
+          - generic [ref=e276]: Final auction bankruptcy restaurants Vapiano Netherlands
+          - generic [ref=e277]: Troostwijk Auctions · Ende 29.06.2026
+        - generic [ref=e278]:
+          - generic [ref=e279]:
+            - generic [ref=e280]: Bankruptcy
+            - generic [ref=e281]: 588 Lose
+          - generic [ref=e282]: Bankruptcy of Lets B.V.
+          - generic [ref=e283]: Troostwijk Auctions · Ende 29.06.2026
+        - generic [ref=e284]:
+          - generic [ref=e285]:
+            - generic [ref=e286]: Bankruptcy
+            - generic [ref=e287]: 517 Lose
+          - generic [ref=e288]: Bankruptcy Hypsos Nederland BV - Stand builder | Woodworking machines
+          - generic [ref=e289]: Troostwijk Auctions · Ende 06.07.2026
+        - generic [ref=e290]:
+          - generic [ref=e291]:
+            - generic [ref=e292]: Bankruptcy
+            - generic [ref=e293]: 454 Lose
+          - generic [ref=e294]: Bankruptcy of contractor Plan Bee Onderhoud en Advies B.V.
+          - generic [ref=e295]: Troostwijk Auctions · Ende 10.07.2026
+        - generic [ref=e296]:
+          - generic [ref=e297]:
+            - generic [ref=e298]: Bankruptcy
+            - generic [ref=e299]: 445 Lose
+          - generic [ref=e300]: Bankruptcy Pruijn Level 1
+          - generic [ref=e301]: Troostwijk Auctions · Ende 28.05.2026
+        - generic [ref=e302]:
+          - generic [ref=e303]:
+            - generic [ref=e304]: Bankruptcy
+            - generic [ref=e305]: 414 Lose
+          - generic [ref=e306]: Delivery auction out of bankruptcy FonQ
+          - generic [ref=e307]: Troostwijk Auctions · Ende 01.07.2026
+        - generic [ref=e308]:
+          - generic [ref=e309]:
+            - generic [ref=e310]: Liquidation
+            - generic [ref=e311]: 370 Lose
+          - generic [ref=e312]: Liquidation of the self-build market
+          - generic [ref=e313]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e314]:
+          - generic [ref=e315]:
+            - generic [ref=e316]: Bankruptcy
+            - generic [ref=e317]: 214 Lose
+          - generic [ref=e318]: Faillissement Hypsos Nederland BV - Standbouwer | Kantoorinventaris
+          - generic [ref=e319]: Troostwijk Auctions · Ende 09.07.2026
+        - generic [ref=e320]:
+          - generic [ref=e321]:
+            - generic [ref=e322]: Bankruptcy
+            - generic [ref=e323]: 173 Lose
+          - generic [ref=e324]: Bankruptcy of HSI B.V. supplier of heating equipment
+          - generic [ref=e325]: Troostwijk Auctions · Ende 02.07.2026
+        - generic [ref=e326]:
+          - generic [ref=e327]:
+            - generic [ref=e328]: Liquidation
+            - generic [ref=e329]: 166 Lose
+          - generic [ref=e330]: Liquidation of packaging factory in horticulture
+          - generic [ref=e331]: Troostwijk Auctions · Ende 09.07.2026
+        - generic [ref=e332]:
+          - generic [ref=e333]:
+            - generic [ref=e334]: Bankruptcy
+            - generic [ref=e335]: 133 Lose
+          - generic [ref=e336]: Water play equipment manufacturer Vortex Zoetermeer B.V. out of bankruptcy
+          - generic [ref=e337]: Troostwijk Auctions · Ende 08.07.2026
+        - generic [ref=e338]:
+          - generic [ref=e339]:
+            - generic [ref=e340]: Liquidation
+            - generic [ref=e341]: 122 Lose
+          - generic [ref=e342]: Stock liquidation of gemstones, diamonds and brilliants
+          - generic [ref=e343]: Troostwijk Auctions · Ende 04.07.2026
+        - generic [ref=e344]:
+          - generic [ref=e345]:
+            - generic [ref=e346]: Bankruptcy
+            - generic [ref=e347]: 109 Lose
+          - generic [ref=e348]: Restaurant due to bankruptcy of Flam Control bv
+          - generic [ref=e349]: Troostwijk Auctions · Ende 02.07.2026
+        - generic [ref=e350]:
+          - generic [ref=e351]:
+            - generic [ref=e352]: Bankruptcy
+            - generic [ref=e353]: 105 Lose
+          - generic [ref=e354]: Bankruptcy Holoconnects Netherlands B.V.
+          - generic [ref=e355]: Troostwijk Auctions · Ende 29.06.2026
+        - generic [ref=e356]:
+          - generic [ref=e357]:
+            - generic [ref=e358]: Bankruptcy
+            - generic [ref=e359]: 97 Lose
+          - generic [ref=e360]: Future Genomics Technologies Out of Bankruptcy
+          - generic [ref=e361]: Troostwijk Auctions · Ende 14.07.2026
+        - generic [ref=e362]:
+          - generic [ref=e363]:
+            - generic [ref=e364]: Bankruptcy
+            - generic [ref=e365]: 96 Lose
+          - generic [ref=e366]: Excavator crane Yanmar, Sany, crawler crane Kubota KX057, site equipment due to bankruptcy IC Group bv
+          - generic [ref=e367]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e368]:
+          - generic [ref=e369]:
+            - generic [ref=e370]: Bankruptcy
+            - generic [ref=e371]: 90 Lose
+          - generic [ref=e372]: Bankruptcy of Subb4 B.V.
+          - generic [ref=e373]: Troostwijk Auctions · Ende 02.07.2026
+        - generic [ref=e374]:
+          - generic [ref=e375]:
+            - generic [ref=e376]: Bankruptcy
+            - generic [ref=e377]: 80 Lose
+          - generic [ref=e378]: Beauty salon Toni & Guy B.V. Academy Rotterdam B.V. out of bankruptcy
+          - generic [ref=e379]: Troostwijk Auctions · Ende 09.07.2026
+        - generic [ref=e380]:
+          - generic [ref=e381]:
+            - generic [ref=e382]: Bankruptcy
+            - generic [ref=e383]: 80 Lose
+          - generic [ref=e384]: Bankruptcy of the UD General Practitioner Laboratory Foundation
+          - generic [ref=e385]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e386]:
+          - generic [ref=e387]:
+            - generic [ref=e388]: Bankruptcy
+            - generic [ref=e389]: 65 Lose
+          - generic [ref=e390]: Final auction Matrassenfabriek MTF Matefa Cuijk B.V. (Factory stocks) 10/10 out of bankruptcy
+          - generic [ref=e391]: Troostwijk Auctions · Ende 17.07.2026
+        - generic [ref=e392]:
+          - generic [ref=e393]:
+            - generic [ref=e394]: Bankruptcy
+            - generic [ref=e395]: 36 Lose
+          - generic [ref=e396]: Bankruptcy of Idris Oncology B.V.
+          - generic [ref=e397]: Troostwijk Auctions · Ende 06.07.2026
+        - generic [ref=e398]:
+          - generic [ref=e399]:
+            - generic [ref=e400]: Bankruptcy
+            - generic [ref=e401]: 35 Lose
+          - generic [ref=e402]: Bankruptcy of Heatleap B.V.
+          - generic [ref=e403]: Troostwijk Auctions · Ende 03.07.2026
+        - generic [ref=e404]:
+          - generic [ref=e405]:
+            - generic [ref=e406]: Bankruptcy
+            - generic [ref=e407]: 28 Lose
+          - generic [ref=e408]: Bankruptcy of Energiebaas B.V.
+          - generic [ref=e409]: Troostwijk Auctions · Ende 29.06.2026
+        - generic [ref=e410]:
+          - generic [ref=e411]:
+            - generic [ref=e412]: Bankruptcy
+            - generic [ref=e413]: 24 Lose
+          - generic [ref=e414]: Faillissement Bakkerij Van de Weerdt VOF
+          - generic [ref=e415]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e416]:
+          - generic [ref=e417]:
+            - generic [ref=e418]: Bankruptcy
+            - generic [ref=e419]: 23 Lose
+          - generic [ref=e420]: Bankruptcy of Bakery Van der Kloet-Beukeveld | Shopping location Pieter Sipmawei Leeuwarden
+          - generic [ref=e421]: Troostwijk Auctions · Ende 29.06.2026
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - generic [ref=e424]: Bankruptcy
+            - generic [ref=e425]: 18 Lose
+          - generic [ref=e426]: Bankruptcy of ARNE B.V.
+          - generic [ref=e427]: Troostwijk Auctions · Ende 07.07.2026
+        - generic [ref=e428]:
+          - generic [ref=e429]:
+            - generic [ref=e430]: Bankruptcy
+            - generic [ref=e431]: 12 Lose
+          - generic [ref=e432]: Bankruptcy Duxwood BV
+          - generic [ref=e433]: Troostwijk Auctions · Ende 10.07.2026
+        - generic [ref=e434]:
+          - generic [ref=e435]:
+            - generic [ref=e436]: Bankruptcy
+            - generic [ref=e437]: 12 Lose
+          - generic [ref=e438]: Faillissement bouwbedrijf Homes Factory B.V.
+          - generic [ref=e439]: Troostwijk Auctions · Ende 17.07.2026
+        - generic [ref=e440]:
+          - generic [ref=e441]:
+            - generic [ref=e442]: Liquidation
+            - generic [ref=e443]: 7 Lose
+          - generic [ref=e444]: Industrial Liquidation of CNC Workshop and Machining SPX-SP
+          - generic [ref=e445]: Surplex · Ende 29.06.2026
+        - generic [ref=e446]:
+          - generic [ref=e447]:
+            - generic [ref=e448]: Liquidation
+            - generic [ref=e449]: 7 Lose
+          - generic [ref=e450]: Showroom kitchens due to liquidation
+          - generic [ref=e451]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e452]:
+          - generic [ref=e453]:
+            - generic [ref=e454]: Bankruptcy
+            - generic [ref=e455]: 7 Lose
+          - generic [ref=e456]: Bankruptcy vehicles
+          - generic [ref=e457]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e458]:
+          - generic [ref=e459]:
+            - generic [ref=e460]: Bankruptcy
+            - generic [ref=e461]: 6 Lose
+          - generic [ref=e462]: Commercial vehicles out of fonQ's bankruptcy
+          - generic [ref=e463]: Troostwijk Auctions · Ende 01.07.2026
+        - generic [ref=e464]:
+          - generic [ref=e465]:
+            - generic [ref=e466]: Liquidation
+            - generic [ref=e467]: 5 Lose
+          - generic [ref=e468]: Judicial Liquidation 339/2024 Court of Turin - Closure of a prestigious workshop specializing in automotive grinding
+          - generic [ref=e469]: Surplex · Ende 17.07.2026
+        - generic [ref=e470]:
+          - generic [ref=e471]:
+            - generic [ref=e472]: Liquidation
+            - generic [ref=e473]: 3 Lose
+          - generic [ref=e474]: Judicial Liquidation 4/2026 Court of Turin - Closure of a metalworking company
+          - generic [ref=e475]: Surplex · Ende 09.07.2026
+        - generic [ref=e476]:
+          - generic [ref=e477]:
+            - generic [ref=e478]: Liquidation
+            - generic [ref=e479]: 2 Lose
+          - generic [ref=e480]: "Judicial Liquidation Casabriko S.r.l. LG26/2025: Closure of the manufacturer of household items"
+          - generic [ref=e481]: Surplex · Ende 30.06.2026
+        - generic [ref=e482]:
+          - generic [ref=e483]:
+            - generic [ref=e484]: Bankruptcy
+            - generic [ref=e485]: 2 Lose
+          - generic [ref=e486]: Bobst Rotomec 7-color rotogravure press ex. Bankruptcy
+          - generic [ref=e487]: Troostwijk Auctions · Ende 15.07.2026
+        - generic [ref=e488]:
+          - generic [ref=e489]:
+            - generic [ref=e490]: Bankruptcy
+            - generic [ref=e491]: 1 Lose
+          - generic [ref=e492]: Packsize Automated packing machine out of bankruptcy of FonQ
+          - generic [ref=e493]: Troostwijk Auctions · Ende 15.07.2026
+        - generic [ref=e494]:
+          - generic [ref=e495]:
+            - generic [ref=e496]: Liquidation
+            - generic [ref=e497]: 1 Lose
+          - generic [ref=e498]: Barabino Salumi S.r.l. in Liquidation - Industrial machinery for cured meat production and further equipment
+          - generic [ref=e499]: Troostwijk Auctions · Ende 30.06.2026
+        - generic [ref=e500]:
+          - generic [ref=e501]:
+            - generic [ref=e502]: Liquidation
+            - generic [ref=e503]: 1 Lose
+          - generic [ref=e504]: L.G. 24/2026 - Liquidation of a company designing, producing, machining, modifying and repairing molds and metal materials
+          - generic [ref=e505]: Surplex · Ende 29.07.2026
+        - generic [ref=e506]:
+          - generic [ref=e507]:
+            - generic [ref=e508]: Bankruptcy
+            - generic [ref=e509]: 1 Lose
+          - generic [ref=e510]: Packsize Automated packing machine out of bankruptcy of FonQ
+          - generic [ref=e511]: Surplex · Ende 15.07.2026
+    - generic [ref=e512]:
+      - heading "Bedrohungs-Timeline" [level=2] [ref=e513]
+      - paragraph [ref=e514]: Strategische Ereignisse (M&A, Gebühren, Features, PR, Reputation).
+      - table [ref=e516]:
+        - rowgroup [ref=e517]:
+          - row "Datum Wettbewerber Typ Ereignis Schwere" [ref=e518]:
+            - columnheader "Datum" [ref=e519]
+            - columnheader "Wettbewerber" [ref=e520]
+            - columnheader "Typ" [ref=e521]
+            - columnheader "Ereignis" [ref=e522]
+            - columnheader "Schwere" [ref=e523]
+        - rowgroup [ref=e524]:
+          - 'row "27.06.2026 Troostwijk Auctions pr Insolvenz-Auktion: Bankruptcy Pruijn Level 1 Titel deutet auf Insolvenz/Konkurs/Liquidation (445 Lose). Segment mit höchstem Wettbewerbsdruck. alert" [ref=e525]':
+            - cell "27.06.2026" [ref=e526]
+            - cell "Troostwijk Auctions" [ref=e527]
+            - cell "pr" [ref=e528]
+            - 'cell "Insolvenz-Auktion: Bankruptcy Pruijn Level 1 Titel deutet auf Insolvenz/Konkurs/Liquidation (445 Lose). Segment mit höchstem Wettbewerbsdruck." [ref=e529]':
+              - text: "Insolvenz-Auktion: Bankruptcy Pruijn Level 1"
+              - text: Titel deutet auf Insolvenz/Konkurs/Liquidation (445 Lose). Segment mit höchstem Wettbewerbsdruck.
+            - cell "alert" [ref=e530]:
+              - generic [ref=e531]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Horeca, catering en winkelinrichting (314 Lose) Auktion A1-42259 mit lot_count=314 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e532]':
+            - cell "27.06.2026" [ref=e533]
+            - cell "Troostwijk Auctions" [ref=e534]
+            - cell "pr" [ref=e535]
+            - 'cell "Große Auktion: Horeca, catering en winkelinrichting (314 Lose) Auktion A1-42259 mit lot_count=314 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e536]':
+              - text: "Große Auktion: Horeca, catering en winkelinrichting (314 Lose)"
+              - text: Auktion A1-42259 mit lot_count=314 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e537]:
+              - generic [ref=e538]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: LED binnen en buitenverlichting (497 Lose) Auktion A1-46895 mit lot_count=497 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e539]':
+            - cell "27.06.2026" [ref=e540]
+            - cell "Troostwijk Auctions" [ref=e541]
+            - cell "pr" [ref=e542]
+            - 'cell "Große Auktion: LED binnen en buitenverlichting (497 Lose) Auktion A1-46895 mit lot_count=497 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e543]':
+              - text: "Große Auktion: LED binnen en buitenverlichting (497 Lose)"
+              - text: Auktion A1-46895 mit lot_count=497 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e544]:
+              - generic [ref=e545]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Bankruptcy Pruijn Level 1 (445 Lose) Auktion A1-46552 mit lot_count=445 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e546]':
+            - cell "27.06.2026" [ref=e547]
+            - cell "Troostwijk Auctions" [ref=e548]
+            - cell "pr" [ref=e549]
+            - 'cell "Große Auktion: Bankruptcy Pruijn Level 1 (445 Lose) Auktion A1-46552 mit lot_count=445 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e550]':
+              - text: "Große Auktion: Bankruptcy Pruijn Level 1 (445 Lose)"
+              - text: Auktion A1-46552 mit lot_count=445 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e551]:
+              - generic [ref=e552]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Ex-rental excavators, storage sheds, commercial vehicles, aerial platform and Makita tools (300 Lose) Auktion A1-47855 mit lot_count=300 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e553]':
+            - cell "27.06.2026" [ref=e554]
+            - cell "Troostwijk Auctions" [ref=e555]
+            - cell "pr" [ref=e556]
+            - 'cell "Große Auktion: Ex-rental excavators, storage sheds, commercial vehicles, aerial platform and Makita tools (300 Lose) Auktion A1-47855 mit lot_count=300 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e557]':
+              - text: "Große Auktion: Ex-rental excavators, storage sheds, commercial vehicles, aerial platform and Makita tools (300 Lose)"
+              - text: Auktion A1-47855 mit lot_count=300 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e558]:
+              - generic [ref=e559]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Vehicles, Vessels, Quads & Motocross Bikes (300 Lose) Auktion A1-39092 mit lot_count=300 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e560]':
+            - cell "27.06.2026" [ref=e561]
+            - cell "Troostwijk Auctions" [ref=e562]
+            - cell "pr" [ref=e563]
+            - 'cell "Große Auktion: Vehicles, Vessels, Quads & Motocross Bikes (300 Lose) Auktion A1-39092 mit lot_count=300 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e564]':
+              - text: "Große Auktion: Vehicles, Vessels, Quads & Motocross Bikes (300 Lose)"
+              - text: Auktion A1-39092 mit lot_count=300 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e565]:
+              - generic [ref=e566]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Boels Rental Construction, garden and power tools (207 Lose) Auktion A1-40155 mit lot_count=207 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e567]':
+            - cell "27.06.2026" [ref=e568]
+            - cell "Troostwijk Auctions" [ref=e569]
+            - cell "pr" [ref=e570]
+            - 'cell "Große Auktion: Boels Rental Construction, garden and power tools (207 Lose) Auktion A1-40155 mit lot_count=207 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e571]':
+              - text: "Große Auktion: Boels Rental Construction, garden and power tools (207 Lose)"
+              - text: Auktion A1-40155 mit lot_count=207 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e572]:
+              - generic [ref=e573]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Bezorgveiling bouwmaterialen, elektrische- en handgereedschappen (427 Lose) Auktion A1-40891 mit lot_count=427 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e574]':
+            - cell "27.06.2026" [ref=e575]
+            - cell "Troostwijk Auctions" [ref=e576]
+            - cell "pr" [ref=e577]
+            - 'cell "Große Auktion: Bezorgveiling bouwmaterialen, elektrische- en handgereedschappen (427 Lose) Auktion A1-40891 mit lot_count=427 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e578]':
+              - text: "Große Auktion: Bezorgveiling bouwmaterialen, elektrische- en handgereedschappen (427 Lose)"
+              - text: Auktion A1-40891 mit lot_count=427 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e579]:
+              - generic [ref=e580]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Pallet racking, shelving unit, cantilever rack, packing tables and warehouse accessories (370 Lose) Auktion A1-45590 mit lot_count=370 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e581]':
+            - cell "27.06.2026" [ref=e582]
+            - cell "Troostwijk Auctions" [ref=e583]
+            - cell "pr" [ref=e584]
+            - 'cell "Große Auktion: Pallet racking, shelving unit, cantilever rack, packing tables and warehouse accessories (370 Lose) Auktion A1-45590 mit lot_count=370 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e585]':
+              - text: "Große Auktion: Pallet racking, shelving unit, cantilever rack, packing tables and warehouse accessories (370 Lose)"
+              - text: Auktion A1-45590 mit lot_count=370 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e586]:
+              - generic [ref=e587]: alert
+          - 'row "27.06.2026 Troostwijk Auctions pr Große Auktion: Tuingereedschap, bouwplaats inrichting, kasten en zakelijke goederen (508 Lose) Auktion A1-45589 mit lot_count=508 (> 200) — potenzielles Großmandat/Massen-Verwertung. alert" [ref=e588]':
+            - cell "27.06.2026" [ref=e589]
+            - cell "Troostwijk Auctions" [ref=e590]
+            - cell "pr" [ref=e591]
+            - 'cell "Große Auktion: Tuingereedschap, bouwplaats inrichting, kasten en zakelijke goederen (508 Lose) Auktion A1-45589 mit lot_count=508 (> 200) — potenzielles Großmandat/Massen-Verwertung." [ref=e592]':
+              - text: "Große Auktion: Tuingereedschap, bouwplaats inrichting, kasten en zakelijke goederen (508 Lose)"
+              - text: Auktion A1-45589 mit lot_count=508 (> 200) — potenzielles Großmandat/Massen-Verwertung.
+            - cell "alert" [ref=e593]:
+              - generic [ref=e594]: alert
+          - 'row "27.06.2026 Surplex reputation Trustpilot: Surplex ~4/5 (ca. 70 Reviews) Trustpilot-Score ~4/5 bei ca. 70 Bewertungen. Deutlich kleinere Stichprobe als Troostwijk; gehört zur selben TBA-Gruppe (Support-Weiterleitungen erwähnt). Stand 2026-06-27. info" [ref=e595]':
+            - cell "27.06.2026" [ref=e596]
+            - cell "Surplex" [ref=e597]
+            - cell "reputation" [ref=e598]
+            - 'cell "Trustpilot: Surplex ~4/5 (ca. 70 Reviews) Trustpilot-Score ~4/5 bei ca. 70 Bewertungen. Deutlich kleinere Stichprobe als Troostwijk; gehört zur selben TBA-Gruppe (Support-Weiterleitungen erwähnt). Stand 2026-06-27." [ref=e599]':
+              - 'link "Trustpilot: Surplex ~4/5 (ca. 70 Reviews)" [ref=e600] [cursor=pointer]':
+                - /url: https://www.trustpilot.com/review/surplex.com
+              - text: Trustpilot-Score ~4/5 bei ca. 70 Bewertungen. Deutlich kleinere Stichprobe als Troostwijk; gehört zur selben TBA-Gruppe (Support-Weiterleitungen erwähnt). Stand 2026-06-27.
+            - cell "info" [ref=e601]:
+              - generic [ref=e602]: info
+          - 'row "27.06.2026 Troostwijk Auctions reputation Trustpilot: Troostwijk Auctions ~3,7/5 (10.000+ Reviews) Trustpilot-Score ~3,7/5 bei 10.000+ Bewertungen (37% 5★, 25% 1★). Hauptkritik: Gebühren, Kommunikation, Logistik. Reputations-Baseline für Vergleich mit Aurena. Stand 2026-06-27. info" [ref=e603]':
+            - cell "27.06.2026" [ref=e604]
+            - cell "Troostwijk Auctions" [ref=e605]
+            - cell "reputation" [ref=e606]
+            - 'cell "Trustpilot: Troostwijk Auctions ~3,7/5 (10.000+ Reviews) Trustpilot-Score ~3,7/5 bei 10.000+ Bewertungen (37% 5★, 25% 1★). Hauptkritik: Gebühren, Kommunikation, Logistik. Reputations-Baseline für Vergleich mit Aurena. Stand 2026-06-27." [ref=e607]':
+              - 'link "Trustpilot: Troostwijk Auctions ~3,7/5 (10.000+ Reviews)" [ref=e608] [cursor=pointer]':
+                - /url: https://www.trustpilot.com/review/www.troostwijkauctions.com
+              - text: "Trustpilot-Score ~3,7/5 bei 10.000+ Bewertungen (37% 5★, 25% 1★). Hauptkritik: Gebühren, Kommunikation, Logistik. Reputations-Baseline für Vergleich mit Aurena. Stand 2026-06-27."
+            - cell "info" [ref=e609]:
+              - generic [ref=e610]: info
+          - row "21.05.2026 Allgemein ma Aurena Group akquiriert Berliner Auktionshaus AssetOrb AURENA übernimmt AssetOrb (Berlin, gegr. 1954; bekannt für Stiftung-Warentest- und Berliner-Wasserwerke-Versteigerungen). Fortsetzung des Expansionskurses im dt. Markt. (Eigen-Ereignis Aurena.) info" [ref=e611]:
+            - cell "21.05.2026" [ref=e612]
+            - cell "Allgemein" [ref=e613]
+            - cell "ma" [ref=e614]
+            - cell "Aurena Group akquiriert Berliner Auktionshaus AssetOrb AURENA übernimmt AssetOrb (Berlin, gegr. 1954; bekannt für Stiftung-Warentest- und Berliner-Wasserwerke-Versteigerungen). Fortsetzung des Expansionskurses im dt. Markt. (Eigen-Ereignis Aurena.)" [ref=e615]:
+              - link "Aurena Group akquiriert Berliner Auktionshaus AssetOrb" [ref=e616] [cursor=pointer]:
+                - /url: https://www.presseportal.de/pm/151382/6278989
+              - text: AURENA übernimmt AssetOrb (Berlin, gegr. 1954; bekannt für Stiftung-Warentest- und Berliner-Wasserwerke-Versteigerungen). Fortsetzung des Expansionskurses im dt. Markt. (Eigen-Ereignis Aurena.)
+            - cell "info" [ref=e617]:
+              - generic [ref=e618]: info
+          - row "04.11.2025 NetBid / Angermann ma NetBid × Ritchie Bros. — Allianz für Insolvenz-/Distressed-Assets in Europa Angekündigt 04.11.2025. Allianz (keine Übernahme) für Distressed-Asset-Verwertung; Fokus DE, AT, CH, PL, Iberische Halbinsel. Kombiniert NetBid-Insolvenz-/Bewertungsexpertise mit Ritchie-Bros-Reichweite/Logistik — direkter Druck im AT-Insolvenzsegment. alert" [ref=e619]:
+            - cell "04.11.2025" [ref=e620]
+            - cell "NetBid / Angermann" [ref=e621]
+            - cell "ma" [ref=e622]
+            - cell "NetBid × Ritchie Bros. — Allianz für Insolvenz-/Distressed-Assets in Europa Angekündigt 04.11.2025. Allianz (keine Übernahme) für Distressed-Asset-Verwertung; Fokus DE, AT, CH, PL, Iberische Halbinsel. Kombiniert NetBid-Insolvenz-/Bewertungsexpertise mit Ritchie-Bros-Reichweite/Logistik — direkter Druck im AT-Insolvenzsegment." [ref=e623]:
+              - link "NetBid × Ritchie Bros. — Allianz für Insolvenz-/Distressed-Assets in Europa" [ref=e624] [cursor=pointer]:
+                - /url: https://www.netbid.com/en/magazine/ritchie-bros-and-netbid-forge-a-powerful-alliance-for-insolvency-and-distress-related-asset-disposition-in-europe
+              - text: Angekündigt 04.11.2025. Allianz (keine Übernahme) für Distressed-Asset-Verwertung; Fokus DE, AT, CH, PL, Iberische Halbinsel. Kombiniert NetBid-Insolvenz-/Bewertungsexpertise mit Ritchie-Bros-Reichweite/Logistik — direkter Druck im AT-Insolvenzsegment.
+            - cell "alert" [ref=e625]:
+              - generic [ref=e626]: alert
+          - 'row "25.09.2025 Allgemein ma Aurena: DRS Investment SE wird Mehrheitseigentümer Dt. Investor DRS Investment SE übernimmt Mehrheit an der österr. Aurena GmbH; Gründer Karl Kühberger bleibt CEO. Ziel: Europa-Expansion, v.a. Deutschland. (Eigen-Ereignis Aurena — Marktkonsolidierung.) info" [ref=e627]':
+            - cell "25.09.2025" [ref=e628]
+            - cell "Allgemein" [ref=e629]
+            - cell "ma" [ref=e630]
+            - 'cell "Aurena: DRS Investment SE wird Mehrheitseigentümer Dt. Investor DRS Investment SE übernimmt Mehrheit an der österr. Aurena GmbH; Gründer Karl Kühberger bleibt CEO. Ziel: Europa-Expansion, v.a. Deutschland. (Eigen-Ereignis Aurena — Marktkonsolidierung.)" [ref=e631]':
+              - 'link "Aurena: DRS Investment SE wird Mehrheitseigentümer" [ref=e632] [cursor=pointer]':
+                - /url: https://www.meinbezirk.at/leoben/c-wirtschaft/aurena-bekommt-neuen-mehrheitseigentuemer_a7647343
+              - text: "Dt. Investor DRS Investment SE übernimmt Mehrheit an der österr. Aurena GmbH; Gründer Karl Kühberger bleibt CEO. Ziel: Europa-Expansion, v.a. Deutschland. (Eigen-Ereignis Aurena — Marktkonsolidierung.)"
+            - cell "info" [ref=e633]:
+              - generic [ref=e634]: info
+          - row "07.02.2025 Surplex feature Surplex migriert auf TBAuctions-Plattform (neuer Storefront + App) Seit 07.02.2025 läuft Surplex auf dem TBAuctions-Auktionssystem (neuer Storefront + App). Technische Konsolidierung der TBA-Marken — relevant für Scrape-Methode (gemeinsame JS-Plattform/__NEXT_DATA__). watch" [ref=e635]:
+            - cell "07.02.2025" [ref=e636]
+            - cell "Surplex" [ref=e637]
+            - cell "feature" [ref=e638]
+            - cell "Surplex migriert auf TBAuctions-Plattform (neuer Storefront + App) Seit 07.02.2025 läuft Surplex auf dem TBAuctions-Auktionssystem (neuer Storefront + App). Technische Konsolidierung der TBA-Marken — relevant für Scrape-Methode (gemeinsame JS-Plattform/__NEXT_DATA__)." [ref=e639]:
+              - link "Surplex migriert auf TBAuctions-Plattform (neuer Storefront + App)" [ref=e640] [cursor=pointer]:
+                - /url: https://www.surplex.com/en/surplex-powered-by-tbauctions
+              - text: Seit 07.02.2025 läuft Surplex auf dem TBAuctions-Auktionssystem (neuer Storefront + App). Technische Konsolidierung der TBA-Marken — relevant für Scrape-Methode (gemeinsame JS-Plattform/__NEXT_DATA__).
+            - cell "watch" [ref=e641]:
+              - generic [ref=e642]: watch
+          - row "07.08.2024 Surplex ma TBAuctions übernimmt Surplex Übernahme abgeschlossen am 07.08.2024 (Castik-Capital-Portfolio). Beschleunigt TBAuctions-Expansion in 7 neue Länder (PL, PT, RO, CZ, HU, RS) + stärkt DE/ES/FR/IT mit Metall-/Holzbearbeitungs-Vertikalen. watch" [ref=e643]:
+            - cell "07.08.2024" [ref=e644]
+            - cell "Surplex" [ref=e645]
+            - cell "ma" [ref=e646]
+            - cell "TBAuctions übernimmt Surplex Übernahme abgeschlossen am 07.08.2024 (Castik-Capital-Portfolio). Beschleunigt TBAuctions-Expansion in 7 neue Länder (PL, PT, RO, CZ, HU, RS) + stärkt DE/ES/FR/IT mit Metall-/Holzbearbeitungs-Vertikalen." [ref=e647]:
+              - link "TBAuctions übernimmt Surplex" [ref=e648] [cursor=pointer]:
+                - /url: https://newsroom.tbauctions.com/posts/pressreleases/tbauctions-and-surplex-join-forces-to-expand
+              - text: Übernahme abgeschlossen am 07.08.2024 (Castik-Capital-Portfolio). Beschleunigt TBAuctions-Expansion in 7 neue Länder (PL, PT, RO, CZ, HU, RS) + stärkt DE/ES/FR/IT mit Metall-/Holzbearbeitungs-Vertikalen.
+            - cell "watch" [ref=e649]:
+              - generic [ref=e650]: watch
+  - paragraph [ref=e651]:
+    - text: "7 Views aus Supabase-Schema monitor: v_market_share · v_category_heatmap · v_country_distribution · v_price_realization · v_mandate_radar · v_threat_timeline · v_health_feed. Regeneration:"
+    - code [ref=e652]: node src/ingest/export-dashboard-json.mjs
+    - text: (schreibt data.json neu).
